@@ -17,7 +17,15 @@ export const POST = withMiddleware(async (req) => {
     }
     const { code, nickname, avatar_url, invite_code } = parsed.data;
 
-    const wxResult = await wechatCode2Session(code);
+    const env = getEnv();
+    let wxResult: { openid: string; unionid?: string; session_key: string };
+
+    if (env.features.enableMock) {
+      const mockOpenid = `mock_o_${createHash('md5').update(code).digest('hex').slice(0, 16)}`;
+      wxResult = { openid: mockOpenid, session_key: 'mock_session_key' };
+    } else {
+      wxResult = await wechatCode2Session(code);
+    }
     const openidHash = createHash('sha256').update(wxResult.openid).digest('hex');
 
     const user = await prisma.user.upsert({
@@ -54,7 +62,6 @@ export const POST = withMiddleware(async (req) => {
       }
     }
 
-    const env = getEnv();
     const token = await signJWT(
       { userId: Number(user.id), openidHash },
       env.jwt.expiresIn,

@@ -19,6 +19,8 @@ export default function MinePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const userId = useUserStore((s) => s.userId);
+  const user = useUserStore((s) => s.user);
+  const login = useUserStore((s) => s.login);
   const initGuest = useUserStore((s) => s.initGuest);
   const userLoading = useUserStore((s) => s.isLoading);
 
@@ -47,6 +49,11 @@ export default function MinePage() {
     }
   }, [userLoading, fetchReports]);
 
+  const handleWechatLogin = useCallback(async () => {
+    const mockCode = `mock_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    await login(mockCode);
+  }, [login]);
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -66,9 +73,32 @@ export default function MinePage() {
 
   return (
     <div className="min-h-screen px-4 pb-24 pt-14">
-      <div className="mb-6">
-        <h1 className="text-base font-semibold text-[#d4d4d4]">我的报告</h1>
-        <p className="mt-0.5 text-xs text-[#858585]">共 {reports.length} 份报告</p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-base font-semibold text-[#d4d4d4]">我的报告</h1>
+          <p className="mt-0.5 text-xs text-[#858585]">共 {reports.length} 份报告</p>
+        </div>
+        {user ? (
+          <div className="flex items-center gap-2 text-xs text-[#858585]">
+            {user.avatar_url && (
+              <img src={user.avatar_url} alt="" className="size-6 rounded-full" />
+            )}
+            <span>{user.nickname ?? '微信用户'}</span>
+            <button
+              onClick={() => useUserStore.getState().logout?.()}
+              className="text-[#6a6a6a] hover:text-[#f44747]"
+            >
+              退出
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={handleWechatLogin}
+            className="rounded border border-[#3c3c3c] px-3 py-1 text-xs text-[#d4d4d4] transition-colors hover:border-[#d4a853] hover:text-[#d4a853]"
+          >
+            微信登录
+          </button>
+        )}
       </div>
 
       <div className="mb-6 border-t border-[#3c3c3c] pt-6">

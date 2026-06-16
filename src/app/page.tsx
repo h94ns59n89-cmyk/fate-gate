@@ -27,6 +27,8 @@ export default function LandingPage() {
   } | null>(null);
   const { calculate, loading, error } = useBaziCalculator();
   const userId = useUserStore((s) => s.userId);
+  const user = useUserStore((s) => s.user);
+  const login = useUserStore((s) => s.login);
   const initGuest = useUserStore((s) => s.initGuest);
 
   useEffect(() => {
@@ -142,9 +144,37 @@ export default function LandingPage() {
     }
   }, [result, router]);
 
+  const handleWechatLogin = useCallback(async () => {
+    const mockCode = `mock_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    await login(mockCode);
+  }, [login]);
+
   return (
     <div className="min-h-screen">
       <div className="px-4 pb-24 pt-14">
+        <div className="mb-4 flex items-center justify-end gap-2">
+          {user ? (
+            <div className="flex items-center gap-2 text-xs text-[#858585]">
+              {user.avatar_url && (
+                <img src={user.avatar_url} alt="" className="size-5 rounded-full" />
+              )}
+              <span>{user.nickname ?? '微信用户'}</span>
+              <button
+                onClick={() => useUserStore.getState().logout?.()}
+                className="text-[#6a6a6a] hover:text-[#f44747]"
+              >
+                退出
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={handleWechatLogin}
+              className="rounded border border-[#3c3c3c] px-3 py-1 text-xs text-[#d4d4d4] transition-colors hover:border-[#d4a853] hover:text-[#d4a853]"
+            >
+              微信登录
+            </button>
+          )}
+        </div>
         <div className="mb-8 text-center">
           <h1 className="mb-2 text-xl font-semibold text-[#d4d4d4]">
             {step === 'result' ? '你的简人格' : '你真的了解自己吗？'}

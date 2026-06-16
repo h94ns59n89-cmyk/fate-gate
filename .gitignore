@@ -43,3 +43,5 @@ npm-debug.log*
 next-env.d.ts
 .backups/
 .dev-server.*
+
+.vercel
