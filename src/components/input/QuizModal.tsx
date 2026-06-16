@@ -46,14 +46,14 @@ export function QuizModal({ open, onComplete, onClose }: QuizModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center">
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
-      <div className="relative w-full max-w-md rounded-t-[6px] border-t border-[#3c3c3c] bg-[#252526] px-5 pb-8 pt-5 shadow-modal">
+      <div className="relative w-full max-w-md rounded-t-[6px] border-t border-[#2a3040] bg-[#111827] px-5 pb-8 pt-5 shadow-modal">
         {step === 'quiz' && (
           <div className="space-y-5">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-semibold text-[#d4d4d4]">出生时辰推测</h2>
               <button
                 onClick={onClose}
-                className="rounded-[3px] p-1 text-[#858585] hover:bg-[#2a2d2e] hover:text-[#d4d4d4]"
+                className="rounded-[3px] p-1 text-[#858585] hover:bg-[#1e2433] hover:text-[#d4d4d4]"
                 aria-label="关闭"
               >
                 <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -67,7 +67,7 @@ export function QuizModal({ open, onComplete, onClose }: QuizModalProps) {
                 <div
                   key={i}
                   className={`h-1 flex-1 rounded-[2px] transition-colors ${
-                    i <= currentQ ? 'bg-[#d4a853]' : 'bg-[#3c3c3c]'
+                    i <= currentQ ? 'bg-[#d4a853]' : 'bg-[#2a3040]'
                   }`}
                 />
               ))}
@@ -87,7 +87,7 @@ export function QuizModal({ open, onComplete, onClose }: QuizModalProps) {
                     <button
                       key={opt.id}
                       onClick={() => handleSelect(opt.id)}
-                      className="w-full rounded-[3px] border border-[#3c3c3c] px-3 py-2.5 text-left text-sm text-[#d4d4d4]/80 transition-all hover:border-[#d4a853]/40 hover:bg-[#d4a853]/5 hover:text-[#d4d4d4]"
+                      className="w-full rounded-[3px] border border-[#2a3040] px-3 py-2.5 text-left text-sm text-[#d4d4d4]/80 transition-all hover:border-[#d4a853]/40 hover:bg-[#d4a853]/5 hover:text-[#d4d4d4]"
                     >
                       {opt.text}
                     </button>
@@ -113,13 +113,13 @@ export function QuizModal({ open, onComplete, onClose }: QuizModalProps) {
               </p>
             </div>
 
-            <div className="rounded-[4px] border border-[#3c3c3c] bg-[#2d2d2d] p-4">
+            <div className="rounded-[4px] border border-[#2a3040] bg-[#1a1f2e] p-4">
               <p className="text-2xl font-bold text-[#d4a853]">{guessResult.label}时</p>
               <p className="mt-1 text-xs text-[#858585]">
                 ({String(guessResult.hour).padStart(2, '0')}:00-{String(guessResult.hour + 1).padStart(2, '0')}:59)
               </p>
               <div className="mt-3 flex items-center justify-center gap-2">
-                <div className="h-1 w-20 overflow-hidden rounded-[2px] bg-[#3c3c3c]">
+                <div className="h-1 w-20 overflow-hidden rounded-[2px] bg-[#2a3040]">
                   <div
                     className="h-full rounded-[2px] bg-[#d4a853] transition-all"
                     style={{ width: `${guessResult.confidence}%` }}

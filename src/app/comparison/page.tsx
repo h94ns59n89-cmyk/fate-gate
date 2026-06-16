@@ -14,9 +14,9 @@ export default function ComparisonPage() {
   };
 
   return (
-    <div className="min-h-screen px-4 pb-24 pt-14">
+    <div className="min-h-screen px-4 pb-[60px] pt-14">
       <div className="mb-6 text-center">
-        <h1 className="mb-1 text-base font-semibold text-[#d4d4d4]">简人格对比</h1>
+        <h1 className="mb-1 text-xl font-semibold text-[#d4d4d4]">人格对比</h1>
         <p className="text-xs text-[#858585]">看看你和TA的匹配程度</p>
       </div>
 

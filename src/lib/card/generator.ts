@@ -34,7 +34,7 @@ export function generateSummaryCardHtml(data: {
   background:linear-gradient(135deg,#1A1A2E,#16213E,#0F3460);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   font-family:sans-serif;color:#fff;padding:40px;box-sizing:border-box;">
-  <h1 style="font-size:48px;color:#D4A853;margin-bottom:16px;">你的简人格</h1>
+  <h1 style="font-size:48px;color:#D4A853;margin-bottom:16px;">你的人格</h1>
   ${data.personalityTags
     .map(
       (tag, i) => `
@@ -46,7 +46,7 @@ export function generateSummaryCardHtml(data: {
     .join('')}
   ${data.matchScore ? `<div style="font-size:72px;color:#D4A853;margin:24px 0;">${data.matchScore}%</div>` : ''}
   ${data.lifeTheme ? `<div style="font-size:20px;opacity:0.7;margin-top:24px;font-style:italic;">${data.lifeTheme}</div>` : ''}
-  <div style="position:absolute;bottom:40px;font-size:14px;opacity:0.4;">简人格测试</div>
+  <div style="position:absolute;bottom:40px;font-size:14px;opacity:0.4;">星隅测试</div>
 </body></html>`;
 }
 
@@ -62,7 +62,7 @@ export function generateComparisonCardHtml(data: {
   background:linear-gradient(135deg,#1A1A2E,#16213E);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   font-family:sans-serif;color:#fff;padding:40px;box-sizing:border-box;">
-  <h1 style="font-size:36px;color:#D4A853;margin-bottom:40px;">我与TA的简人格</h1>
+  <h1 style="font-size:36px;color:#D4A853;margin-bottom:40px;">我与TA的人格</h1>
   <div style="display:flex;gap:40px;margin-bottom:32px;">
     <div style="text-align:center;">
       <div style="font-size:24px;margin-bottom:8px;">${data.userTag}</div>
@@ -73,6 +73,6 @@ export function generateComparisonCardHtml(data: {
   </div>
   <div style="font-size:72px;color:#D4A853;margin-bottom:24px;">${data.matchScore}%</div>
   <div style="font-size:18px;opacity:0.7;">匹配度</div>
-  <div style="position:absolute;bottom:40px;font-size:14px;opacity:0.4;">简人格测试</div>
+  <div style="position:absolute;bottom:40px;font-size:14px;opacity:0.4;">星隅测试</div>
 </body></html>`;
 }

@@ -37,7 +37,7 @@ export function FiveElementsChart({ data }: FiveElementsChartProps) {
               aria-valuemin={0}
               aria-valuemax={100}
               aria-label={`${meta?.label}能量 ${value.score}%`}
-              className="h-1.5 overflow-hidden rounded-[2px] bg-[#3c3c3c]"
+              className="h-1.5 overflow-hidden rounded-[2px] bg-[#2a3040]"
             >
               <div
                 className="h-full rounded-[2px] transition-all duration-1000"

@@ -11,7 +11,7 @@ export function Skeleton({ className, variant = 'text', width, height }: Skeleto
   return (
     <div
       className={cn(
-        'animate-pulse bg-[#2d2d2d]',
+        'animate-pulse bg-[#1a1f2e]',
         variant === 'circular' && 'rounded-full',
         variant === 'text' && 'h-3 rounded-[2px]',
         variant === 'rectangular' && 'rounded-[4px]',

@@ -86,7 +86,7 @@ export function mockFullReport(dayMaster: string): FullReport {
   const tags = mockPersonalityTags(dayMaster);
   return {
     cover: {
-      title: '命理人格分析报告',
+      title: '星隅测试报告',
       subtitle: '基于子平八字学的现代人格解读',
       day_master: dayMaster,
       life_theme: tags.life_theme,

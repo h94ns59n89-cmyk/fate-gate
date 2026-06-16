@@ -19,13 +19,13 @@ export function ComparisonCard({
 }: ComparisonCardProps) {
   return (
     <div className="vscode-card space-y-5">
-      <h3 className="text-center text-sm font-semibold text-[#d4d4d4]">简人格对比</h3>
+      <h3 className="text-center text-sm font-semibold text-[#d4d4d4]">人格对比</h3>
 
       <div className="flex items-center justify-center gap-5">
         <div className="text-center">
           <div className="mb-1.5 text-2xl">👤</div>
           <div className="rounded-[3px] bg-[#d4a853]/15 px-2.5 py-1 text-xs text-[#d4a853]">
-            {userTag ?? '你的简人格'}
+            {userTag ?? '你的人格'}
           </div>
         </div>
         <div className="text-center">
@@ -34,8 +34,8 @@ export function ComparisonCard({
         </div>
         <div className="text-center">
           <div className="mb-1.5 text-2xl">👥</div>
-          <div className="rounded-[3px] bg-[#2d2d2d] px-2.5 py-1 text-xs text-[#d4d4d4]/70">
-            {targetTag ?? 'TA的简人格'}
+          <div className="rounded-[3px] bg-[#1a1f2e] px-2.5 py-1 text-xs text-[#d4d4d4]/70">
+            {targetTag ?? 'TA的人格'}
           </div>
         </div>
       </div>

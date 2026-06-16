@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: '用户协议 - 简人格测试',
+  title: '用户协议 - 星隅测试',
 };
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen px-4 pb-24 pt-14">
+    <div className="min-h-screen px-4 pb-[60px] pt-14">
       <div className="mb-6 text-center">
         <h1 className="mb-1 text-base font-semibold text-[#d4d4d4]">用户协议</h1>
         <p className="text-xs text-[#858585]">最后更新：2026 年 6 月</p>
@@ -16,7 +16,7 @@ export default function TermsPage() {
         <section className="space-y-2">
           <h2 className="font-semibold text-[#d4d4d4]">1. 服务说明</h2>
           <p>
-            简人格测试（以下简称「本服务」）是一款基于中国传统八字命理学的 AI 分析工具。用户输入出生信息后，系统通过算法计算并生成个性化的人格分析报告。本服务由 AI 模型辅助生成内容，所有结果仅供参考。
+            星隅测试（以下简称「本服务」）是一款基于中国传统八字命理学的 AI 分析工具。用户输入出生信息后，系统通过算法计算并生成个性化的人格分析报告。本服务由 AI 模型辅助生成内容，所有结果仅供参考。
           </p>
         </section>
 

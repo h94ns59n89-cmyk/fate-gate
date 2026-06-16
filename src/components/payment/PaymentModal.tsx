@@ -42,7 +42,7 @@ export function PaymentModal({
         aria-modal="true"
         aria-label="支付确认"
         className={cn(
-          'relative z-10 w-full max-w-md rounded-t-[6px] border-t border-[#3c3c3c] bg-[#252526] p-5 shadow-modal sm:rounded-[6px]',
+          'relative z-10 w-full max-w-md rounded-t-[6px] border-t border-[#2a3040] bg-[#111827] p-5 shadow-modal sm:rounded-[6px]',
         )}
       >
         <div className="mb-5 text-center">
@@ -51,7 +51,7 @@ export function PaymentModal({
           <p className="mt-0.5 text-xs text-[#858585]">{productName}</p>
         </div>
 
-        <div className="mb-5 rounded-[4px] border border-[#3c3c3c] bg-[#2d2d2d] p-4 text-center">
+        <div className="mb-5 rounded-[4px] border border-[#2a3040] bg-[#1a1f2e] p-4 text-center">
           <div className="text-2xl font-bold text-[#d4a853]">¥{(amount / 100).toFixed(1)}</div>
         </div>
 

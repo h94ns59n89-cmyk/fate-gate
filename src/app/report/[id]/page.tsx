@@ -3,12 +3,13 @@
 import { useParams, useSearchParams } from 'next/navigation';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { ReportPageViewer } from '@/components/report/ReportPageViewer';
+import { SummaryCard } from '@/components/report/SummaryCard';
 import { PayWall } from '@/components/report/PayWall';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { Button } from '@/components/common/Button';
 import { trackEvent, EVENTS } from '@/lib/analytics';
 import { useUserStore } from '@/stores/userStore';
-import type { BaziCalculationMeta, FullReport, FiveElements } from '@/lib/types';
+import type { BaziCalculationMeta, FullReport, FiveElements, PersonalityTags } from '@/lib/types';
 
 interface BaziPayload {
   b: Record<string, unknown>;
@@ -32,6 +33,11 @@ export default function ReportPage() {
   const [report, setReport] = useState<FullReport | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
+  const [transitioning, setTransitioning] = useState(false);
+  const [personalityTags, setPersonalityTags] = useState<string[]>();
+  const [fiveElements, setFiveElements] = useState<FiveElements>();
+  const [summary, setSummary] = useState<PersonalityTags>();
+  const [baziMeta, setBaziMeta] = useState<BaziCalculationMeta>();
 
   const baziData: BaziPayload | null = useMemo(() => {
     const raw = searchParams?.get('data');
@@ -55,6 +61,10 @@ export default function ReportPage() {
         .then((res) => res.json())
         .then((data) => {
           if (data.code === 0) {
+            setPersonalityTags(data.data?.personality_tags);
+            setFiveElements(data.data?.five_elements);
+            setSummary(data.data?.summary);
+            setBaziMeta(data.data?.bazi?.calculation_meta);
             if (data.data?.full_report) {
               setReport(data.data.full_report);
               if (data.data.report_type === 'paid') {
@@ -103,14 +113,30 @@ export default function ReportPage() {
     }
   }, [baziData]);
 
-  const handlePaySuccess = useCallback(() => {
-    if (baziData) {
-      generateReport();
-    } else {
-      setPaid(true);
-    }
+  const handlePaySuccess = useCallback(async () => {
     trackEvent(EVENTS.PAY_SUCCESS);
-  }, [baziData, generateReport]);
+    setTransitioning(true);
+    try {
+      const res = await fetch(`/api/v1/reports/${reportId}`);
+      const data = await res.json();
+      if (data.code === 0 && data.data?.full_report) {
+        setReport(data.data.full_report);
+        setPaid(true);
+      } else if (baziData) {
+        generateReport();
+      } else {
+        setPaid(true);
+      }
+    } catch {
+      if (baziData) {
+        generateReport();
+      } else {
+        setPaid(true);
+      }
+    } finally {
+      setTransitioning(false);
+    }
+  }, [baziData, generateReport, reportId]);
 
   if (error) {
     return (
@@ -121,7 +147,7 @@ export default function ReportPage() {
     );
   }
 
-  if (loading || generating) {
+  if (loading || generating || transitioning) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-3">
         <LoadingSpinner size="lg" />
@@ -133,7 +159,7 @@ export default function ReportPage() {
   if (paid && report) {
     return (
       <div className="min-h-screen pt-14">
-        <div className="px-4 pb-24">
+        <div className="px-4 pb-[60px]">
           <ReportPageViewer report={report} onShare={() => trackEvent(EVENTS.SUMMARY_SHARED)} />
         </div>
       </div>
@@ -142,17 +168,18 @@ export default function ReportPage() {
 
   return (
     <div className="min-h-screen pt-14">
-      <div className="px-4 pb-24">
-        <div className="space-y-4">
-          <div className="vscode-card">
-            <h1 className="mb-2 text-base font-semibold text-[#d4d4d4]">简人格报告</h1>
-            <p className="text-sm text-[#858585]">
-              {baziData?.d ? `${baziData.d}型 · 已生成免费摘要` : '已生成免费摘要'}
-              ，解锁查看完整 10 页深度分析
-            </p>
-          </div>
-          <PayWall reportId={reportId} userId={userId ?? 0} onSuccess={handlePaySuccess} />
-        </div>
+      <div className="px-4 pb-[110px]">
+        <SummaryCard
+          personalityTags={personalityTags}
+          fiveElements={fiveElements}
+          coreTraits={summary?.core_traits}
+          lifeTheme={summary?.life_theme}
+          calculationMeta={baziMeta}
+          onShare={() => trackEvent(EVENTS.SUMMARY_SHARED)}
+        />
+      </div>
+      <div className="fixed bottom-[44px] left-0 right-0 z-50 border-t border-[#2a3040] bg-[#0B0E14]">
+        <PayWall reportId={reportId} userId={userId ?? 0} compact onSuccess={handlePaySuccess} />
       </div>
     </div>
   );

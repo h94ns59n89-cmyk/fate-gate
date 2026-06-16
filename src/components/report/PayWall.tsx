@@ -10,6 +10,8 @@ interface PayWallProps {
   reportId: number;
   userId: number;
   price?: number;
+  compact?: boolean;
+  productType?: string;
   onSuccess?: () => void;
 }
 
@@ -21,7 +23,7 @@ declare global {
   }
 }
 
-export function PayWall({ reportId, userId, price = 990, onSuccess }: PayWallProps) {
+export function PayWall({ reportId, userId, price = 990, compact = false, onSuccess }: PayWallProps) {
   const [paying, setPaying] = useState(false);
   const token = useUserStore((s) => s.token);
 
@@ -48,7 +50,7 @@ export function PayWall({ reportId, userId, price = 990, onSuccess }: PayWallPro
         throw new Error(data.message);
       }
 
-      const { pay_params } = data.data;
+      const { order_no, pay_params } = data.data;
 
       if (typeof window.WeixinJSBridge !== 'undefined' && pay_params.paySign !== 'MOCK_SIGN_FOR_DEV') {
         window.WeixinJSBridge.invoke('getBrandWCPayRequest', pay_params, (res) => {
@@ -61,8 +63,29 @@ export function PayWall({ reportId, userId, price = 990, onSuccess }: PayWallPro
         });
       } else {
         await new Promise((resolve) => setTimeout(resolve, 1000));
-        trackEvent(EVENTS.PAY_SUCCESS);
-        onSuccess?.();
+        if (order_no) {
+          try {
+            const payRes = await fetch(`/api/v1/orders/${order_no}/mock-pay`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+              },
+            });
+            const payData = await payRes.json();
+            if (payData.code === 0) {
+              trackEvent(EVENTS.PAY_SUCCESS);
+              onSuccess?.();
+            } else {
+              trackEvent(EVENTS.PAY_FAILED);
+            }
+          } catch {
+            trackEvent(EVENTS.PAY_FAILED);
+          }
+        } else {
+          trackEvent(EVENTS.PAY_SUCCESS);
+          onSuccess?.();
+        }
       }
     } catch {
       trackEvent(EVENTS.PAY_FAILED);
@@ -71,14 +94,35 @@ export function PayWall({ reportId, userId, price = 990, onSuccess }: PayWallPro
     }
   };
 
+  if (compact) {
+    return (
+      <div className="px-4 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex-1">
+            <div className="text-lg font-bold text-[#d4a853]">
+              ¥{(price / 100).toFixed(1)}
+              <span className="ml-1.5 text-xs font-normal text-[#858585]">/ 永久可查</span>
+            </div>
+            <p className="mt-0.5 text-xs text-[#6a6a6a]">
+              支付即表示同意<Link href="/terms" className="underline text-[#858585] hover:text-[#d4d4d4]">用户协议</Link>
+            </p>
+          </div>
+          <Button size="md" className="shrink-0" loading={paying} onClick={handlePay}>
+            {paying ? '支付中...' : '立即解锁'}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="vscode-card space-y-5 text-center">
       <div className="space-y-1.5">
-        <h3 className="text-base font-semibold text-[#d4d4d4]">解锁完整简人格报告</h3>
-        <p className="text-sm text-[#858585]">10 页深度分析，全面了解你的简人格</p>
+        <h3 className="text-base font-semibold text-[#d4d4d4]">解锁完整星隅报告</h3>
+        <p className="text-sm text-[#858585]">10 页深度分析，全面了解你的人格</p>
       </div>
 
-      <div className="border-y border-[#3c3c3c] py-4">
+      <div className="border-y border-[#2a3040] py-4">
         <div className="text-2xl font-bold text-[#d4a853]">
           ¥{(price / 100).toFixed(1)}
           <span className="ml-1.5 text-xs font-normal text-[#858585]">/ 永久可查</span>

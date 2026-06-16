@@ -109,8 +109,8 @@ export default function LandingPage() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: '我的简人格',
-          text: '测一测你的简人格，和 MBTI 一样有趣！',
+           title: '我的人格',
+           text: '测一测你的人格，和 MBTI 一样有趣！',
           url: window.location.href,
         });
       } catch {
@@ -144,14 +144,14 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen">
-      <div className="px-4 pb-24 pt-14">
+      <div className="px-4 pb-[52px] pt-14">
         <div className="mb-8 text-center">
-          <h1 className="mb-2 text-xl font-semibold text-[#d4d4d4]">
-            {step === 'result' ? '你的简人格' : '你真的了解自己吗？'}
+          <h1 className="mb-2 text-2xl font-semibold text-[#d4d4d4]">
+            {step === 'result' ? '你的人格' : '你本无可复制'}
           </h1>
           <p className="text-sm text-[#858585]">
             {step === 'input' && '30秒出结果 · 和 MBTI 一样有趣'}
-            {step === 'generating' && '正在分析你的简人格...'}
+            {step === 'generating' && '正在分析你的人格...'}
             {step === 'result' && '基于八字命理分析'}
           </p>
           {step === 'input' && (
@@ -199,9 +199,9 @@ export default function LandingPage() {
       {showShare && result && (
         <div className="fixed inset-0 z-50 flex items-end justify-center">
           <div className="absolute inset-0 bg-black/70" onClick={() => setShowShare(false)} />
-          <div className="relative w-full max-w-md rounded-t-[6px] border-t border-[#3c3c3c] bg-[#252526] px-5 pb-8 pt-5 shadow-modal">
+          <div className="relative w-full max-w-md rounded-t-[6px] border-t border-[#2a3040] bg-[#111827] px-5 pb-8 pt-5 shadow-modal">
             <div className="mb-4 text-center">
-              <h3 className="text-sm font-semibold text-[#d4d4d4]">分享你的简人格</h3>
+              <h3 className="text-sm font-semibold text-[#d4d4d4]">分享你的人格</h3>
               <p className="mt-1 text-xs text-[#858585]">让朋友也来测一测</p>
             </div>
             <ShareCard

@@ -18,18 +18,24 @@ export const GET = withMiddleware(async (req) => {
         reportType: true,
         status: true,
         createdAt: true,
+        personalityTags: true,
+        fiveElementsJson: true,
+        summaryJson: true,
+        baziJson: true,
       },
     });
 
     return success({
-      items: reports.map(
-        (r: { id: bigint; reportType: string; status: string; createdAt: Date }) => ({
-          id: Number(r.id),
-          report_type: r.reportType.toLowerCase(),
-          status: r.status.toLowerCase(),
-          created_at: r.createdAt.toISOString(),
-        }),
-      ),
+      items: reports.map((r) => ({
+        id: Number(r.id),
+        report_type: r.reportType.toLowerCase(),
+        status: r.status.toLowerCase(),
+        created_at: r.createdAt.toISOString(),
+        personality_tags: r.personalityTags,
+        five_elements: r.fiveElementsJson,
+        summary: r.summaryJson,
+        bazi: r.baziJson,
+      })),
       page_token: null,
       next_page_token: null,
       total: reports.length,

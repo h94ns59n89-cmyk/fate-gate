@@ -24,7 +24,7 @@ const PAGES = [
 
 function DotProgress({ total, current, onJump }: { total: number; current: number; onJump: (i: number) => void }) {
   return (
-    <div className="flex items-center gap-1.5 rounded-[4px] border border-[#3c3c3c] bg-[#252526] px-3 py-1.5">
+    <div className="flex items-center gap-1.5 rounded-[4px] border border-[#2a3040] bg-[#111827] px-3 py-1.5">
       {Array.from({ length: total }, (_, i) => (
         <button
           key={i}
@@ -54,7 +54,7 @@ function GoldBadge({ children }: { children: React.ReactNode }) {
 function TagPill({ children, variant = 'default' }: { children: React.ReactNode; variant?: 'default' | 'outline' }) {
   if (variant === 'outline') {
     return (
-      <span className="inline-block rounded-full border border-[#3c3c3c] px-3 py-1 text-xs text-[#858585]">
+      <span className="inline-block rounded-full border border-[#2a3040] px-3 py-1 text-xs text-[#858585]">
         {children}
       </span>
     );
@@ -82,7 +82,7 @@ function StatusBadge({ status }: { status: string }) {
     '稳步增长': 'text-[#4CAF50] border-[#4CAF50]/30 bg-[#4CAF50]/10',
     '桃花旺盛': 'text-[#FF5722] border-[#FF5722]/30 bg-[#FF5722]/10',
   };
-  const colorClass = colors[status] ?? 'text-[#858585] border-[#3c3c3c] bg-[#2d2d2d]';
+  const colorClass = colors[status] ?? 'text-[#858585] border-[#2a3040] bg-[#1a1f2e]';
   return (
     <span className={`inline-block rounded-full border px-2.5 py-0.5 text-xs font-medium ${colorClass}`}>
       {status}
@@ -95,10 +95,10 @@ function CoverPage({ data }: { data: Record<string, unknown> }) {
     <div className="flex h-full flex-col items-center justify-center text-center">
       <div className="mb-8 w-16 border-t-2 border-[#d4a853]" />
       <GoldBadge>{data.day_master as string}</GoldBadge>
-      <h1 className="mt-4 text-xl font-bold text-[#d4d4d4]">{data.title as string}</h1>
+      <h1 className="mt-4 font-serif text-2xl font-bold text-[#d4d4d4]">{data.title as string}</h1>
       <p className="mt-2 text-sm text-[#858585]">{data.subtitle as string}</p>
       <SectionDivider />
-      <p className="max-w-xs text-base font-medium italic leading-relaxed text-[#d4a853]">
+      <p className="max-w-xs font-serif text-lg font-medium italic leading-relaxed text-[#d4a853]">
         「{data.life_theme as string}」
       </p>
       <p className="mt-8 text-xs text-[#6a6a6a]">
@@ -176,7 +176,8 @@ function CareerPage({ data }: { data: Record<string, unknown> }) {
             {suitable.map((dir, i) => (
               <div
                 key={i}
-                className="flex items-center gap-3 rounded-[4px] border border-[#3c3c3c] bg-[#2d2d2d] px-4 py-3"
+                className="flex items-center gap-3 rounded-[4px] border border-[#2a3040] bg-[#1a1f2e]
+ px-4 py-3"
               >
                 <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-[3px] bg-[#d4a853]/15 text-sm text-[#d4a853]">
                   {['🎯', '📈', '💡'][i] ?? '✦'}
@@ -208,7 +209,8 @@ function RelationshipsPage({ data }: { data: Record<string, unknown> }) {
   const compatibility = data.compatibility as string[];
   return (
     <div className="space-y-5">
-      <div className="rounded-[4px] border border-[#3c3c3c] bg-[#2d2d2d] p-4 text-center">
+      <div className="rounded-[4px] border border-[#2a3040] bg-[#1a1f2e]
+ p-4 text-center">
         <p className="text-[10px] font-semibold tracking-wide text-[#858585]">沟通风格</p>
         <p className="mt-1 text-sm font-medium text-[#d4d4d4]">{data.communication_style as string}</p>
       </div>
@@ -238,7 +240,8 @@ function HealthPage({ data }: { data: Record<string, unknown> }) {
             {focusAreas.map((area, i) => (
               <div
                 key={i}
-                className="flex items-center gap-3 rounded-[4px] border border-[#3c3c3c] bg-[#2d2d2d] px-4 py-3"
+                className="flex items-center gap-3 rounded-[4px] border border-[#2a3040] bg-[#1a1f2e]
+ px-4 py-3"
               >
                 <span className="text-lg">{['🧘', '🏃', '🥗', '😴'][i] ?? '❤️'}</span>
                 <span className="text-sm text-[#d4d4d4]/90">{area}</span>
@@ -270,7 +273,8 @@ function CurrentYearPage({ data }: { data: Record<string, unknown> }) {
           return (
             <div
               key={key}
-              className="rounded-[4px] border border-[#3c3c3c] bg-[#2d2d2d] p-3.5 text-center"
+              className="rounded-[4px] border border-[#2a3040] bg-[#1a1f2e]
+ p-3.5 text-center"
             >
               <p className="text-[10px] font-medium tracking-wide text-[#6a6a6a]">{label}</p>
               <div className="mt-2 flex justify-center">
@@ -325,7 +329,8 @@ function SelfImprovementPage({ data }: { data: Record<string, unknown> }) {
             {books.map((book, i) => (
               <div
                 key={i}
-                className="flex items-center gap-3 rounded-[4px] border border-[#3c3c3c] bg-[#2d2d2d] px-4 py-3"
+                className="flex items-center gap-3 rounded-[4px] border border-[#2a3040] bg-[#1a1f2e]
+ px-4 py-3"
               >
                 <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-[3px] bg-[#d4a853]/15 text-sm text-[#d4a853]">
                   📖
@@ -345,7 +350,8 @@ function GlossaryPage({ data }: { data: Record<string, unknown> }) {
   return (
     <div className="space-y-3">
       {entries.map(([term, desc]) => (
-        <div key={term} className="rounded-[4px] border border-[#3c3c3c] bg-[#2d2d2d] px-4 py-3">
+        <div key={term} className="rounded-[4px] border border-[#2a3040] bg-[#1a1f2e]
+ px-4 py-3">
           <p className="text-xs font-semibold text-[#d4a853]">{term}</p>
           <p className="mt-1 text-sm leading-relaxed text-[#d4d4d4]/70">{desc as string}</p>
         </div>
@@ -357,7 +363,7 @@ function GlossaryPage({ data }: { data: Record<string, unknown> }) {
 function FooterPage({ data }: { data: Record<string, unknown> }) {
   return (
     <div className="flex h-full flex-col items-center justify-center text-center">
-      <div className="w-12 border-t border-[#3c3c3c]" />
+      <div className="w-12 border-t border-[#2a3040]" />
       <p className="mt-4 text-xs leading-relaxed text-[#6a6a6a]">{data.disclaimer as string}</p>
       <p className="mt-2 text-[10px] text-[#6a6a6a]/60">版本 {data.version as string}</p>
     </div>
@@ -418,7 +424,8 @@ export function ReportPageViewer({ report, onShare }: ReportPageViewerProps) {
                     {i > 0 && (
                       <button
                         onClick={() => jumpTo(i - 1)}
-                        className="flex h-5 w-5 items-center justify-center rounded-[2px] text-[10px] text-[#6a6a6a] hover:bg-[#2d2d2d] hover:text-[#d4d4d4]"
+                        className="flex h-5 w-5 items-center justify-center rounded-[2px] text-[10px] text-[#6a6a6a] hover:bg-[#1a1f2e]
+ hover:text-[#d4d4d4]"
                         aria-label="上一页"
                       >
                         ‹
@@ -427,7 +434,8 @@ export function ReportPageViewer({ report, onShare }: ReportPageViewerProps) {
                     {i < PAGES.length - 1 && (
                       <button
                         onClick={() => jumpTo(i + 1)}
-                        className="flex h-5 w-5 items-center justify-center rounded-[2px] text-[10px] text-[#6a6a6a] hover:bg-[#2d2d2d] hover:text-[#d4d4d4]"
+                        className="flex h-5 w-5 items-center justify-center rounded-[2px] text-[10px] text-[#6a6a6a] hover:bg-[#1a1f2e]
+ hover:text-[#d4d4d4]"
                         aria-label="下一页"
                       >
                         ›
@@ -449,7 +457,7 @@ export function ReportPageViewer({ report, onShare }: ReportPageViewerProps) {
       </div>
 
       {onShare && (
-        <div className="sticky bottom-0 bg-gradient-to-t from-[#1e1e1e] via-[#1e1e1e]/90 to-transparent p-4 pt-8">
+        <div className="sticky bottom-0 bg-gradient-to-t from-[#0B0E14] via-[#0B0E14]/90 to-transparent p-4 pt-8">
           <Button variant="outline" size="md" className="w-full" onClick={onShare}>
             分享报告
           </Button>

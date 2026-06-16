@@ -4,21 +4,32 @@
 
 @layer base {
   :root {
-    --brand-navy: #1e1e1e;
+    --brand-deep: #0B0E14;
+    --brand-midnight: #111827;
+    --brand-surface: #1a1f2e;
+    --brand-border: #2a3040;
     --brand-gold: #d4a853;
-    --brand-gold-light: #e8c97a;
+    --brand-gold-light: #f0d78c;
     --brand-gold-dark: #b8923e;
+    --brand-gold-glow: rgba(212, 168, 83, 0.15);
+
+    --stellar-star: #ffffff;
+    --stellar-nebula: #7c8db5;
+    --stellar-comet: #e8c97a;
+    --stellar-dust: #374151;
+
     --element-wood: #4caf50;
     --element-fire: #ff5722;
     --element-earth: #ffc107;
-    --element-metal: #f5f5f5;
+    --element-metal: #e5e7eb;
     --element-water: #2196f3;
 
-    --vscode-bg: #1e1e1e;
-    --vscode-sidebar: #252526;
-    --vscode-surface: #2d2d2d;
-    --vscode-hover: #2a2d2e;
-    --vscode-border: #3c3c3c;
+    --vscode-bg: #0b0e14;
+    --vscode-sidebar: #111827;
+    --vscode-surface: #1a1f2e;
+    --vscode-hover: #1e2433;
+    --vscode-border: #2a3040;
+    --vscode-border-light: #374151;
     --vscode-text: #d4d4d4;
     --vscode-text-secondary: #858585;
     --vscode-text-muted: #6a6a6a;
@@ -37,7 +48,7 @@
   }
 
   body {
-    @apply bg-[#1e1e1e] text-[#d4d4d4];
+    @apply bg-[#0B0E14] text-[#d4d4d4];
   }
 
   ::selection {
@@ -55,12 +66,12 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #424242;
+    background: #2a3040;
     border-radius: 4px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #4f4f4f;
+    background: #374151;
   }
 }
 
@@ -78,18 +89,18 @@
   }
 
   .vscode-card {
-    @apply rounded-card border border-[#3c3c3c] bg-[#252526] p-5;
+    @apply rounded-card border border-[#2a3040] bg-gradient-to-b from-[#111827] to-[#1a1f2e] p-5 shadow-card;
   }
 
   .vscode-input {
-    @apply w-full rounded-input border border-[#3c3c3c] bg-[#2d2d2d] px-3 py-2 text-sm text-[#d4d4d4]
-      placeholder-[#6a6a6a] transition-colors
+    @apply w-full rounded-input border border-[#2a3040] bg-[#1a1f2e] px-3 py-2 text-sm text-[#d4d4d4]
+      placeholder-[#6a6a6a] transition-all
       focus:border-[#d4a853] focus:outline-none focus:ring-1 focus:ring-[#d4a853]/40;
   }
 
   .vscode-select {
-    @apply w-full rounded-input border border-[#3c3c3c] bg-[#2d2d2d] px-3 py-2 text-sm text-[#d4d4d4]
-      transition-colors
+    @apply w-full rounded-input border border-[#2a3040] bg-[#1a1f2e] px-3 py-2 text-sm text-[#d4d4d4]
+      transition-all
       focus:border-[#d4a853] focus:outline-none focus:ring-1 focus:ring-[#d4a853]/40;
   }
 

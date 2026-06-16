@@ -61,28 +61,31 @@ export default function ComparisonResultPage() {
 
   if (!data.is_paid) {
     return (
-      <div className="min-h-screen px-4 pb-24 pt-14">
+      <div className="min-h-screen px-4 pb-[110px] pt-14">
         <div className="mb-6 text-center">
-          <h1 className="mb-1 text-base font-semibold text-[#d4d4d4]">简人格对比</h1>
+          <h1 className="mb-1 text-xl font-semibold text-[#d4d4d4]">人格对比</h1>
           <p className="text-xs text-[#858585]">解锁完整合盘分析</p>
         </div>
         {userId && (
-          <PayWall
-            reportId={data.id}
-            userId={userId}
-            price={990}
-            onSuccess={fetchComparison}
-          />
+          <div className="fixed bottom-[44px] left-0 right-0 z-50 border-t border-[#2a3040] bg-[#0B0E14]">
+            <PayWall
+              reportId={data.id}
+              userId={userId}
+              price={990}
+              compact
+              onSuccess={fetchComparison}
+            />
+          </div>
         )}
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen px-4 pb-24 pt-14">
+    <div className="min-h-screen px-4 pb-[100px] pt-14">
       <div className="mb-6 text-center">
-        <h1 className="mb-1 text-base font-semibold text-[#d4d4d4]">合盘对比结果</h1>
-        <p className="text-xs text-[#858585]">你们的简人格匹配度分析</p>
+        <h1 className="mb-1 text-xl font-semibold text-[#d4d4d4]">合盘对比结果</h1>
+        <p className="text-xs text-[#858585]">你们的人格匹配度分析</p>
       </div>
 
       <ComparisonCard matchScore={data.match_score} onShare={() => {}} />
@@ -100,7 +103,7 @@ export default function ComparisonResultPage() {
                       <span>{d.label ?? `维度${i + 1}`}</span>
                       <span className="text-[#d4a853]">{d.score ?? 0}%</span>
                     </div>
-                    <div className="h-1.5 overflow-hidden rounded-full bg-[#3c3c3c]">
+                    <div className="h-1.5 overflow-hidden rounded-full bg-[#2a3040]">
                       <div className="h-full rounded-full bg-[#d4a853]" style={{ width: `${d.score ?? 0}%` }} />
                     </div>
                     {d.desc && <p className="text-xs text-[#858585]">{d.desc}</p>}

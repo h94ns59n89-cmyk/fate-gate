@@ -74,7 +74,7 @@ export const POST = withMiddleware(async (req) => {
   const { prepayId } = await createUnifiedOrder({
     outTradeNo: orderNo,
     totalFee: price,
-    description: `简人格订阅-${plan_type}`,
+    description: `星隅订阅-${plan_type}`,
     openid: user.wechatOpenid,
     notifyUrl: env.wechat.notifyUrl,
   });

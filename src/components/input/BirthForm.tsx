@@ -70,11 +70,11 @@ export function BirthForm({ onSubmit, loading = false }: BirthFormProps) {
             onChange={(e) => setFormData({ ...formData, birthHour: e.target.value })}
             className="vscode-select"
           >
-            <option value="" className="bg-[#1e1e1e]">
+            <option value="" className="bg-[#0B0E14]">
               未知
             </option>
             {Array.from({ length: 12 }, (_, i) => (
-              <option key={i} value={i * 2} className="bg-[#1e1e1e]">
+              <option key={i} value={i * 2} className="bg-[#0B0E14]">
                 {['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'][i]}时
                 ({i * 2}:00-{i * 2 + 1}:59)
               </option>
@@ -91,11 +91,11 @@ export function BirthForm({ onSubmit, loading = false }: BirthFormProps) {
             onChange={(e) => setFormData({ ...formData, birthMinute: e.target.value })}
             className="vscode-select"
           >
-            <option value="" className="bg-[#1e1e1e]">
+            <option value="" className="bg-[#0B0E14]">
               未知
             </option>
             {Array.from({ length: 12 }, (_, i) => (
-              <option key={i} value={i * 5} className="bg-[#1e1e1e]">
+              <option key={i} value={i * 5} className="bg-[#0B0E14]">
                 {i * 5} 分
               </option>
             ))}
@@ -130,7 +130,7 @@ export function BirthForm({ onSubmit, loading = false }: BirthFormProps) {
             onChange={(e) => setFormData({ ...formData, isSolarCalendar: e.target.checked })}
             className="peer sr-only"
           />
-          <div className="h-5 w-9 rounded-[3px] bg-[#3c3c3c] after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-[2px] after:bg-[#858585] after:transition-all peer-checked:bg-[#d4a853]/30 peer-checked:after:translate-x-full peer-checked:after:bg-[#d4a853]" />
+          <div className="h-5 w-9 rounded-[3px] bg-[#2a3040] after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-[2px] after:bg-[#858585] after:transition-all peer-checked:bg-[#d4a853]/30 peer-checked:after:translate-x-full peer-checked:after:bg-[#d4a853]" />
         </label>
         <span className="text-xs text-[#858585]">公历</span>
       </div>

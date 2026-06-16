@@ -6,15 +6,15 @@ import { FiveElementsChart } from '@/components/report/FiveElementsChart';
 import type { BaziCalculationMeta, FiveElements } from '@/lib/types';
 
 interface SummaryCardProps {
-  personalityTags?: string[];
-  fiveElements?: FiveElements;
-  coreTraits?: string[];
-  lifeTheme?: string;
+  personalityTags?: string[] | undefined;
+  fiveElements?: FiveElements | undefined;
+  coreTraits?: string[] | undefined;
+  lifeTheme?: string | undefined;
   calculationMeta?: BaziCalculationMeta | undefined;
-  reportId?: number;
-  isLoading?: boolean;
-  onShare?: () => void;
-  onUnlock?: () => void;
+  reportId?: number | undefined;
+  isLoading?: boolean | undefined;
+  onShare?: (() => void) | undefined;
+  onUnlock?: (() => void) | undefined;
 }
 
 export function SummaryCard({
@@ -45,7 +45,7 @@ export function SummaryCard({
     <div className="vscode-card space-y-5">
       {personalityTags && (
         <div className="space-y-3">
-          <h2 className="text-base font-semibold text-[#d4d4d4]">你的简人格</h2>
+          <h2 className="text-base font-semibold text-[#d4d4d4]">你的人格</h2>
           <div className="flex flex-wrap gap-1.5">
             {personalityTags.map((tag, i) => (
               <div
@@ -81,7 +81,7 @@ export function SummaryCard({
       )}
 
       {lifeTheme && (
-        <div className="-mx-5 -mb-5 mt-5 border-t border-[#3c3c3c] px-5 py-4">
+        <div className="-mx-5 -mb-5 mt-5 border-t border-[#2a3040] px-5 py-4">
           <p className="text-xs text-[#858585] tracking-wide">人生主题</p>
           <p className="mt-0.5 text-sm font-medium text-[#d4a853]">{lifeTheme}</p>
         </div>

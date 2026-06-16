@@ -2,8 +2,10 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { Button } from '@/components/common/Button';
+import { SummaryCard } from '@/components/report/SummaryCard';
 import { trackEvent, EVENTS } from '@/lib/analytics';
 import { useUserStore } from '@/stores/userStore';
 
@@ -12,12 +14,18 @@ interface ReportItem {
   report_type: string;
   status: string;
   created_at: string;
+  personality_tags?: string[];
+  five_elements?: { wood?: number; fire?: number; earth?: number; metal?: number; water?: number };
+  summary?: { core_traits?: string[]; life_theme?: string };
+  bazi?: { calculation_meta?: { enabled_true_solar_time?: boolean; true_solar_time?: string; true_solar_delta_minutes?: number } };
 }
 
 export default function MinePage() {
+  const router = useRouter();
   const [reports, setReports] = useState<ReportItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
   const userId = useUserStore((s) => s.userId);
   const user = useUserStore((s) => s.user);
   const login = useUserStore((s) => s.login);
@@ -80,10 +88,10 @@ export default function MinePage() {
   }
 
   return (
-    <div className="min-h-screen px-4 pb-24 pt-14">
+    <div className="min-h-screen px-4 pb-[60px] pt-14">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-base font-semibold text-[#d4d4d4]">我的报告</h1>
+          <h1 className="text-xl font-semibold text-[#d4d4d4]">我的报告</h1>
           <p className="mt-0.5 text-xs text-[#858585]">共 {reports.length} 份报告</p>
         </div>
         {user && (
@@ -102,14 +110,7 @@ export default function MinePage() {
         )}
       </div>
 
-      <div className="mb-6 border-t border-[#3c3c3c] pt-6">
-        <div className="flex items-center justify-center gap-4 text-xs text-[#6a6a6a]">
-          <Link href="/terms" className="hover:text-[#858585]">用户协议</Link>
-          <Link href="/privacy" className="hover:text-[#858585]">隐私政策</Link>
-          <Link href="/disclaimer" className="hover:text-[#858585]">免责声明</Link>
-        </div>
-      </div>
-
+      
       {reports.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-4 py-20">
           <p className="text-sm text-[#6a6a6a]">还没有生成过报告</p>
@@ -119,34 +120,65 @@ export default function MinePage() {
         </div>
       ) : (
         <div className="space-y-2">
-          {reports.map((report) => (
-            <Link
-              key={report.id}
-              href={`/report/${report.id}`}
-              className="vscode-card block transition-colors hover:bg-[#2a2d2e]"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm font-medium text-[#d4d4d4]">
-                    {report.report_type === 'paid' ? '完整人格报告' : '免费人格摘要'}
+          {reports.map((report) => {
+            const isExpanded = expandedId === report.id;
+            return (
+              <div key={report.id} className="vscode-card overflow-hidden">
+                <button
+                  onClick={() => setExpandedId(isExpanded ? null : report.id)}
+                  className="flex w-full items-center justify-between text-left"
+                >
+                  <div className="flex items-center gap-2">
+                    <svg
+                      className={`size-3 text-[#6a6a6a] transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                      fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                    <span className="text-xs text-[#858585]">
+                      {new Date(report.created_at).toLocaleDateString('zh-CN')}
+                    </span>
+                    <span className={`text-xs ${report.status === 'completed' ? 'text-[#6a9955]' : 'text-[#d4a853]'}`}>
+                      {report.status === 'completed' ? '已完成' : '生成中'}
+                    </span>
                   </div>
-                  <div className="mt-0.5 text-xs text-[#6a6a6a]">
-                    {new Date(report.created_at).toLocaleDateString('zh-CN')}
+                  {report.personality_tags && report.personality_tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {report.personality_tags.slice(0, 3).map((tag, i) => (
+                        <span
+                          key={i}
+                          className="rounded-[2px] bg-[#d4a853]/12 px-1.5 py-0.5 text-[10px] text-[#d4a853]"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </button>
+                {isExpanded && (
+                  <div className="mt-3 border-t border-[#2a3040] pt-3">
+                    <SummaryCard {...{
+                      personalityTags: report.personality_tags,
+                      fiveElements: report.five_elements as never,
+                      coreTraits: report.summary?.core_traits,
+                      lifeTheme: report.summary?.life_theme,
+                      calculationMeta: report.bazi?.calculation_meta as never,
+                      onUnlock: report.report_type !== 'paid' ? () => router.push(`/report/${report.id}`) : undefined,
+                      onShare: undefined,
+                    } as any} />
+                    {report.report_type === 'paid' && (
+                      <button
+                        onClick={() => router.push(`/report/${report.id}`)}
+                        className="mt-2 w-full rounded bg-[#6a9955]/15 py-2 text-xs text-[#6a9955] transition-colors hover:bg-[#6a9955]/25"
+                      >
+                        查看完整报告
+                      </button>
+                    )}
                   </div>
-                </div>
-                <div className="text-right">
-                  <div
-                    className={`text-xs ${
-                      report.status === 'completed' ? 'text-[#6a9955]' : 'text-[#d4a853]'
-                    }`}
-                  >
-                    {report.status === 'completed' ? '已完成' : '生成中'}
-                  </div>
-                  <div className="mt-0.5 text-xs text-[#6a6a6a]">→</div>
-                </div>
+                )}
               </div>
-            </Link>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
