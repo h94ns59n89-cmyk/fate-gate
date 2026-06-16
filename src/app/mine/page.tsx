@@ -24,12 +24,13 @@ export default function MinePage() {
   const userLoading = useUserStore((s) => s.isLoading);
   const [loggingIn, setLoggingIn] = useState(false);
 
-  const fetchReports = useCallback(async (uid?: number) => {
+  const fetchReports = useCallback(async () => {
     try {
-      const userId_ = uid ?? useUserStore.getState().userId;
-      if (!userId_) return;
+      const state = useUserStore.getState();
+      const token = state.token;
+      if (!token) return;
       const res = await fetch(`/api/v1/users/me/reports`, {
-        headers: { 'X-User-Id': String(userId_) },
+        headers: { 'Authorization': `Bearer ${token}` },
       });
       if (!res.ok) throw new Error('获取报告列表失败');
       const data = await res.json();
@@ -46,15 +47,15 @@ export default function MinePage() {
   useEffect(() => {
     trackEvent(EVENTS.USER_RETURN);
     if (userLoading) return;
-    if (userId) {
-      fetchReports(userId);
+    if (userId && useUserStore.getState().token) {
+      fetchReports();
       return;
     }
     setLoggingIn(true);
     const mockCode = `mock_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     login(mockCode).then(() => {
       setLoggingIn(false);
-      fetchReports(useUserStore.getState().userId ?? undefined);
+      fetchReports();
     }).catch(() => {
       setLoggingIn(false);
       setError('微信登录失败');
