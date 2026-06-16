@@ -21,14 +21,15 @@ export default function MinePage() {
   const userId = useUserStore((s) => s.userId);
   const user = useUserStore((s) => s.user);
   const login = useUserStore((s) => s.login);
-  const initGuest = useUserStore((s) => s.initGuest);
   const userLoading = useUserStore((s) => s.isLoading);
+  const [loggingIn, setLoggingIn] = useState(false);
 
-  const fetchReports = useCallback(async () => {
+  const fetchReports = useCallback(async (uid?: number) => {
     try {
-      const uid = userId ?? await initGuest();
+      const userId_ = uid ?? useUserStore.getState().userId;
+      if (!userId_) return;
       const res = await fetch(`/api/v1/users/me/reports`, {
-        headers: uid ? { 'X-User-Id': String(uid) } : {},
+        headers: { 'X-User-Id': String(userId_) },
       });
       if (!res.ok) throw new Error('获取报告列表失败');
       const data = await res.json();
@@ -40,21 +41,27 @@ export default function MinePage() {
     } finally {
       setLoading(false);
     }
-  }, [userId, initGuest]);
+  }, []);
 
   useEffect(() => {
     trackEvent(EVENTS.USER_RETURN);
-    if (!userLoading) {
-      fetchReports();
+    if (userLoading) return;
+    if (userId) {
+      fetchReports(userId);
+      return;
     }
-  }, [userLoading, fetchReports]);
-
-  const handleWechatLogin = useCallback(async () => {
+    setLoggingIn(true);
     const mockCode = `mock_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-    await login(mockCode);
-  }, [login]);
+    login(mockCode).then(() => {
+      setLoggingIn(false);
+      fetchReports(useUserStore.getState().userId ?? undefined);
+    }).catch(() => {
+      setLoggingIn(false);
+      setError('微信登录失败');
+    });
+  }, [userLoading, userId, login, fetchReports]);
 
-  if (loading) {
+  if (loading || loggingIn) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <LoadingSpinner size="lg" />
@@ -66,7 +73,7 @@ export default function MinePage() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-4">
         <p className="text-sm text-[#f44747]">{error}</p>
-        <Button onClick={fetchReports}>重试</Button>
+        <Button onClick={() => fetchReports()}>重试</Button>
       </div>
     );
   }
@@ -78,7 +85,7 @@ export default function MinePage() {
           <h1 className="text-base font-semibold text-[#d4d4d4]">我的报告</h1>
           <p className="mt-0.5 text-xs text-[#858585]">共 {reports.length} 份报告</p>
         </div>
-        {user ? (
+        {user && (
           <div className="flex items-center gap-2 text-xs text-[#858585]">
             {user.avatar_url && (
               <img src={user.avatar_url} alt="" className="size-6 rounded-full" />
@@ -91,13 +98,6 @@ export default function MinePage() {
               退出
             </button>
           </div>
-        ) : (
-          <button
-            onClick={handleWechatLogin}
-            className="rounded border border-[#3c3c3c] px-3 py-1 text-xs text-[#d4d4d4] transition-colors hover:border-[#d4a853] hover:text-[#d4a853]"
-          >
-            微信登录
-          </button>
         )}
       </div>
 
