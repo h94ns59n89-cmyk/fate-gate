@@ -41,3 +41,5 @@ npm-debug.log*
 # misc
 *.tsbuildinfo
 next-env.d.ts
+.backups/
+.dev-server.*
