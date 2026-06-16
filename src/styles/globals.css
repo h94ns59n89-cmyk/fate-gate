@@ -1,0 +1,105 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --brand-navy: #1e1e1e;
+    --brand-gold: #d4a853;
+    --brand-gold-light: #e8c97a;
+    --brand-gold-dark: #b8923e;
+    --element-wood: #4caf50;
+    --element-fire: #ff5722;
+    --element-earth: #ffc107;
+    --element-metal: #f5f5f5;
+    --element-water: #2196f3;
+
+    --vscode-bg: #1e1e1e;
+    --vscode-sidebar: #252526;
+    --vscode-surface: #2d2d2d;
+    --vscode-hover: #2a2d2e;
+    --vscode-border: #3c3c3c;
+    --vscode-text: #d4d4d4;
+    --vscode-text-secondary: #858585;
+    --vscode-text-muted: #6a6a6a;
+    --vscode-selection: #264f78;
+  }
+
+  html {
+    font-family:
+      Inter, 'SF Pro Display', -apple-system, BlinkMacSystemFont,
+      'PingFang SC', 'Noto Sans SC', system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-[#1e1e1e] text-[#d4d4d4];
+  }
+
+  ::selection {
+    background-color: #264f78;
+    color: #d4d4d4;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #424242;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #4f4f4f;
+  }
+}
+
+@layer components {
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  .vscode-card {
+    @apply rounded-card border border-[#3c3c3c] bg-[#252526] p-5;
+  }
+
+  .vscode-input {
+    @apply w-full rounded-input border border-[#3c3c3c] bg-[#2d2d2d] px-3 py-2 text-sm text-[#d4d4d4]
+      placeholder-[#6a6a6a] transition-colors
+      focus:border-[#d4a853] focus:outline-none focus:ring-1 focus:ring-[#d4a853]/40;
+  }
+
+  .vscode-select {
+    @apply w-full rounded-input border border-[#3c3c3c] bg-[#2d2d2d] px-3 py-2 text-sm text-[#d4d4d4]
+      transition-colors
+      focus:border-[#d4a853] focus:outline-none focus:ring-1 focus:ring-[#d4a853]/40;
+  }
+
+  .vscode-label {
+    @apply mb-1.5 block text-xs font-medium text-[#858585] tracking-wide;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
