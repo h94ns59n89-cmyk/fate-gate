@@ -43,13 +43,6 @@ export function QuizModal({ open, onComplete, onClose }: QuizModalProps) {
     }
   }, [guessResult, onComplete]);
 
-  const handleRetry = useCallback(() => {
-    setStep('quiz');
-    setCurrentQ(0);
-    setAnswers([]);
-    setGuessResult(null);
-  }, []);
-
   if (!open) return null;
 
   return (
@@ -159,8 +152,8 @@ export function QuizModal({ open, onComplete, onClose }: QuizModalProps) {
 
             {guessResult.confidence < CONFIDENCE_THRESHOLD ? (
               <div className="flex gap-2">
-                <Button variant="ghost" size="lg" className="flex-1" onClick={handleRetry}>
-                  重新答题
+                <Button variant="ghost" size="lg" className="flex-1" onClick={onClose}>
+                  我不知道，跳过
                 </Button>
                 <Button size="lg" className="flex-1" onClick={handleConfirm}>
                   仍使用此结果
