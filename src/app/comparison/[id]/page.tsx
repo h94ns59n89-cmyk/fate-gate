@@ -75,6 +75,7 @@ export default function ComparisonResultPage() {
               reportId={data.id}
               userId={userId}
               price={990}
+              productType="COMPARISON"
               compact
               onSuccess={fetchComparison}
             />

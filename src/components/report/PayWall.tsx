@@ -23,7 +23,7 @@ declare global {
   }
 }
 
-export function PayWall({ reportId, userId, price = 990, compact = false, onSuccess }: PayWallProps) {
+export function PayWall({ reportId, userId, price = 990, compact = false, productType, onSuccess }: PayWallProps) {
   const [paying, setPaying] = useState(false);
   const token = useUserStore((s) => s.token);
 
@@ -40,7 +40,7 @@ export function PayWall({ reportId, userId, price = 990, compact = false, onSucc
         body: JSON.stringify({
           report_id: reportId,
           user_id: userId,
-          product_type: 'FULL_REPORT',
+          product_type: productType ?? 'FULL_REPORT',
           idempotency_key: `pay_${reportId}_${Date.now()}`,
         }),
       });
