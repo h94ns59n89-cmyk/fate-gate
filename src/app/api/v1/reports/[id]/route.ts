@@ -1,4 +1,5 @@
-import { withMiddleware } from '@/lib/middleware';
+import { NextResponse } from 'next/server';
+import { withMiddleware, requireAuth } from '@/lib/middleware';
 import { success, notFound } from '@/lib/api-response';
 import prisma from '@/lib/db/client';
 
@@ -25,6 +26,33 @@ export const GET = withMiddleware(async (req, { params }) => {
       created_at: report.createdAt.toISOString(),
       generated_at: report.generatedAt?.toISOString() ?? null,
     });
+  } catch {
+    return notFound('报告不存在');
+  }
+});
+
+export const DELETE = withMiddleware(async (req, { params }) => {
+  const auth = await requireAuth(req);
+  if (auth instanceof NextResponse) return auth;
+
+  const id = parseInt(params.id ?? '0', 10);
+  if (!id) return notFound('报告不存在');
+
+  const userId = BigInt(auth.userId);
+
+  try {
+    const report = await prisma.personalityReport.findFirst({
+      where: { id: BigInt(id), userId, deletedAt: null },
+    });
+
+    if (!report) return notFound('报告不存在');
+
+    await prisma.personalityReport.update({
+      where: { id: BigInt(id) },
+      data: { deletedAt: new Date() },
+    });
+
+    return success({ id: Number(id) });
   } catch {
     return notFound('报告不存在');
   }

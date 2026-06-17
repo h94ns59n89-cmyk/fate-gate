@@ -1,4 +1,5 @@
-import { withMiddleware } from '@/lib/middleware';
+import { NextResponse } from 'next/server';
+import { withMiddleware, requireAuth } from '@/lib/middleware';
 import { success, notFound } from '@/lib/api-response';
 import prisma from '@/lib/db/client';
 
@@ -28,4 +29,30 @@ export const GET = withMiddleware(async (req, { params }) => {
     user_tags: Array.isArray(adviceData?.user_tags) ? adviceData.user_tags : [],
     summary_tag: typeof adviceData?.summary_tag === 'string' ? adviceData.summary_tag : null,
   });
+});
+
+export const DELETE = withMiddleware(async (req, { params }) => {
+  const auth = await requireAuth(req);
+  if (auth instanceof NextResponse) return auth;
+
+  const id = parseInt(params.id ?? '0', 10);
+  if (!id) return notFound('对比不存在');
+
+  const userId = BigInt(auth.userId);
+
+  try {
+    const comparison = await prisma.comparison.findFirst({
+      where: { id: BigInt(id), userId },
+    });
+
+    if (!comparison) return notFound('对比不存在');
+
+    await prisma.comparison.delete({
+      where: { id: BigInt(id) },
+    });
+
+    return success({ id: Number(id) });
+  } catch {
+    return notFound('对比不存在');
+  }
 });

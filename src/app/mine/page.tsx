@@ -38,6 +38,9 @@ export default function MinePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [editMode, setEditMode] = useState(false);
+  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
+  const [deleting, setDeleting] = useState(false);
   const userId = useUserStore((s) => s.userId);
   const user = useUserStore((s) => s.user);
   const login = useUserStore((s) => s.login);
@@ -63,6 +66,35 @@ export default function MinePage() {
       setLoading(false);
     }
   }, []);
+
+  const itemKey = (r: ReportItem) => `${r.kind === 'comparison' ? 'c' : 'p'}_${r.id}`;
+
+  const handleDelete = useCallback(async () => {
+    if (selectedKeys.size === 0) return;
+    if (!window.confirm(`确定删除 ${selectedKeys.size} 份报告？此操作不可恢复。`)) return;
+    setDeleting(true);
+    for (const key of selectedKeys) {
+      const parts = key.split('_');
+      const kind = parts[0];
+      const id = parseInt(parts[1] ?? '', 10);
+      if (!id) continue;
+      try {
+        const state = useUserStore.getState();
+        const token = state.token;
+        const path = kind === 'c' ? `/api/v1/comparisons/${id}` : `/api/v1/reports/${id}`;
+        await fetch(path, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+      } catch {
+        // continue deleting others
+      }
+    }
+    setSelectedKeys(new Set());
+    setEditMode(false);
+    setDeleting(false);
+    fetchReports();
+  }, [selectedKeys, fetchReports]);
 
   useEffect(() => {
     trackEvent(EVENTS.USER_RETURN);
@@ -106,20 +138,48 @@ export default function MinePage() {
           <h1 className="text-xl font-semibold text-[#d4d4d4]">我的报告</h1>
           <p className="mt-0.5 text-xs text-[#858585]">共 {reports.length} 份报告</p>
         </div>
-        {user && (
-          <div className="flex items-center gap-2 text-xs text-[#858585]">
-            {user.avatar_url && (
-              <img src={user.avatar_url} alt="" className="size-6 rounded-full" />
-            )}
-            <span>{user.nickname ?? '微信用户'}</span>
+        <div className="flex items-center gap-2">
+          {editMode ? (
+            <>
+              {selectedKeys.size > 0 && (
+                <button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="rounded-md border border-[#f44747]/30 bg-[#f44747]/10 px-3 py-1 text-xs font-medium text-[#f44747] hover:bg-[#f44747]/20 disabled:opacity-50"
+                >
+                  {deleting ? '删除中...' : `删除 (${selectedKeys.size})`}
+                </button>
+              )}
+              <button
+                onClick={() => { setEditMode(false); setSelectedKeys(new Set()); }}
+                className="rounded-md border border-[#2a3040] px-3 py-1 text-xs text-[#858585] hover:text-[#d4d4d4]"
+              >
+                完成
+              </button>
+            </>
+          ) : (
             <button
-              onClick={() => useUserStore.getState().logout?.()}
-              className="text-[#6a6a6a] hover:text-[#f44747]"
+              onClick={() => setEditMode(true)}
+              className="rounded-md border border-[#2a3040] px-3 py-1 text-xs text-[#858585] hover:text-[#d4d4d4]"
             >
-              退出
+              管理
             </button>
-          </div>
-        )}
+          )}
+          {user && (
+            <div className="flex items-center gap-2 text-xs text-[#858585]">
+              {user.avatar_url && (
+                <img src={user.avatar_url} alt="" className="size-6 rounded-full" />
+              )}
+              <span>{user.nickname ?? '微信用户'}</span>
+              <button
+                onClick={() => useUserStore.getState().logout?.()}
+                className="text-[#6a6a6a] hover:text-[#f44747]"
+              >
+                退出
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {userId && (
@@ -155,34 +215,63 @@ export default function MinePage() {
         <div className="space-y-2">
           {reports.map((report) => {
             const isExpanded = expandedId === report.id;
+            const key = itemKey(report);
+            const checked = selectedKeys.has(key);
             if (report.kind === 'comparison') {
               return (
-                <div key={`c-${report.id}`} className="vscode-card overflow-hidden">
-                  <Link href={`/comparison/${report.id}`} className="flex items-center justify-between py-0.5">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-[#d4a853]">✦</span>
-                      <span className="text-xs text-[#858585]">{new Date(report.created_at).toLocaleDateString('zh-CN')}</span>
-                      <span className="text-xs text-[#6a9955]">合盘</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {typeof report.summary_tag === 'string' && (
-                        <span className="text-[10px] text-[#d4a853]">{report.summary_tag}</span>
-                      )}
-                      {report.match_score != null && (
-                        <span className="text-xs font-semibold text-[#d4a853]">{report.match_score}%</span>
-                      )}
-                    </div>
-                  </Link>
+                <div key={key} className={`vscode-card overflow-hidden ${editMode ? 'pl-2' : ''}`}>
+                  <div className="flex items-center gap-2 py-0.5">
+                    {editMode && (
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => {
+                          const next = new Set(selectedKeys);
+                          if (checked) { next.delete(key); } else { next.add(key); }
+                          setSelectedKeys(next);
+                        }}
+                        className="size-4 accent-[#d4a853]"
+                      />
+                    )}
+                    <Link href={`/comparison/${report.id}`} className="flex flex-1 items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-[#d4a853]">✦</span>
+                        <span className="text-xs text-[#858585]">{new Date(report.created_at).toLocaleDateString('zh-CN')}</span>
+                        <span className="text-xs text-[#6a9955]">合盘</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {typeof report.summary_tag === 'string' && (
+                          <span className="text-[10px] text-[#d4a853]">{report.summary_tag}</span>
+                        )}
+                        {report.match_score != null && (
+                          <span className="text-xs font-semibold text-[#d4a853]">{report.match_score}%</span>
+                        )}
+                      </div>
+                    </Link>
+                  </div>
                 </div>
               );
             }
             return (
-              <div key={report.id} className="vscode-card overflow-hidden">
-                <button
-                  onClick={() => setExpandedId(isExpanded ? null : report.id)}
-                  className="flex w-full items-center justify-between text-left"
-                >
-                  <div className="flex items-center gap-2">
+              <div key={key} className={`vscode-card overflow-hidden ${editMode ? 'pl-2' : ''}`}>
+                <div className="flex items-center gap-2">
+                  {editMode && (
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => {
+                        const next = new Set(selectedKeys);
+                        if (checked) { next.delete(key); } else { next.add(key); }
+                        setSelectedKeys(next);
+                      }}
+                      className="size-4 shrink-0 accent-[#d4a853]"
+                    />
+                  )}
+                  <button
+                    onClick={() => setExpandedId(isExpanded ? null : report.id)}
+                    className="flex flex-1 items-center justify-between text-left"
+                  >
+                    <div className="flex items-center gap-2">
                     <svg
                       className={`size-3 text-[#6a6a6a] transition-transform ${isExpanded ? 'rotate-90' : ''}`}
                       fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
@@ -209,27 +298,28 @@ export default function MinePage() {
                     </div>
                   )}
                 </button>
-                {isExpanded && (
-                  <div className="mt-3 border-t border-[#2a3040] pt-3">
-                    <SummaryCard {...{
-                      personalityTags: report.personality_tags,
-                      fiveElements: report.five_elements as never,
-                      coreTraits: report.summary?.core_traits,
-                      lifeTheme: report.summary?.life_theme,
-                      calculationMeta: report.bazi?.calculation_meta as never,
-                      onUnlock: report.report_type !== 'paid' ? () => router.push(`/report/${report.id}`) : undefined,
-                      onShare: undefined,
-                    } as any} />
-                    {report.report_type === 'paid' && (
-                      <button
-                        onClick={() => router.push(`/report/${report.id}`)}
-                        className="mt-2 w-full rounded bg-[#6a9955]/15 py-2 text-xs text-[#6a9955] transition-colors hover:bg-[#6a9955]/25"
-                      >
-                        查看完整报告
-                      </button>
-                    )}
                   </div>
-                )}
+                  {isExpanded && (
+                    <div className="mt-3 border-t border-[#2a3040] pt-3">
+                      <SummaryCard {...{
+                        personalityTags: report.personality_tags,
+                        fiveElements: report.five_elements as never,
+                        coreTraits: report.summary?.core_traits,
+                        lifeTheme: report.summary?.life_theme,
+                        calculationMeta: report.bazi?.calculation_meta as never,
+                        onUnlock: report.report_type !== 'paid' ? () => router.push(`/report/${report.id}`) : undefined,
+                        onShare: undefined,
+                      } as any} />
+                      {report.report_type === 'paid' && (
+                        <button
+                          onClick={() => router.push(`/report/${report.id}`)}
+                          className="mt-2 w-full rounded bg-[#6a9955]/15 py-2 text-xs text-[#6a9955] transition-colors hover:bg-[#6a9955]/25"
+                        >
+                          查看完整报告
+                        </button>
+                      )}
+                    </div>
+                  )}
               </div>
             );
           })}
