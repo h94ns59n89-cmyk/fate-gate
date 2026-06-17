@@ -14,11 +14,11 @@ export const GET = withMiddleware(async (req, { params }) => {
   if (!user) return notFound('用户不存在');
 
   const report = await prisma.personalityReport.findFirst({
-    where: { userId: BigInt(userId), status: 'COMPLETED', reportType: 'FREE' },
+    where: { userId: BigInt(userId), status: 'COMPLETED' },
     orderBy: { createdAt: 'desc' },
     select: { id: true, personalityTags: true, baziJson: true },
   });
-  if (!report) return notFound('该用户尚未生成报告');
+  if (!report) return notFound('对方尚未完成测算，暂时无法合盘');
 
   return success({
     user_id: Number(user.id),

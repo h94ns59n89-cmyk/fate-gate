@@ -213,28 +213,29 @@ export default function LandingPage() {
               onShare={handleShare}
               onUnlock={handleUnlock}
             />
-
-            <div className="mt-6 rounded-card border border-[#d4a853]/20 bg-[#d4a853]/5 px-5 py-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#d4a853]/15 text-sm text-[#d4a853]">✦</div>
-                <div className="flex-1">
-                  <p className="text-xs font-medium text-[#d4a853]">邀请好友对比人格</p>
-                  <p className="mt-0.5 text-[11px] text-[#858585]">你的邀请码：<span className="font-mono text-xs font-semibold text-[#d4d4d4]">u_{effectiveUserId}</span></p>
+            {result!.reportId > 0 && effectiveUserId != null && (
+              <div className="mt-6 rounded-card border border-[#d4a853]/20 bg-[#d4a853]/5 px-5 py-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#d4a853]/15 text-sm text-[#d4a853]">✦</div>
+                  <div className="flex-1">
+                    <p className="text-xs font-medium text-[#d4a853]">邀请好友对比人格</p>
+                    <p className="mt-0.5 text-[11px] text-[#858585]">你的邀请码：<span className="font-mono text-xs font-semibold text-[#d4d4d4]">u_{effectiveUserId}</span></p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(`u_${effectiveUserId}`);
+                      trackEvent(EVENTS.SUMMARY_SHARED);
+                    }}
+                    className="rounded-md border border-[#d4a853]/30 bg-[#d4a853]/10 px-3 py-1.5 text-xs font-medium text-[#d4a853] hover:bg-[#d4a853]/20 active:scale-95"
+                  >
+                    复制
+                  </button>
                 </div>
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(`u_${effectiveUserId}`);
-                    trackEvent(EVENTS.SUMMARY_SHARED);
-                  }}
-                  className="rounded-md border border-[#d4a853]/30 bg-[#d4a853]/10 px-3 py-1.5 text-xs font-medium text-[#d4a853] hover:bg-[#d4a853]/20 active:scale-95"
-                >
-                  复制
-                </button>
+                <p className="mt-2 text-[11px] leading-relaxed text-[#6a6a6a]">
+                  对方在「人格对比」页面输入你的邀请码即可把你们的八字放在一起比较
+                </p>
               </div>
-              <p className="mt-2 text-[11px] leading-relaxed text-[#6a6a6a]">
-                对方在「人格对比」页面输入你的邀请码即可把你们的八字放在一起比较
-              </p>
-            </div>
+            )}
           </div>
         )}
       </div>
@@ -245,27 +246,25 @@ export default function LandingPage() {
         onClose={() => setShowQuiz(false)}
       />
 
-      {showShare && result && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center">
-          <div className="absolute inset-0 bg-black/70" onClick={() => setShowShare(false)} />
-          <div className="relative w-full max-w-md rounded-t-card border-t border-[#2a3040] bg-[#111827] px-5 pb-8 pt-5 shadow-modal">
-            <div className="mb-4 text-center">
-              <h3 className="text-sm font-semibold text-[#d4d4d4]">分享你的人格</h3>
-              <p className="mt-1 text-xs text-[#858585]">让朋友也来测一测</p>
-            </div>
-            <ShareCard
-              {...(result.reportId > 0 ? { imageUrl: `/api/v1/og/summary?reportId=${result.reportId}` } : {})}
-              onShare={() => {
-                const url = result.reportId > 0
-                  ? `${window.location.origin}/report/${result.reportId}`
-                  : window.location.href;
-                navigator.clipboard.writeText(url);
-                setShowShare(false);
-              }}
-            />
+      {showShare && result && <div className="fixed inset-0 z-50 flex items-end justify-center">
+        <div className="absolute inset-0 bg-black/70" onClick={() => setShowShare(false)} />
+        <div className="relative w-full max-w-md rounded-t-card border-t border-[#2a3040] bg-[#111827] px-5 pb-8 pt-5 shadow-modal">
+          <div className="mb-4 text-center">
+            <h3 className="text-sm font-semibold text-[#d4d4d4]">分享你的人格</h3>
+            <p className="mt-1 text-xs text-[#858585]">让朋友也来测一测</p>
           </div>
-        </div>
-      )}
+          <ShareCard
+            {...(result.reportId > 0 ? { imageUrl: `/api/v1/og/summary?reportId=${result.reportId}` } : {})}
+            onShare={() => {
+              const url = result.reportId > 0
+                ? `${window.location.origin}/report/${result.reportId}`
+                : window.location.href;
+              navigator.clipboard.writeText(url);
+              setShowShare(false);
+            }}
+          />
+          </div>
+        </div>}
     </div>
   );
 }

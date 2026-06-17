@@ -110,7 +110,28 @@ export default function MinePage() {
         )}
       </div>
 
-      
+      {userId && (
+        <div className="mb-6 flex items-center justify-between rounded-card border border-[#d4a853]/20 bg-[#d4a853]/5 px-4 py-3">
+          <div>
+            <p className="text-xs text-[#858585]">邀请码</p>
+            <p className="font-mono text-sm font-semibold text-[#d4a853]">u_{userId}</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigator.clipboard.writeText(`u_${userId}`)}
+              className="rounded-md border border-[#d4a853]/30 bg-[#d4a853]/10 px-3 py-1 text-xs font-medium text-[#d4a853] hover:bg-[#d4a853]/20"
+            >
+              复制
+            </button>
+            <Link href="/comparison">
+              <button className="rounded-md border border-[#d4a853]/30 bg-[#d4a853]/10 px-3 py-1 text-xs font-medium text-[#d4a853] hover:bg-[#d4a853]/20">
+                合盘
+              </button>
+            </Link>
+          </div>
+        </div>
+      )}
+
       {reports.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-4 py-20">
           <p className="text-sm text-[#6a6a6a]">还没有生成过报告</p>
