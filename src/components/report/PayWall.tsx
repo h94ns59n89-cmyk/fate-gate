@@ -97,8 +97,8 @@ export function PayWall({ reportId, userId, price = 990, compact = false, produc
   if (compact) {
     return (
       <div className="px-4 py-3">
-        <div className="flex items-center gap-3">
-          <div className="flex-1">
+        <div className="flex flex-col gap-3">
+          <div className="text-center">
             <div className="text-lg font-bold text-[#d4a853]">
               ¥{(price / 100).toFixed(1)}
               <span className="ml-1.5 text-xs font-normal text-[#858585]">/ 永久可查</span>
@@ -107,7 +107,7 @@ export function PayWall({ reportId, userId, price = 990, compact = false, produc
               支付即表示同意<Link href="/terms" className="underline text-[#858585] hover:text-[#d4d4d4]">用户协议</Link>
             </p>
           </div>
-          <Button size="md" className="shrink-0" loading={paying} onClick={handlePay}>
+          <Button size="md" className="w-full" loading={paying} onClick={handlePay}>
             {paying ? '支付中...' : '立即解锁'}
           </Button>
         </div>
