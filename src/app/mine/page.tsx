@@ -9,7 +9,8 @@ import { SummaryCard } from '@/components/report/SummaryCard';
 import { trackEvent, EVENTS } from '@/lib/analytics';
 import { useUserStore } from '@/stores/userStore';
 
-interface ReportItem {
+interface PersonalityItem {
+  kind: 'personality';
   id: number;
   report_type: string;
   status: string;
@@ -19,6 +20,17 @@ interface ReportItem {
   summary?: { core_traits?: string[]; life_theme?: string };
   bazi?: { calculation_meta?: { enabled_true_solar_time?: boolean; true_solar_time?: string; true_solar_delta_minutes?: number } };
 }
+
+interface ComparisonItem {
+  kind: 'comparison';
+  id: number;
+  match_score?: number | null;
+  is_paid?: boolean;
+  created_at: string;
+  summary_tag?: string | null;
+}
+
+type ReportItem = PersonalityItem | ComparisonItem;
 
 export default function MinePage() {
   const router = useRouter();
@@ -143,6 +155,27 @@ export default function MinePage() {
         <div className="space-y-2">
           {reports.map((report) => {
             const isExpanded = expandedId === report.id;
+            if (report.kind === 'comparison') {
+              return (
+                <div key={`c-${report.id}`} className="vscode-card overflow-hidden">
+                  <Link href={`/comparison/${report.id}`} className="flex items-center justify-between py-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-[#d4a853]">✦</span>
+                      <span className="text-xs text-[#858585]">{new Date(report.created_at).toLocaleDateString('zh-CN')}</span>
+                      <span className="text-xs text-[#6a9955]">合盘</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {report.summary_tag && (
+                        <span className="text-[10px] text-[#d4a853]">{report.summary_tag}</span>
+                      )}
+                      {report.match_score != null && (
+                        <span className="text-xs font-semibold text-[#d4a853]">{report.match_score}%</span>
+                      )}
+                    </div>
+                  </Link>
+                </div>
+              );
+            }
             return (
               <div key={report.id} className="vscode-card overflow-hidden">
                 <button

@@ -9,24 +9,40 @@ export const GET = withMiddleware(async (req) => {
   const userId = BigInt(auth.userId);
 
   try {
-    const reports = await prisma.personalityReport.findMany({
-      where: { userId, deletedAt: null },
-      orderBy: { createdAt: 'desc' },
-      take: 20,
-      select: {
-        id: true,
-        reportType: true,
-        status: true,
-        createdAt: true,
-        personalityTags: true,
-        fiveElementsJson: true,
-        summaryJson: true,
-        baziJson: true,
-      },
-    });
+    const [reports, comparisons] = await Promise.all([
+      prisma.personalityReport.findMany({
+        where: { userId, deletedAt: null },
+        orderBy: { createdAt: 'desc' },
+        take: 20,
+        select: {
+          id: true,
+          reportType: true,
+          status: true,
+          createdAt: true,
+          personalityTags: true,
+          fiveElementsJson: true,
+          summaryJson: true,
+          baziJson: true,
+        },
+      }),
+      prisma.comparison.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        take: 20,
+        select: {
+          id: true,
+          matchScore: true,
+          isPaid: true,
+          createdAt: true,
+          dimensionsJson: true,
+          adviceJson: true,
+        },
+      }),
+    ]);
 
-    return success({
-      items: reports.map((r) => ({
+    const items = [
+      ...reports.map((r) => ({
+        kind: 'personality' as const,
         id: Number(r.id),
         report_type: r.reportType.toLowerCase(),
         status: r.status.toLowerCase(),
@@ -36,9 +52,24 @@ export const GET = withMiddleware(async (req) => {
         summary: r.summaryJson,
         bazi: r.baziJson,
       })),
+      ...comparisons.map((c) => {
+        const advice = c.adviceJson as Record<string, unknown> | null;
+        return {
+          kind: 'comparison' as const,
+          id: Number(c.id),
+          match_score: c.matchScore,
+          is_paid: c.isPaid,
+          created_at: c.createdAt.toISOString(),
+          summary_tag: (advice?.summary_tag as string) ?? null,
+        };
+      }),
+    ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+    return success({
+      items,
       page_token: null,
       next_page_token: null,
-      total: reports.length,
+      total: items.length,
     });
   } catch {
     return success({
