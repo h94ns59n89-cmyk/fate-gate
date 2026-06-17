@@ -1,3 +1,4 @@
 星隅，世间人人皆是独一无二的星辰。以传统八字为根基，打造轻量化 AI 人格认知工具，无需繁琐答题，录入出生信息即可极速排盘，AI 专业解析 30 秒输出 MBTI 式人格报告。免费查看基础人格摘要，9.9 元解锁完整版深度分析；新增双人合盘功能，一键解析你与伴侣、同事、亲友的性格适配度，快速看透关系内核，读懂彼此相处密码。
-<img width="2246" height="1198" alt="image" src="https://github.com/user-attachments/assets/3f074b15-315b-47f0-8c0d-fa5733a5d146" />
+<img width="2378" height="1380" alt="image" src="https://github.com/user-attachments/assets/c8a1e735-4435-4f59-ae71-4a2e11f19bd9" />
+
 
