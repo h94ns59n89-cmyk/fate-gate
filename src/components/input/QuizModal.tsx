@@ -134,7 +134,7 @@ export function QuizModal({ open, onComplete, onClose }: QuizModalProps) {
             </p>
 
             <Button size="lg" className="w-full" onClick={handleConfirm}>
-              开始命理分析
+              开始人格分析
             </Button>
           </div>
         )}

@@ -12,8 +12,8 @@ export const authWechatSchema = z.object({
 
 export const baziCalculateSchema = z.object({
   birth_date: z.string().regex(dateStringRegex, '日期格式错误，应为 YYYY-MM-DD'),
-  birth_hour: z.number().int().min(0).max(23).optional(),
-  birth_minute: z.number().int().min(0).max(59).optional(),
+  birth_hour: z.number().int().min(0).max(23).nullish(),
+  birth_minute: z.number().int().min(0).max(59).nullish(),
   birth_place: z.string().optional(),
   user_id: z.number().optional(),
   gender: z.union([z.literal(0), z.literal(1)]).optional(),
