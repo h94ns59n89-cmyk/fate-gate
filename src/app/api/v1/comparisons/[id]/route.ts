@@ -18,11 +18,14 @@ export const GET = withMiddleware(async (req, { params }) => {
     id: Number(comparison.id),
     match_score: comparison.matchScore,
     dimensions: comparison.dimensionsJson,
-    advice: comparison.adviceJson,
+    advice: typeof adviceData?.advice === 'string' ? adviceData.advice : '',
+    complementarity: typeof adviceData?.complementarity === 'string' ? adviceData.complementarity : '',
+    strengths: Array.isArray(adviceData?.strengths) ? adviceData.strengths : [],
+    potential_conflicts: Array.isArray(adviceData?.potential_conflicts) ? adviceData.potential_conflicts : [],
     share_image_url: comparison.shareImageUrl,
     is_paid: comparison.isPaid,
-    target_tags: adviceData?.target_tags ?? [],
-    user_tags: adviceData?.user_tags ?? [],
-    summary_tag: adviceData?.summary_tag ?? null,
+    target_tags: Array.isArray(adviceData?.target_tags) ? adviceData.target_tags : [],
+    user_tags: Array.isArray(adviceData?.user_tags) ? adviceData.user_tags : [],
+    summary_tag: typeof adviceData?.summary_tag === 'string' ? adviceData.summary_tag : null,
   });
 });

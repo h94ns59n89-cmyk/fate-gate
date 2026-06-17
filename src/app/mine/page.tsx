@@ -165,7 +165,7 @@ export default function MinePage() {
                       <span className="text-xs text-[#6a9955]">合盘</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      {report.summary_tag && (
+                      {typeof report.summary_tag === 'string' && (
                         <span className="text-[10px] text-[#d4a853]">{report.summary_tag}</span>
                       )}
                       {report.match_score != null && (

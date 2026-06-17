@@ -27,51 +27,53 @@ export const POST = withMiddleware(async (req, { params }) => {
 
   let fullReport = null;
 
-  if (order.reportId) {
-    if (order.productType === 'COMPARISON') {
+  if (order.productType === 'COMPARISON') {
+    const body = await req.json().catch(() => ({}));
+    const comparisonId = body.comparison_id ?? (order.reportId ? Number(order.reportId) : null);
+    if (comparisonId) {
       await prisma.comparison.update({
-        where: { id: BigInt(order.reportId) },
+        where: { id: BigInt(comparisonId) },
         data: { isPaid: true },
       });
-    } else {
-      const report = await prisma.personalityReport.findUnique({
-        where: { id: order.reportId },
-      });
+    }
+  } else if (order.reportId) {
+    const report = await prisma.personalityReport.findUnique({
+      where: { id: order.reportId },
+    });
 
-      if (report) {
-        const bazi = report.baziJson as Record<string, unknown> | null;
-        const pillars = bazi ?? {};
-        const dayPillar = pillars['day_pillar'] as Record<string, string> | undefined;
-        const dayMaster = dayPillar?.heavenly ?? '甲';
+    if (report) {
+      const bazi = report.baziJson as Record<string, unknown> | null;
+      const pillars = bazi ?? {};
+      const dayPillar = pillars['day_pillar'] as Record<string, string> | undefined;
+      const dayMaster = dayPillar?.heavenly ?? '甲';
 
-        const baziData: Record<string, unknown> = {
-          dayMaster: dayMaster + '木',
-          dayMasterElement: '木',
-          pillars,
-          fiveElements: report.fiveElementsJson ?? {},
-          shishen: {},
-          dayun: {},
-          calculationMeta: pillars['calculation_meta'] ?? {},
-        };
+      const baziData: Record<string, unknown> = {
+        dayMaster: dayMaster + '木',
+        dayMasterElement: '木',
+        pillars,
+        fiveElements: report.fiveElementsJson ?? {},
+        shishen: {},
+        dayun: {},
+        calculationMeta: pillars['calculation_meta'] ?? {},
+      };
 
-        try {
-          const result = await generateFullReport(baziData);
-          fullReport = result.data;
+      try {
+        const result = await generateFullReport(baziData);
+        fullReport = result.data;
 
-          await prisma.personalityReport.update({
-            where: { id: order.reportId },
-            data: {
-              reportType: 'PAID',
-              fullReportJson: fullReport as never,
-            },
-          });
-        } catch (err) {
-          Logger.for('mock-pay').warn('Full report generation failed', { error: (err as Error)?.message });
-          await prisma.personalityReport.update({
-            where: { id: order.reportId },
-            data: { reportType: 'PAID' },
-          });
-        }
+        await prisma.personalityReport.update({
+          where: { id: order.reportId },
+          data: {
+            reportType: 'PAID',
+            fullReportJson: fullReport as never,
+          },
+        });
+      } catch (err) {
+        Logger.for('mock-pay').warn('Full report generation failed', { error: (err as Error)?.message });
+        await prisma.personalityReport.update({
+          where: { id: order.reportId },
+          data: { reportType: 'PAID' },
+        });
       }
     }
   }

@@ -7,7 +7,7 @@ import { trackEvent, EVENTS } from '@/lib/analytics';
 import { useUserStore } from '@/stores/userStore';
 
 interface PayWallProps {
-  reportId: number;
+  reportId?: number;
   userId: number;
   price?: number;
   compact?: boolean;
@@ -34,15 +34,16 @@ export function PayWall({ reportId, userId, price = 990, compact = false, produc
     try {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = `Bearer ${token}`;
+      const body: Record<string, unknown> = {
+        user_id: userId,
+        product_type: productType ?? 'FULL_REPORT',
+        idempotency_key: `pay_${reportId ?? 0}_${Date.now()}`,
+      };
+      if (reportId && productType !== 'COMPARISON') body.report_id = reportId;
       const response = await fetch('/api/v1/orders', {
         method: 'POST',
         headers,
-        body: JSON.stringify({
-          report_id: reportId,
-          user_id: userId,
-          product_type: productType ?? 'FULL_REPORT',
-          idempotency_key: `pay_${reportId}_${Date.now()}`,
-        }),
+        body: JSON.stringify(body),
       });
 
       const data = await response.json();
@@ -65,12 +66,12 @@ export function PayWall({ reportId, userId, price = 990, compact = false, produc
         await new Promise((resolve) => setTimeout(resolve, 1000));
         if (order_no) {
           try {
+            const payBody: Record<string, unknown> = {};
+            if (productType === 'COMPARISON' && reportId) payBody.comparison_id = reportId;
             const payRes = await fetch(`/api/v1/orders/${order_no}/mock-pay`, {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-              },
+              headers,
+              body: JSON.stringify(payBody),
             });
             const payData = await payRes.json();
             if (payData.code === 0) {

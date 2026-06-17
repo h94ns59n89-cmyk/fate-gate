@@ -45,7 +45,10 @@ export const POST = withMiddleware(async (req) => {
     id: Number(comparison.id),
     match_score: comparison.matchScore,
     dimensions: comparison.dimensionsJson,
-    advice: comparison.adviceJson,
-    summary_tag: summary_tag ?? '缘分天定',
+    advice: typeof advice === 'string' ? advice : '',
+    complementarity: typeof complementarity === 'string' ? complementarity : '',
+    strengths: Array.isArray(strengths) ? strengths : [],
+    potential_conflicts: Array.isArray(potential_conflicts) ? potential_conflicts : [],
+    summary_tag: typeof summary_tag === 'string' ? summary_tag : '缘分天定',
   });
 });
