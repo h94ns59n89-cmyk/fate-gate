@@ -1,31 +1,42 @@
 import { withMiddleware } from '@/lib/middleware';
 import { success, error } from '@/lib/api-response';
 import prisma from '@/lib/db/client';
-import { comparisonsCreateSchema } from '@/lib/validation';
+import { generateComparison } from '@/lib/ai/completions';
+import { createTraceContext, getTraceFromHeaders } from '@/lib/trace';
 
 export const POST = withMiddleware(async (req) => {
   const body = await req.json();
-  const parsed = comparisonsCreateSchema.safeParse(body);
-  if (!parsed.success) {
-    return error(100104, parsed.error?.issues?.[0]?.message ?? '参数校验失败', 400);
+  const { user_id, target_user_id, user_bazi, target_bazi, target_tags, user_tags } = body;
+
+  if (!target_bazi || !user_bazi) {
+    return error(100104, '缺少 target_bazi 或 user_bazi', 400);
   }
-  const { user_id } = parsed.data;
+
+  const trace = getTraceFromHeaders(req.headers) ?? createTraceContext();
+
+  const result = await generateComparison(target_bazi as Record<string, unknown>, user_bazi as Record<string, unknown>, { trace });
+
+  if (!result.data) {
+    return error(100500, 'AI 对比生成失败', 500);
+  }
+
+  const { overall_match, dimensions, complementarity, strengths, potential_conflicts, advice, summary_tag } = result.data;
 
   const comparison = await prisma.comparison.create({
     data: {
-      userId: BigInt(user_id ?? 0),
-      matchScore: 85,
-      dimensionsJson: {
-        communication: 80,
-        emotional: 75,
-        values: 90,
-        growth: 85,
-      },
+      userId: user_id ? BigInt(user_id) : BigInt(0),
+      targetUserId: target_user_id ? BigInt(target_user_id) : null,
+      matchScore: overall_match,
+      dimensionsJson: dimensions as never,
       adviceJson: {
-        complementarity: '木生火，你的创造力滋养了TA的执行力',
-        strengths: ['五行互补', '价值观一致', '沟通顺畅'],
-        potential_conflicts: ['火旺易急躁', '水弱需沟通'],
-      },
+        complementarity,
+        strengths,
+        potential_conflicts,
+        advice,
+        target_tags: target_tags ?? [],
+        user_tags: user_tags ?? [],
+        summary_tag,
+      } as never,
       isPaid: false,
     },
   });
@@ -35,6 +46,6 @@ export const POST = withMiddleware(async (req) => {
     match_score: comparison.matchScore,
     dimensions: comparison.dimensionsJson,
     advice: comparison.adviceJson,
-    summary_tag: '木火相生·最佳拍档',
+    summary_tag: summary_tag ?? '缘分天定',
   });
 });

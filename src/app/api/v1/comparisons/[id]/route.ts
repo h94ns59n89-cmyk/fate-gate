@@ -12,6 +12,8 @@ export const GET = withMiddleware(async (req, { params }) => {
 
   if (!comparison) return notFound('对比不存在');
 
+  const adviceData = comparison.adviceJson as Record<string, unknown> | null;
+
   return success({
     id: Number(comparison.id),
     match_score: comparison.matchScore,
@@ -19,5 +21,8 @@ export const GET = withMiddleware(async (req, { params }) => {
     advice: comparison.adviceJson,
     share_image_url: comparison.shareImageUrl,
     is_paid: comparison.isPaid,
+    target_tags: adviceData?.target_tags ?? [],
+    user_tags: adviceData?.user_tags ?? [],
+    summary_tag: adviceData?.summary_tag ?? null,
   });
 });

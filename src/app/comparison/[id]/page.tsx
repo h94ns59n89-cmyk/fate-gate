@@ -15,6 +15,9 @@ interface ComparisonData {
   advice: string;
   share_image_url: string | null;
   is_paid: boolean;
+  target_tags?: string[];
+  user_tags?: string[];
+  summary_tag?: string | null;
 }
 
 export default function ComparisonResultPage() {
@@ -85,10 +88,18 @@ export default function ComparisonResultPage() {
     <div className="min-h-screen px-4 pb-[100px] pt-14">
       <div className="mb-6 text-center">
         <h1 className="mb-1 text-xl font-semibold text-[#d4d4d4]">合盘对比结果</h1>
+        {data.summary_tag && (
+          <p className="mb-1 text-sm font-medium text-[#d4a853]">{data.summary_tag}</p>
+        )}
         <p className="text-xs text-[#858585]">你们的人格匹配度分析</p>
       </div>
 
-      <ComparisonCard matchScore={data.match_score} onShare={() => {}} />
+      <ComparisonCard
+        matchScore={data.match_score}
+        userTag={data.user_tags?.[0] ?? '我'}
+        targetTag={data.target_tags?.[0] ?? 'TA'}
+        onShare={() => {}}
+      />
 
       {data.dimensions && (
         <div className="vscode-card mt-4 space-y-3">
