@@ -12,6 +12,8 @@ interface QuizModalProps {
   onClose: () => void;
 }
 
+const CONFIDENCE_THRESHOLD = 50;
+
 export function QuizModal({ open, onComplete, onClose }: QuizModalProps) {
   const [step, setStep] = useState<'quiz' | 'result'>('quiz');
   const [currentQ, setCurrentQ] = useState(0);
@@ -40,6 +42,13 @@ export function QuizModal({ open, onComplete, onClose }: QuizModalProps) {
       onComplete(guessResult);
     }
   }, [guessResult, onComplete]);
+
+  const handleRetry = useCallback(() => {
+    setStep('quiz');
+    setCurrentQ(0);
+    setAnswers([]);
+    setGuessResult(null);
+  }, []);
 
   if (!open) return null;
 
@@ -109,12 +118,21 @@ export function QuizModal({ open, onComplete, onClose }: QuizModalProps) {
               </svg>
             </div>
 
-            <div>
-              <h2 className="text-base font-semibold text-[#d4d4d4]">推测完成</h2>
-              <p className="mt-1 text-sm text-[#858585]">
-                根据你的回答，我们推测你的出生时辰为
-              </p>
-            </div>
+            {guessResult.confidence < CONFIDENCE_THRESHOLD ? (
+              <div>
+                <h2 className="text-base font-semibold text-[#d4d4d4]">匹配度不足</h2>
+                <p className="mt-1 text-sm text-[#858585]">
+                  你的回答在各时辰间区分度不够，推测结果仅供参考
+                </p>
+              </div>
+            ) : (
+              <div>
+                <h2 className="text-base font-semibold text-[#d4d4d4]">推测完成</h2>
+                <p className="mt-1 text-sm text-[#858585]">
+                  根据你的回答，我们推测你的出生时辰为
+                </p>
+              </div>
+            )}
 
             <div className="rounded-[4px] border border-[#2a3040] bg-[#1a1f2e] p-4">
               <p className="text-2xl font-bold text-[#d4a853]">{guessResult.label}时</p>
@@ -125,21 +143,39 @@ export function QuizModal({ open, onComplete, onClose }: QuizModalProps) {
               <div className="mt-3 flex items-center justify-center gap-2">
                 <div className="h-1 w-20 overflow-hidden rounded-[2px] bg-[#2a3040]">
                   <div
-                    className="h-full rounded-[2px] bg-[#d4a853] transition-all"
+                    className={`h-full rounded-[2px] transition-all ${
+                      guessResult.confidence < CONFIDENCE_THRESHOLD ? 'bg-[#f44747]' : 'bg-[#d4a853]'
+                    }`}
                     style={{ width: `${guessResult.confidence}%` }}
                   />
                 </div>
-                <span className="text-xs text-[#858585]">{guessResult.confidence}% 匹配</span>
+                <span className={`text-xs ${
+                  guessResult.confidence < CONFIDENCE_THRESHOLD ? 'text-[#f44747]' : 'text-[#858585]'
+                }`}>
+                  {guessResult.confidence}% 匹配
+                </span>
               </div>
             </div>
 
-            <p className="text-xs text-[#6a6a6a]">
-              *推测结果仅供参考，准确出生时辰可获得更精准的分析
-            </p>
-
-            <Button size="lg" className="w-full" onClick={handleConfirm}>
-              开始人格分析
-            </Button>
+            {guessResult.confidence < CONFIDENCE_THRESHOLD ? (
+              <div className="flex gap-2">
+                <Button variant="ghost" size="lg" className="flex-1" onClick={handleRetry}>
+                  重新答题
+                </Button>
+                <Button size="lg" className="flex-1" onClick={handleConfirm}>
+                  仍使用此结果
+                </Button>
+              </div>
+            ) : (
+              <>
+                <p className="text-xs text-[#6a6a6a]">
+                  *推测结果仅供参考，准确出生时辰可获得更精准的分析
+                </p>
+                <Button size="lg" className="w-full" onClick={handleConfirm}>
+                  开始人格分析
+                </Button>
+              </>
+            )}
           </div>
         )}
       </div>
