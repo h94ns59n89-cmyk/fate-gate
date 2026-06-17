@@ -345,6 +345,23 @@ function SelfImprovementPage({ data }: { data: Record<string, unknown> }) {
   );
 }
 
+const GLOSSARY_ZH: Record<string, string> = {
+  day_master: '日主',
+  five_elements: '五行',
+  shishen: '十神',
+  heavenly_stem: '天干',
+  earthly_branch: '地支',
+  hidden_stems: '藏干',
+  dayun: '大运',
+  liunian: '流年',
+  nayin: '纳音',
+  shensha: '神煞',
+  kongwang: '空亡',
+  yong_shen: '用神',
+  xi_shen: '喜神',
+  ji_shen: '忌神',
+};
+
 function GlossaryPage({ data }: { data: Record<string, unknown> }) {
   const entries = Object.entries(data).filter(([key]) => key !== 'id');
   return (
@@ -352,7 +369,7 @@ function GlossaryPage({ data }: { data: Record<string, unknown> }) {
       {entries.map(([term, desc]) => (
         <div key={term} className="rounded-[4px] border border-[#2a3040] bg-[#1a1f2e]
  px-4 py-3">
-          <p className="text-xs font-semibold text-[#d4a853]">{term}</p>
+          <p className="text-xs font-semibold text-[#d4a853]">{GLOSSARY_ZH[term] ?? term}</p>
           <p className="mt-1 text-sm leading-relaxed text-[#d4d4d4]/70">{desc as string}</p>
         </div>
       ))}
