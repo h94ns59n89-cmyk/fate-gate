@@ -244,6 +244,20 @@ export default function LandingPage() {
         open={showQuiz}
         onComplete={handleQuizComplete}
         onClose={() => setShowQuiz(false)}
+        onSkip={() => {
+          setShowQuiz(false);
+          const pending = pendingFormRef.current;
+          if (pending) {
+            runCalculate({
+              birthDate: pending.birthDate,
+              birthHour: 12,
+              birthMinute: pending.birthMinute,
+              birthPlace: pending.birthPlace,
+              isSolarCalendar: pending.isSolarCalendar,
+            });
+            pendingFormRef.current = null;
+          }
+        }}
       />
 
       {showShare && result && <div className="fixed inset-0 z-50 flex items-end justify-center">

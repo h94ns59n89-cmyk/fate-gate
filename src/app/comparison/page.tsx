@@ -293,7 +293,16 @@ export default function ComparisonPage() {
         )}
       </div>
 
-      <QuizModal open={showQuiz} onComplete={handleQuizComplete} onClose={() => setShowQuiz(false)} />
+      <QuizModal
+        open={showQuiz}
+        onComplete={handleQuizComplete}
+        onClose={() => setShowQuiz(false)}
+        onSkip={() => {
+          setShowQuiz(false);
+          pendingFormRef.current = null;
+          handleCompare(12);
+        }}
+      />
     </div>
   );
 }

@@ -10,11 +10,12 @@ interface QuizModalProps {
   open: boolean;
   onComplete: (result: TimeGuessResult) => void;
   onClose: () => void;
+  onSkip?: () => void;
 }
 
 const CONFIDENCE_THRESHOLD = 50;
 
-export function QuizModal({ open, onComplete, onClose }: QuizModalProps) {
+export function QuizModal({ open, onComplete, onClose, onSkip }: QuizModalProps) {
   const [step, setStep] = useState<'quiz' | 'result'>('quiz');
   const [currentQ, setCurrentQ] = useState(0);
   const [answers, setAnswers] = useState<Array<{ questionId: number; optionId: number }>>([]);
@@ -152,7 +153,7 @@ export function QuizModal({ open, onComplete, onClose }: QuizModalProps) {
 
             {guessResult.confidence < CONFIDENCE_THRESHOLD ? (
               <div className="flex gap-2">
-                <Button variant="ghost" size="lg" className="flex-1" onClick={onClose}>
+                <Button variant="ghost" size="lg" className="flex-1" onClick={onSkip ?? onClose}>
                   我不知道，跳过
                 </Button>
                 <Button size="lg" className="flex-1" onClick={handleConfirm}>
