@@ -79,6 +79,9 @@ export function QuizModal({ open, onComplete, onClose }: QuizModalProps) {
 
             {QUIZ_QUESTIONS[currentQ] && (
               <div className="space-y-3" key={currentQ}>
+                <p className="text-xs text-[#6a6a6a] italic">
+                  {QUIZ_QUESTIONS[currentQ].dimension}
+                </p>
                 <p className="text-sm text-[#d4d4d4]">
                   {QUIZ_QUESTIONS[currentQ].question}
                 </p>
