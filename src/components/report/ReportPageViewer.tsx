@@ -2,6 +2,7 @@
 
 import { useRef, useState, useCallback } from 'react';
 import { Button } from '@/components/common/Button';
+import { Sparkles, Plus, Minus } from 'lucide-react';
 import type { FullReport } from '@/lib/types';
 
 interface ReportPageViewerProps {
@@ -37,10 +38,6 @@ function DotProgress({ total, current, onJump }: { total: number; current: numbe
       ))}
     </div>
   );
-}
-
-function SectionDivider() {
-  return <div className="my-5 h-px bg-gradient-to-r from-transparent via-[#d4a853]/30 to-transparent" />;
 }
 
 function GoldBadge({ children }: { children: React.ReactNode }) {
@@ -93,15 +90,46 @@ function StatusBadge({ status }: { status: string }) {
 function CoverPage({ data }: { data: Record<string, unknown> }) {
   return (
     <div className="flex h-full flex-col items-center justify-center text-center">
-      <div className="mb-8 w-16 border-t-2 border-[#d4a853]" />
+      {/* Decorative constellation dots */}
+      <div className="absolute left-8 top-12">
+        <div className="h-1 w-1 rounded-full bg-[#d4a853]/20" />
+        <div className="mt-3 ml-3 h-0.5 w-0.5 rounded-full bg-[#d4a853]/10" />
+      </div>
+      <div className="absolute right-8 top-20">
+        <div className="h-0.5 w-0.5 rounded-full bg-[#d4a853]/15" />
+        <div className="mt-4 ml-2 h-1 w-1 rounded-full bg-[#d4a853]/8" />
+      </div>
+
+      {/* Decorative top: dots + line */}
+      <div className="mb-6 flex items-center gap-3">
+        <div className="h-px w-12 bg-gradient-to-r from-transparent to-[#d4a853]/40" />
+        <div className="flex gap-1">
+          <div className="h-1 w-1 rounded-full bg-[#d4a853]" />
+          <div className="h-1 w-1 rounded-full bg-[#d4a853]/50" />
+          <div className="h-1 w-1 rounded-full bg-[#d4a853]/20" />
+        </div>
+        <div className="h-px w-12 bg-gradient-to-l from-transparent to-[#d4a853]/40" />
+      </div>
+
       <GoldBadge>{data.day_master as string}</GoldBadge>
-      <h1 className="mt-4 font-serif text-2xl font-bold text-[#d4d4d4]">{data.title as string}</h1>
-      <p className="mt-2 text-sm text-[#858585]">{data.subtitle as string}</p>
-      <SectionDivider />
-      <p className="max-w-xs font-serif text-lg font-medium italic leading-relaxed text-[#d4a853]">
-        「{data.life_theme as string}」
+
+      <h1 className="mt-5 font-serif text-3xl font-bold leading-tight text-[#d4d4d4]">
+        {data.title as string}
+      </h1>
+      <p className="mt-2 text-sm tracking-wide text-[#7C8DB5]">
+        {data.subtitle as string}
       </p>
-      <p className="mt-8 text-xs text-[#6a6a6a]">
+
+      <div className="my-6 h-px w-16 bg-gradient-to-r from-transparent via-[#d4a853]/30 to-transparent" />
+
+      {/* Life theme as blockquote */}
+      <div className="max-w-xs border-l-2 border-[#d4a853]/40 pl-4 text-left">
+        <p className="font-serif text-base font-medium italic leading-relaxed text-[#d4a853]">
+          「{data.life_theme as string}」
+        </p>
+      </div>
+
+      <p className="mt-10 text-[11px] tracking-wide text-[#6a6a6a]">
         生成于 {new Date(data.generated_at as string).toLocaleDateString('zh-CN')}
       </p>
     </div>
@@ -113,19 +141,27 @@ function PersonalityPage({ data }: { data: Record<string, unknown> }) {
   const strengths = data.strengths as string[];
   const growthAreas = data.growth_areas as string[];
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
+      {/* Header */}
       <div className="text-center">
-        <TagPill>{data.type as string}</TagPill>
-        <p className="mt-2 text-sm text-[#858585]">{data.five_elements as string}</p>
+        <span className="inline-block rounded-full border border-[#d4a853]/20 bg-[#d4a853]/10 px-4 py-1 text-xs font-medium tracking-wide text-[#d4a853]">
+          {data.type as string}
+        </span>
+        <p className="mt-2 text-sm text-[#7C8DB5]">{data.five_elements as string}</p>
       </div>
-      <SectionDivider />
+
+      <div className="h-px bg-gradient-to-r from-transparent via-[#d4a853]/15 to-transparent" />
+
       {traits && traits.length > 0 && (
-        <div className="space-y-2.5">
-          <h3 className="text-xs font-semibold tracking-wide text-[#858585]">核心特质</h3>
-          <ul className="space-y-2">
+        <div className="space-y-3">
+          <h3 className="flex items-center gap-2 text-xs font-semibold tracking-wider text-[#7C8DB5]">
+            <Sparkles className="h-3 w-3" />
+            核心特质
+          </h3>
+          <ul className="space-y-2.5">
             {traits.map((trait, i) => (
               <li key={i} className="flex items-start gap-3 text-sm leading-relaxed text-[#d4d4d4]/90">
-                <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#d4a853]/15 text-[10px] font-bold text-[#d4a853]">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#d4a853]/12 text-[10px] font-semibold text-[#d4a853]">
                   {i + 1}
                 </span>
                 {trait}
@@ -134,27 +170,30 @@ function PersonalityPage({ data }: { data: Record<string, unknown> }) {
           </ul>
         </div>
       )}
+
       <div className="grid grid-cols-2 gap-3">
         {strengths && strengths.length > 0 && (
-          <div className="rounded-[4px] border border-[#4CAF50]/20 bg-[#4CAF50]/5 p-3">
-            <p className="mb-1.5 text-[10px] font-semibold tracking-wide text-[#4CAF50]">优势</p>
+          <div className="rounded-[4px] border-l-2 border-[#4CAF50] bg-[#4CAF50]/5 px-3.5 py-3">
+            <p className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold tracking-wider text-[#4CAF50]">
+              <Plus className="h-3 w-3" />
+              优势
+            </p>
             <ul className="space-y-1">
               {strengths.map((s, i) => (
-                <li key={i} className="flex items-center gap-1.5 text-xs text-[#d4d4d4]/80">
-                  <span className="text-[#4CAF50]">+</span> {s}
-                </li>
+                <li key={i} className="text-xs leading-relaxed text-[#d4d4d4]/75">{s}</li>
               ))}
             </ul>
           </div>
         )}
         {growthAreas && growthAreas.length > 0 && (
-          <div className="rounded-[4px] border border-[#FF5722]/20 bg-[#FF5722]/5 p-3">
-            <p className="mb-1.5 text-[10px] font-semibold tracking-wide text-[#FF5722]">成长空间</p>
+          <div className="rounded-[4px] border-l-2 border-[#FF5722] bg-[#FF5722]/5 px-3.5 py-3">
+            <p className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold tracking-wider text-[#FF5722]">
+              <Minus className="h-3 w-3" />
+              成长
+            </p>
             <ul className="space-y-1">
               {growthAreas.map((g, i) => (
-                <li key={i} className="flex items-center gap-1.5 text-xs text-[#d4d4d4]/80">
-                  <span className="text-[#FF5722]">~</span> {g}
-                </li>
+                <li key={i} className="text-xs leading-relaxed text-[#d4d4d4]/75">{g}</li>
               ))}
             </ul>
           </div>
@@ -427,22 +466,21 @@ export function ReportPageViewer({ report, onShare }: ReportPageViewerProps) {
           return (
             <div
               key={page.key}
-              className="flex h-[80vh] snap-start snap-always flex-col justify-start p-5 pt-10"
+              className="flex h-[80vh] snap-start snap-always flex-col justify-start p-6 pt-12"
             >
               {page.key !== 'cover' && page.key !== 'footer' && (
-                <div className="mb-1 flex items-center gap-3">
-                  <span className="text-[10px] font-bold tracking-wider text-[#d4a853]">
+                <div className="relative mb-4 flex items-center border-b border-[#2a3040]/60 pb-3">
+                  <span className="absolute -left-1 select-none text-[48px] font-bold leading-none text-[#d4a853]/6">
                     {String(i).padStart(2, '0')}
                   </span>
-                  <span className="text-[10px] font-medium tracking-wide text-[#858585]">
+                  <span className="ml-9 text-xs font-medium tracking-wide text-[#7C8DB5]">
                     {page.title}
                   </span>
                   <div className="ml-auto flex gap-1">
                     {i > 0 && (
                       <button
                         onClick={() => jumpTo(i - 1)}
-                        className="flex h-5 w-5 items-center justify-center rounded-[2px] text-[10px] text-[#6a6a6a] hover:bg-[#1a1f2e]
- hover:text-[#d4d4d4]"
+                        className="flex h-6 w-6 items-center justify-center rounded-[4px] text-xs text-[#6a6a6a] transition-colors hover:bg-[#1a1f2e] hover:text-[#d4d4d4]"
                         aria-label="上一页"
                       >
                         ‹
@@ -451,8 +489,7 @@ export function ReportPageViewer({ report, onShare }: ReportPageViewerProps) {
                     {i < PAGES.length - 1 && (
                       <button
                         onClick={() => jumpTo(i + 1)}
-                        className="flex h-5 w-5 items-center justify-center rounded-[2px] text-[10px] text-[#6a6a6a] hover:bg-[#1a1f2e]
- hover:text-[#d4d4d4]"
+                        className="flex h-6 w-6 items-center justify-center rounded-[4px] text-xs text-[#6a6a6a] transition-colors hover:bg-[#1a1f2e] hover:text-[#d4d4d4]"
                         aria-label="下一页"
                       >
                         ›
@@ -461,7 +498,7 @@ export function ReportPageViewer({ report, onShare }: ReportPageViewerProps) {
                   </div>
                 </div>
               )}
-              <div className={`flex-1 ${page.key === 'cover' || page.key === 'footer' ? '' : 'mt-2'}`}>
+              <div className={`flex-1 ${page.key === 'cover' || page.key === 'footer' ? '' : ''}`}>
                 {render ? render(data) : null}
               </div>
             </div>
