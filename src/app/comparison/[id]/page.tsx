@@ -156,17 +156,20 @@ export default function ComparisonResultPage() {
         <div className="vscode-card mt-4 space-y-3">
           <h3 className="text-sm font-semibold text-[#d4d4d4]">维度分析</h3>
           <div className="space-y-2 text-sm text-[#d4d4d4]/80">
-            {Object.entries(dimsObj).map(([label, score]) => (
+            {Object.entries(dimsObj).map(([label, score]) => {
+              const labelZh: Record<string, string> = { communication: '沟通', emotional: '情感', values: '价值观', growth: '成长' };
+              return (
               <div key={label} className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <span className="capitalize">{label}</span>
+                  <span className="capitalize">{labelZh[label.toLowerCase()] ?? label}</span>
                   <span className="text-[#d4a853]">{Math.round(score)}%</span>
                 </div>
                 <div className="h-1.5 overflow-hidden rounded-full bg-[#2a3040]">
                   <div className="h-full rounded-full bg-[#d4a853]" style={{ width: `${Math.round(score)}%` }} />
                 </div>
               </div>
-            ))}
+            );
+            })}
           </div>
         </div>
       )}
