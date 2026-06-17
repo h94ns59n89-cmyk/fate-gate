@@ -1,13 +1,16 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/common/Button';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { Logo } from '@/components/common/Logo';
+import { QuizModal } from '@/components/input/QuizModal';
 import { useBaziCalculator } from '@/hooks/useBaziCalculator';
 import { useUserStore } from '@/stores/userStore';
 import { trackEvent, EVENTS } from '@/lib/analytics';
+import { validateInviteCode, validateBirthForm } from '@/lib/client-validation';
+import type { TimeGuessResult } from '@/lib/types';
 
 type Step = 'invite' | 'birth' | 'generating';
 
@@ -19,6 +22,7 @@ export default function ComparisonPage() {
 
   const [step, setStep] = useState<Step>('invite');
   const [inviteCode, setInviteCode] = useState('');
+  const [inviteCodeError, setInviteCodeError] = useState('');
   const [targetUser, setTargetUser] = useState<{
     user_id: number; nickname: string | null; personality_tags: string[]; bazi: Record<string, unknown>;
   } | null>(null);
@@ -31,11 +35,29 @@ export default function ComparisonPage() {
   const [birthMinute, setBirthMinute] = useState('');
   const [birthPlace, setBirthPlace] = useState('');
   const [isSolar, setIsSolar] = useState(true);
+  const [formErrors, setFormErrors] = useState<Record<string, string> | null>(null);
+
+  const setValidationErrors = (errors: Record<string, string | undefined>) => {
+    const defined: Record<string, string> = {};
+    for (const [k, v] of Object.entries(errors)) { if (v) defined[k] = v; }
+    setFormErrors(Object.keys(defined).length ? defined : null);
+  };
   const [createError, setCreateError] = useState('');
+
+  // Quiz modal state
+  const [showQuiz, setShowQuiz] = useState(false);
+  const pendingFormRef = useRef<{
+    birthDate: string; birthMinute: string; birthPlace: string; isSolar: boolean;
+  } | null>(null);
 
   const handleLookup = async () => {
     const code = inviteCode.trim();
-    if (!code) return;
+    const codeError = validateInviteCode(code);
+    if (codeError) {
+      setInviteCodeError(codeError);
+      return;
+    }
+    setInviteCodeError('');
     setLookupLoading(true);
     setLookupError('');
     try {
@@ -51,18 +73,32 @@ export default function ComparisonPage() {
     }
   };
 
-  const handleCompare = useCallback(async () => {
+  const handleCompare = useCallback(async (guessedHour?: number) => {
     if (!targetUser) return;
+    setFormErrors(null);
+
+    const validationErrors = validateBirthForm({ birthDate, birthPlace });
+    if (validationErrors.birthDate || validationErrors.birthPlace) {
+      setValidationErrors(validationErrors as Record<string, string | undefined>);
+      return;
+    }
+
+    if (!birthHour && guessedHour == null) {
+      pendingFormRef.current = { birthDate, birthMinute, birthPlace, isSolar };
+      setShowQuiz(true);
+      return;
+    }
+
     setStep('generating');
     setCreateError('');
 
     try {
       const uid = userId ?? await initGuest();
 
-      // 1. Calculate own bazi
+      const hour = guessedHour ?? (birthHour ? parseInt(birthHour) : 12);
       const ownResult = await calculate({
         birthDate,
-        birthHour: birthHour ? parseInt(birthHour) : 12,
+        birthHour: hour,
         birthMinute: birthMinute ? parseInt(birthMinute) : null,
         birthPlace: birthPlace || null,
         isSolarCalendar: isSolar,
@@ -71,7 +107,6 @@ export default function ComparisonPage() {
 
       if (!ownResult) throw new Error('排盘计算失败');
 
-      // 2. Create comparison
       const compRes = await fetch('/api/v1/comparisons', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -99,7 +134,6 @@ export default function ComparisonPage() {
       const compJson = await compRes.json();
       if (compJson.code !== 0) throw new Error(compJson.message ?? '合盘创建失败');
 
-      // 3. Redirect to result
       trackEvent(EVENTS.COMPARISON_CREATED);
       router.push(`/comparison/${compJson.data.id}`);
     } catch (err) {
@@ -107,6 +141,15 @@ export default function ComparisonPage() {
       setStep('birth');
     }
   }, [targetUser, userId, initGuest, calculate, birthDate, birthHour, birthMinute, birthPlace, isSolar, router]);
+
+  const handleQuizComplete = useCallback((guess: TimeGuessResult) => {
+    setShowQuiz(false);
+    const pending = pendingFormRef.current;
+    if (pending) {
+      handleCompare(guess.hour);
+      pendingFormRef.current = null;
+    }
+  }, [handleCompare]);
 
   return (
     <div className="relative min-h-screen">
@@ -132,11 +175,15 @@ export default function ComparisonPage() {
                 <input
                   type="text"
                   value={inviteCode}
-                  onChange={(e) => setInviteCode(e.target.value)}
+                  onChange={(e) => {
+                    setInviteCode(e.target.value);
+                    if (inviteCodeError) setInviteCodeError('');
+                  }}
                   placeholder="例如：u_12345"
                   className="vscode-input mt-1"
                   onKeyDown={(e) => e.key === 'Enter' && handleLookup()}
                 />
+                {inviteCodeError && <p className="mt-1 text-xs text-[#f44747]">{inviteCodeError}</p>}
               </div>
 
               {lookupError && (
@@ -184,7 +231,8 @@ export default function ComparisonPage() {
 
               <div>
                 <label className="vscode-label">出生日期</label>
-                <input type="date" required value={birthDate} onChange={(e) => setBirthDate(e.target.value)} className="vscode-input mt-1" />
+                <input type="date" required value={birthDate} onChange={(e) => { setBirthDate(e.target.value); if (formErrors?.birthDate) setFormErrors(null); }} className="vscode-input mt-1" />
+                {formErrors?.birthDate && <p className="mt-1 text-xs text-[#f44747]">{formErrors.birthDate}</p>}
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -212,7 +260,8 @@ export default function ComparisonPage() {
 
               <div>
                 <label className="vscode-label">出生地点</label>
-                <input type="text" required value={birthPlace} onChange={(e) => setBirthPlace(e.target.value)} placeholder="例如：上海市黄浦区" className="vscode-input mt-1" />
+                <input type="text" required value={birthPlace} onChange={(e) => { setBirthPlace(e.target.value); if (formErrors?.birthPlace) setFormErrors(null); }} placeholder="例如：上海市黄浦区" className="vscode-input mt-1" />
+                {formErrors?.birthPlace && <p className="mt-1 text-xs text-[#f44747]">{formErrors.birthPlace}</p>}
               </div>
 
               <div className="flex items-center gap-2.5">
@@ -225,7 +274,7 @@ export default function ComparisonPage() {
 
               {createError && <p className="text-center text-xs text-[#f44747]">{createError}</p>}
 
-              <Button size="lg" className="w-full" onClick={handleCompare} loading={calcLoading}>
+              <Button size="lg" className="w-full" onClick={() => handleCompare()} loading={calcLoading}>
                 开始合盘分析
               </Button>
             </div>
@@ -243,6 +292,8 @@ export default function ComparisonPage() {
           </div>
         )}
       </div>
+
+      <QuizModal open={showQuiz} onComplete={handleQuizComplete} onClose={() => setShowQuiz(false)} />
     </div>
   );
 }

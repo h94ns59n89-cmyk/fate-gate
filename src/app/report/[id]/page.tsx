@@ -56,28 +56,52 @@ export default function ReportPage() {
 
   useEffect(() => {
     trackEvent(EVENTS.REPORT_VIEWED);
-    if (reportId > 0) {
-      fetch(`/api/v1/reports/${reportId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.code === 0) {
-            setPersonalityTags(data.data?.personality_tags);
-            setFiveElements(data.data?.five_elements);
-            setSummary(data.data?.summary);
-            setBaziMeta(data.data?.bazi?.calculation_meta);
-            if (data.data?.full_report) {
-              setReport(data.data.full_report);
-              if (data.data.report_type === 'paid') {
-                setPaid(true);
-              }
-            }
+    let cancelled = false;
+    let intervalId: number | undefined;
+
+    const stop = () => {
+      if (intervalId) { window.clearInterval(intervalId); intervalId = undefined; }
+    };
+
+    const loadReport = async () => {
+      try {
+        const res = await fetch(`/api/v1/reports/${reportId}`);
+        const data = await res.json();
+        if (cancelled) return;
+        if (data.code === 0) {
+          setPersonalityTags(data.data?.personality_tags);
+          setFiveElements(data.data?.five_elements);
+          setSummary(data.data?.summary);
+          setBaziMeta(data.data?.bazi?.calculation_meta);
+          if (data.data?.full_report) {
+            setReport(data.data.full_report);
+            if (data.data.report_type === 'paid') setPaid(true);
           }
-          setLoading(false);
-        })
-        .catch(() => setLoading(false));
+          if (data.data?.status === 'pending') {
+            return;
+          }
+        }
+        stop();
+        setLoading(false);
+      } catch {
+        if (!cancelled) setLoading(false);
+        stop();
+      }
+    };
+
+    if (reportId > 0) {
+      loadReport().then(() => {
+        if (cancelled || intervalId) return;
+        intervalId = window.setInterval(loadReport, 3000);
+        window.setTimeout(() => {
+          if (!cancelled) { stop(); setLoading(false); }
+        }, 30000);
+      });
     } else {
       setLoading(false);
     }
+
+    return () => { cancelled = true; stop(); };
   }, [reportId]);
 
   const generateReport = useCallback(async () => {
@@ -151,7 +175,29 @@ export default function ReportPage() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-3">
         <LoadingSpinner size="lg" />
-        <p className="text-sm text-[#858585]">{generating ? '正在生成报告...' : '加载中...'}</p>
+        <p className="text-sm text-[#858585]">
+          {generating ? '正在生成报告...' : transitioning ? '正在更新...' : '加载中...'}
+        </p>
+      </div>
+    );
+  }
+
+  const invalidReport = reportId <= 0 && !baziData;
+  if (reportId <= 0 && baziData) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-4">
+        <p className="text-sm text-[#d4a853]">报告数据异常</p>
+        <p className="text-xs text-[#858585]">未获取到有效的报告编号，请尝试重新生成</p>
+        <Button onClick={generateReport} loading={generating}>重新生成报告</Button>
+        <Button variant="ghost" size="sm" onClick={() => window.location.href = '/'}>返回首页</Button>
+      </div>
+    );
+  }
+  if (invalidReport) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-4">
+        <p className="text-sm text-[#f44747]">报告不存在或已失效</p>
+        <Button onClick={() => window.location.href = '/'}>重新测算</Button>
       </div>
     );
   }
