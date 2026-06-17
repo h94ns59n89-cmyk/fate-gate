@@ -40,8 +40,8 @@
     font-family:
       Inter, 'SF Pro Display', -apple-system, BlinkMacSystemFont,
       'PingFang SC', 'Noto Sans SC', system-ui, sans-serif;
-    font-size: 14px;
-    line-height: 1.5;
+    font-size: 15px;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -89,23 +89,24 @@
   }
 
   .vscode-card {
-    @apply rounded-card border border-[#2a3040] bg-gradient-to-b from-[#111827] to-[#1a1f2e] p-5 shadow-card;
+    @apply rounded-[10px] border border-[#2a3040] bg-gradient-to-b from-[#111827] to-[#1a1f2e] p-5 shadow-card;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.03);
   }
 
   .vscode-input {
-    @apply w-full rounded-input border border-[#2a3040] bg-[#1a1f2e] px-3 py-2 text-sm text-[#d4d4d4]
-      placeholder-[#6a6a6a] transition-all
-      focus:border-[#d4a853] focus:outline-none focus:ring-1 focus:ring-[#d4a853]/40;
+    @apply w-full rounded-[8px] border border-[#2a3040] bg-[#1a1f2e] px-3.5 py-2.5 text-sm text-[#d4d4d4]
+      placeholder-[#6a6a6a] transition-all duration-200
+      focus:border-[#d4a853] focus:outline-none focus:ring-1 focus:ring-[#d4a853]/30;
   }
 
   .vscode-select {
-    @apply w-full rounded-input border border-[#2a3040] bg-[#1a1f2e] px-3 py-2 text-sm text-[#d4d4d4]
-      transition-all
-      focus:border-[#d4a853] focus:outline-none focus:ring-1 focus:ring-[#d4a853]/40;
+    @apply w-full rounded-[8px] border border-[#2a3040] bg-[#1a1f2e] px-3.5 py-2.5 text-sm text-[#d4d4d4]
+      transition-all duration-200
+      focus:border-[#d4a853] focus:outline-none focus:ring-1 focus:ring-[#d4a853]/30;
   }
 
   .vscode-label {
-    @apply mb-1.5 block text-xs font-medium text-[#858585] tracking-wide;
+    @apply mb-1.5 block text-xs font-medium tracking-[0.03em] text-[#858585];
   }
 
   .glass-card {

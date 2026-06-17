@@ -60,9 +60,9 @@ const config: Config = {
         ],
       },
       borderRadius: {
-        card: '8px',
-        input: '6px',
-        button: '6px',
+        card: '10px',
+        input: '8px',
+        button: '8px',
       },
       backgroundImage: {
         'gradient-brand': 'linear-gradient(180deg, #0B0E14 0%, #111827 100%)',

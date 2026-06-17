@@ -183,20 +183,20 @@ export default function MinePage() {
       </div>
 
       {userId && (
-        <div className="mb-6 flex items-center justify-between rounded-card border border-[#d4a853]/20 bg-[#d4a853]/5 px-4 py-3">
+        <div className="mb-6 flex items-center justify-between rounded-[10px] border border-[#d4a853]/20 bg-[#d4a853]/5 px-5 py-3.5">
           <div>
-            <p className="text-xs text-[#858585]">邀请码</p>
-            <p className="font-mono text-sm font-semibold text-[#d4a853]">u_{userId}</p>
+            <p className="text-[11px] tracking-[0.03em] text-[#858585]">邀请码</p>
+            <p className="mt-0.5 font-mono text-sm font-semibold text-[#d4a853]">u_{userId}</p>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => navigator.clipboard.writeText(`u_${userId}`)}
-              className="rounded-md border border-[#d4a853]/30 bg-[#d4a853]/10 px-3 py-1 text-xs font-medium text-[#d4a853] hover:bg-[#d4a853]/20"
+              className="rounded-md border border-[#d4a853]/30 bg-[#d4a853]/10 px-3 py-1 text-xs font-medium text-[#d4a853] transition-colors hover:bg-[#d4a853]/20 active:scale-[0.97]"
             >
               复制
             </button>
             <Link href="/comparison">
-              <button className="rounded-md border border-[#d4a853]/30 bg-[#d4a853]/10 px-3 py-1 text-xs font-medium text-[#d4a853] hover:bg-[#d4a853]/20">
+              <button className="rounded-md border border-[#d4a853]/30 bg-[#d4a853]/10 px-3 py-1 text-xs font-medium text-[#d4a853] transition-colors hover:bg-[#d4a853]/20 active:scale-[0.97]">
                 合盘
               </button>
             </Link>

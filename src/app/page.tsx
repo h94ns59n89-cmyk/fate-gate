@@ -154,25 +154,35 @@ export default function LandingPage() {
         {step === 'input' && (
           <>
             <div className="mb-10 text-center">
-              <div className="mb-4 flex justify-center">
+              {/* Decorative constellation */}
+              <div className="absolute left-6 top-20">
+                <div className="h-1 w-1 rounded-full bg-[#d4a853]/15" />
+                <div className="ml-4 mt-2 h-0.5 w-0.5 rounded-full bg-[#d4a853]/8" />
+              </div>
+              <div className="absolute right-6 top-24">
+                <div className="h-0.5 w-0.5 rounded-full bg-[#d4a853]/10" />
+                <div className="ml-2 mt-3 h-1 w-1 rounded-full bg-[#d4a853]/6" />
+              </div>
+
+              <div className="mb-5 flex justify-center">
                 <Logo size="lg" showText={false} />
               </div>
               <h1 className="font-serif text-3xl font-bold tracking-wider text-[#d4a853]">
                 星隅
               </h1>
-              <p className="mt-2 text-sm leading-relaxed text-[#858585]">
+              <p className="mt-2 text-sm leading-relaxed text-[#7C8DB5]">
                 输入出生信息，AI 基于八字命理
                 <br />
                 分析你独一无二的人格
               </p>
-              <div className="mt-3 flex items-center justify-center gap-2 text-xs text-[#6a6a6a]">
-                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#d4a853]/15 text-[10px] text-[#d4a853]">✦</span>
+              <div className="mt-4 flex items-center justify-center gap-2 text-xs text-[#6a6a6a]">
+                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#d4a853]/12 text-[10px] text-[#d4a853]">✦</span>
                 已有 <span className="font-medium text-[#d4a853]">12,458</span> 人完成测算
               </div>
             </div>
 
             <div className="mx-auto max-w-md">
-              <div className="glass-card">
+              <div className="vscode-card">
                 <BirthForm onSubmit={handleSubmit} loading={loading} />
               </div>
             </div>
@@ -214,9 +224,9 @@ export default function LandingPage() {
               onUnlock={handleUnlock}
             />
             {result!.reportId > 0 && effectiveUserId != null && (
-              <div className="mt-6 rounded-card border border-[#d4a853]/20 bg-[#d4a853]/5 px-5 py-4">
+              <div className="mt-6 rounded-[10px] border border-[#d4a853]/20 bg-[#d4a853]/5 px-5 py-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#d4a853]/15 text-sm text-[#d4a853]">✦</div>
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#d4a853]/12 text-sm text-[#d4a853]">✦</div>
                   <div className="flex-1">
                     <p className="text-xs font-medium text-[#d4a853]">邀请好友对比人格</p>
                     <p className="mt-0.5 text-[11px] text-[#858585]">你的邀请码：<span className="font-mono text-xs font-semibold text-[#d4d4d4]">u_{effectiveUserId}</span></p>
@@ -226,7 +236,7 @@ export default function LandingPage() {
                       navigator.clipboard.writeText(`u_${effectiveUserId}`);
                       trackEvent(EVENTS.SUMMARY_SHARED);
                     }}
-                    className="rounded-md border border-[#d4a853]/30 bg-[#d4a853]/10 px-3 py-1.5 text-xs font-medium text-[#d4a853] hover:bg-[#d4a853]/20 active:scale-95"
+                    className="rounded-md border border-[#d4a853]/30 bg-[#d4a853]/10 px-3 py-1.5 text-xs font-medium text-[#d4a853] transition-colors hover:bg-[#d4a853]/20 active:scale-[0.97]"
                   >
                     复制
                   </button>

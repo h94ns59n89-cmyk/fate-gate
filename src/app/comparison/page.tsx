@@ -156,20 +156,20 @@ export default function ComparisonPage() {
       <div className="star-field" />
       <div className="fixed inset-0 bg-gradient-to-b from-[#0B0E14]/60 via-[#111827]/40 to-[#0B0E14]/80 pointer-events-none z-[1]" />
 
-      <div className="relative z-10 px-4 pb-[60px] pt-14">
+      <div className="relative z-10 px-4 pb-[60px] pt-16">
         <div className="mb-8 text-center">
-          <div className="mb-3 flex justify-center">
+          <div className="mb-4 flex justify-center">
             <Logo size="md" showText={false} />
           </div>
           <h1 className="font-serif text-2xl font-bold tracking-wider text-[#d4a853]">
             人格对比
           </h1>
-          <p className="mt-1 text-xs text-[#858585]">输入对方的邀请码，合盘分析你们的匹配度</p>
+          <p className="mt-2 text-sm text-[#7C8DB5]">输入对方的邀请码，合盘分析你们的匹配度</p>
         </div>
 
         {step === 'invite' && (
           <div className="mx-auto max-w-md">
-            <div className="glass-card space-y-4">
+            <div className="vscode-card space-y-4">
               <div>
                 <label className="vscode-label">对方的邀请码</label>
                 <input
@@ -207,10 +207,10 @@ export default function ComparisonPage() {
 
         {step === 'birth' && targetUser && (
           <div className="mx-auto max-w-md space-y-5">
-            <div className="glass-card space-y-3">
-              <p className="text-xs font-medium text-[#858585]">对方</p>
+            <div className="vscode-card space-y-3">
+              <p className="text-xs font-medium tracking-[0.03em] text-[#858585]">对方</p>
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#d4a853]/15 text-base text-[#d4a853]">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#d4a853]/12 text-sm text-[#d4a853]">
                   ✦
                 </div>
                 <div>
@@ -226,8 +226,8 @@ export default function ComparisonPage() {
               </div>
             </div>
 
-            <div className="glass-card space-y-4">
-              <p className="text-xs font-medium text-[#858585]">你的出生信息</p>
+            <div className="vscode-card space-y-4">
+              <p className="text-xs font-medium tracking-[0.03em] text-[#858585]">你的出生信息</p>
 
               <div>
                 <label className="vscode-label">出生日期</label>
