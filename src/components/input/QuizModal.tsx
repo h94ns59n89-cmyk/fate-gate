@@ -118,6 +118,7 @@ export function QuizModal({ open, onComplete, onClose }: QuizModalProps) {
               <p className="mt-1 text-xs text-[#858585]">
                 ({String(guessResult.hour).padStart(2, '0')}:00-{String(guessResult.hour + 1).padStart(2, '0')}:59)
               </p>
+              <p className="mt-1 text-xs text-[#6a6a6a]">五行属{guessResult.element}</p>
               <div className="mt-3 flex items-center justify-center gap-2">
                 <div className="h-1 w-20 overflow-hidden rounded-[2px] bg-[#2a3040]">
                   <div

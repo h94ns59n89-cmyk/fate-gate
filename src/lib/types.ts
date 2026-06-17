@@ -85,6 +85,7 @@ export interface ComparisonResult {
 export interface TimeGuessResult {
   hour: number;
   label: string;
+  element: string;
   confidence: number;
 }
 
