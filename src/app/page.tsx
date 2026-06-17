@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { Logo } from '@/components/common/Logo';
 import { BirthForm } from '@/components/input/BirthForm';
 import { QuizModal } from '@/components/input/QuizModal';
 import { SummaryCard } from '@/components/report/SummaryCard';
@@ -143,50 +144,74 @@ export default function LandingPage() {
   }, [result, router]);
 
   return (
-    <div className="min-h-screen">
-      <div className="px-4 pb-[52px] pt-14">
-        <div className="mb-8 text-center">
-          <h1 className="mb-2 text-2xl font-semibold text-[#d4d4d4]">
-            {step === 'result' ? '你的人格' : '你本无可复制'}
-          </h1>
-          <p className="text-sm text-[#858585]">
-            {step === 'input' && '30秒出结果 · 和 MBTI 一样有趣'}
-            {step === 'generating' && '正在分析你的人格...'}
-            {step === 'result' && '基于八字命理分析'}
-          </p>
-          {step === 'input' && (
-            <p className="mt-2 text-xs text-[#6a6a6a]">
-              已有 <span className="text-[#d4a853]">12,458</span> 人完成测算
-            </p>
-          )}
-          {step === 'input' && error && (
-            <p className="mt-2 text-sm text-[#f44747]">{error}</p>
-          )}
-        </div>
+    <div className="relative min-h-screen">
+      <div className="star-field" />
+      <div className="fixed inset-0 bg-gradient-to-b from-[#0B0E14]/60 via-[#111827]/40 to-[#0B0E14]/80 pointer-events-none z-[1]" />
 
+      <div className="relative z-10 px-4 pb-[52px] pt-16">
         {step === 'input' && (
-          <BirthForm onSubmit={handleSubmit} loading={loading} />
+          <>
+            <div className="mb-10 text-center">
+              <div className="mb-4 flex justify-center">
+                <Logo size="lg" showText={false} />
+              </div>
+              <h1 className="font-serif text-3xl font-bold tracking-wider text-[#d4a853]">
+                星隅
+              </h1>
+              <p className="mt-2 text-sm leading-relaxed text-[#858585]">
+                输入出生信息，AI 基于八字命理
+                <br />
+                分析你独一无二的人格
+              </p>
+              <div className="mt-3 flex items-center justify-center gap-2 text-xs text-[#6a6a6a]">
+                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#d4a853]/15 text-[10px] text-[#d4a853]">✦</span>
+                已有 <span className="font-medium text-[#d4a853]">12,458</span> 人完成测算
+              </div>
+            </div>
+
+            <div className="mx-auto max-w-md">
+              <div className="glass-card">
+                <BirthForm onSubmit={handleSubmit} loading={loading} />
+              </div>
+            </div>
+
+            {error && (
+              <p className="mt-4 text-center text-sm text-[#f44747]">{error}</p>
+            )}
+          </>
         )}
 
         {step === 'generating' && (
-          <div className="flex flex-col items-center justify-center gap-3 py-20">
+          <div className="flex flex-col items-center justify-center gap-6 py-24">
+            <Logo size="md" showText={false} />
             <LoadingSpinner size="lg" />
-            <div role="status" aria-live="polite" className="text-sm text-[#858585]">
-              正在排盘计算...
+            <div className="text-center">
+              <p className="text-sm text-[#d4d4d4]">正在排盘计算...</p>
+              <p className="mt-1 text-xs text-[#6a6a6a]">基于你的出生信息进行命理分析</p>
             </div>
           </div>
         )}
 
-        {step === 'result' && result && (
-          <SummaryCard
-            personalityTags={result.personalityTags}
-            fiveElements={result.fiveElements}
-            coreTraits={result.coreTraits}
-            lifeTheme={result.lifeTheme}
-            calculationMeta={result.calculationMeta}
-            onShare={handleShare}
-            onUnlock={handleUnlock}
-          />
+        {step === 'result' && (
+          <div className="mx-auto max-w-md">
+            <div className="mb-6 text-center">
+              <p className="text-xs font-medium tracking-wider text-[#858585]">你的人格</p>
+              <div className="mt-1 flex items-center justify-center gap-2">
+                <span className="h-px w-6 bg-[#d4a853]/30" />
+                <span className="text-xs text-[#d4a853]">基于八字命理分析</span>
+                <span className="h-px w-6 bg-[#d4a853]/30" />
+              </div>
+            </div>
+            <SummaryCard
+              personalityTags={result!.personalityTags}
+              fiveElements={result!.fiveElements}
+              coreTraits={result!.coreTraits}
+              lifeTheme={result!.lifeTheme}
+              calculationMeta={result!.calculationMeta}
+              onShare={handleShare}
+              onUnlock={handleUnlock}
+            />
+          </div>
         )}
       </div>
 
@@ -199,7 +224,7 @@ export default function LandingPage() {
       {showShare && result && (
         <div className="fixed inset-0 z-50 flex items-end justify-center">
           <div className="absolute inset-0 bg-black/70" onClick={() => setShowShare(false)} />
-          <div className="relative w-full max-w-md rounded-t-[6px] border-t border-[#2a3040] bg-[#111827] px-5 pb-8 pt-5 shadow-modal">
+          <div className="relative w-full max-w-md rounded-t-card border-t border-[#2a3040] bg-[#111827] px-5 pb-8 pt-5 shadow-modal">
             <div className="mb-4 text-center">
               <h3 className="text-sm font-semibold text-[#d4d4d4]">分享你的人格</h3>
               <p className="mt-1 text-xs text-[#858585]">让朋友也来测一测</p>
