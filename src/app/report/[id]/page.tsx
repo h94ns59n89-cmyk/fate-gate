@@ -225,8 +225,8 @@ export default function ReportPage() {
 
   if (paid && report) {
     return (
-      <div className="min-h-screen pt-14">
-        <div className="px-4 pb-[68px]">
+      <div>
+        <div className="px-4">
           <ReportPageViewer report={report} onShare={() => trackEvent(EVENTS.SUMMARY_SHARED)} />
           {inviteCodeSection}
         </div>
@@ -235,8 +235,8 @@ export default function ReportPage() {
   }
 
   return (
-    <div className="min-h-screen pt-14">
-      <div className="px-4 pb-[110px]">
+    <div>
+      <div className="px-4">
         <SummaryCard
           personalityTags={personalityTags}
           fiveElements={fiveElements}
@@ -247,7 +247,7 @@ export default function ReportPage() {
         />
         {inviteCodeSection}
       </div>
-      <div className="fixed bottom-[68px] left-0 right-0 z-50 border-t border-[#2a3040] bg-[#0B0E14]">
+      <div className="sticky bottom-0 left-0 right-0 z-40 border-t border-[#2a3040] bg-[#0B0E14]">
         <PayWall reportId={reportId} userId={userId ?? 0} compact onSuccess={handlePaySuccess} />
       </div>
     </div>

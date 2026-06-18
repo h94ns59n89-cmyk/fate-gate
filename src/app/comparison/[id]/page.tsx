@@ -102,7 +102,7 @@ export default function ComparisonResultPage() {
 
       if (!data.is_paid) {
         return (
-          <div className="min-h-screen px-4 pb-[135px] pt-14">
+          <div className="px-4">
             <div className="mb-6 text-center">
               <h1 className="mb-1 text-xl font-semibold text-[#d4d4d4]">人格对比</h1>
               {typeof data.summary_tag === 'string' && (
@@ -121,7 +121,7 @@ export default function ComparisonResultPage() {
             )}
 
             {userId && (
-              <div className="fixed bottom-[68px] left-0 right-0 z-50 border-t border-[#2a3040] bg-[#0B0E14]">
+              <div className="sticky bottom-0 left-0 right-0 z-40 border-t border-[#2a3040] bg-[#0B0E14]">
                 <PayWall
                   reportId={data.id}
                   userId={userId}
@@ -137,7 +137,7 @@ export default function ComparisonResultPage() {
       }
 
       return (
-    <div className="min-h-screen px-4 pb-[68px] pt-14">
+    <div className="px-4">
       {/* Header with decorative line */}
       <div className="mb-6 text-center">
         <div className="mb-3 flex items-center justify-center gap-2">

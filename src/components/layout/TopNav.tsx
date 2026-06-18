@@ -17,7 +17,7 @@ export function TopNav() {
   const user = useUserStore((s) => s.user);
 
   return (
-    <header className="fixed top-0 z-50 hidden w-full border-b border-[#2a3040] bg-[#111827] md:block">
+    <header className="hidden w-full border-b border-[#2a3040] bg-[#111827] md:block">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-6">
         <Logo />
         <nav className="flex items-center gap-1">

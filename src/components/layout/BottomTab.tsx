@@ -21,7 +21,7 @@ export function BottomTab() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 z-50 w-full max-w-md bg-[#111827] md:hidden">
+    <nav className="w-full max-w-md bg-[#111827] md:hidden">
       {/* Navigation tabs */}
       <div className="flex justify-around border-t border-[#2a3040]">
         {tabs.map(({ href, label, icon: Icon }) => {
