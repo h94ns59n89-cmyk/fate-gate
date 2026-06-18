@@ -156,7 +156,7 @@ export default function ComparisonPage() {
       <div className="star-field" />
       <div className="fixed inset-0 bg-gradient-to-b from-[#0B0E14]/60 via-[#111827]/40 to-[#0B0E14]/80 pointer-events-none z-[1]" />
 
-      <div className="relative z-10 px-4 pb-[60px] pt-16">
+      <div className="relative z-10 px-4 pb-[68px] pt-16">
         <div className="mb-8 text-center">
           <div className="mb-4 flex justify-center">
             <Logo size="md" showText={false} />

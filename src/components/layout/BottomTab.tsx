@@ -11,12 +11,19 @@ const tabs = [
   { href: '/comparison', label: '合盘', icon: GitCompare },
 ];
 
+const legalLinks = [
+  { href: '/terms', label: '用户协议' },
+  { href: '/privacy', label: '隐私政策' },
+  { href: '/disclaimer', label: '免责声明' },
+];
+
 export function BottomTab() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 z-50 w-full max-w-md border-t border-[#2a3040] bg-[#111827] md:hidden">
-      <div className="flex justify-around">
+    <nav className="fixed bottom-0 z-50 w-full max-w-md bg-[#111827] md:hidden">
+      {/* Navigation tabs */}
+      <div className="flex justify-around border-t border-[#2a3040]">
         {tabs.map(({ href, label, icon: Icon }) => {
           const active = pathname === href;
           return (
@@ -34,6 +41,20 @@ export function BottomTab() {
             </Link>
           );
         })}
+      </div>
+      {/* Legal links bar */}
+      <div className="flex items-center justify-center gap-3 border-t border-[#2a3040]/30 py-1">
+        {legalLinks.map((link, i) => (
+          <span key={link.href} className="flex items-center gap-3">
+            {i > 0 && <span className="text-[10px] text-[#2a3040]">|</span>}
+            <Link
+              href={link.href}
+              className="text-[10px] leading-none text-[#6a6a6a] transition-colors hover:text-[#858585]"
+            >
+              {link.label}
+            </Link>
+          </span>
+        ))}
       </div>
     </nav>
   );

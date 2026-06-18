@@ -150,7 +150,7 @@ export default function LandingPage() {
       <div className="star-field" />
       <div className="fixed inset-0 bg-gradient-to-b from-[#0B0E14]/60 via-[#111827]/40 to-[#0B0E14]/80 pointer-events-none z-[1]" />
 
-      <div className="relative z-10 px-4 pb-[52px] pt-16">
+      <div className="relative z-10 px-4 pb-[68px] pt-16">
         {step === 'input' && (
           <>
             <div className="mb-10 text-center">

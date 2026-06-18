@@ -132,7 +132,7 @@ export default function MinePage() {
   }
 
   return (
-    <div className="min-h-screen px-4 pb-[60px] pt-14">
+    <div className="min-h-screen px-4 pb-[68px] pt-14">
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold text-[#d4d4d4]">我的报告</h1>
