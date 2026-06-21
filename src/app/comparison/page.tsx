@@ -154,17 +154,16 @@ export default function ComparisonPage() {
   return (
     <div className="relative">
       <div className="star-field" />
-      <div className="fixed inset-0 bg-gradient-to-b from-[#0B0E14]/60 via-[#111827]/40 to-[#0B0E14]/80 pointer-events-none z-[1]" />
 
       <div className="relative z-10 px-4 pt-16">
         <div className="mb-8 text-center">
           <div className="mb-4 flex justify-center">
             <Logo size="md" showText={false} />
           </div>
-          <h1 className="font-serif text-2xl font-bold tracking-wider text-[#d4a853]">
+          <h1 className="font-serif text-2xl font-bold tracking-wider text-[#9B7FBB]">
             人格对比
           </h1>
-          <p className="mt-2 text-sm text-[#7C8DB5]">输入对方的邀请码，合盘分析你们的匹配度</p>
+          <p className="mt-2 text-sm text-[#6B6778]">输入对方的邀请码，合盘分析你们的匹配度</p>
         </div>
 
         {step === 'invite' && (
@@ -183,11 +182,11 @@ export default function ComparisonPage() {
                   className="vscode-input mt-1"
                   onKeyDown={(e) => e.key === 'Enter' && handleLookup()}
                 />
-                {inviteCodeError && <p className="mt-1 text-xs text-[#f44747]">{inviteCodeError}</p>}
+                {inviteCodeError && <p className="mt-1 text-xs text-[#E05A5A]">{inviteCodeError}</p>}
               </div>
 
               {lookupError && (
-                <p className="text-center text-xs text-[#f44747]">{lookupError}</p>
+                <p className="text-center text-xs text-[#E05A5A]">{lookupError}</p>
               )}
 
               <Button size="lg" className="w-full" onClick={handleLookup} loading={lookupLoading}>
@@ -196,8 +195,8 @@ export default function ComparisonPage() {
             </div>
 
             <div className="mt-6 text-center">
-              <p className="text-xs text-[#6a6a6a]">还没有对方的邀请码？</p>
-              <p className="mt-1 text-xs text-[#858585]">让对方先完成测算，在结果页即可看到邀请码</p>
+              <p className="text-xs text-[#8A8696]">还没有对方的邀请码？</p>
+              <p className="mt-1 text-xs text-[#6B6778]">让对方先完成测算，在结果页即可看到邀请码</p>
               <Button variant="ghost" size="sm" className="mt-2" onClick={() => router.push('/')}>
                 先生成自己的报告
               </Button>
@@ -208,16 +207,16 @@ export default function ComparisonPage() {
         {step === 'birth' && targetUser && (
           <div className="mx-auto max-w-md space-y-5">
             <div className="vscode-card space-y-3">
-              <p className="text-xs font-medium tracking-[0.03em] text-[#858585]">对方</p>
+              <p className="text-xs font-medium tracking-[0.03em] text-[#6B6778]">对方</p>
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#d4a853]/12 text-sm text-[#d4a853]">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#9B7FBB]/8 text-sm text-[#9B7FBB]">
                   ✦
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-[#d4d4d4]">{targetUser.nickname ?? '匿名用户'}</p>
+                  <p className="text-sm font-medium text-[#1F1D2B]">{targetUser.nickname ?? '匿名用户'}</p>
                   <div className="mt-1 flex flex-wrap gap-1">
                     {targetUser.personality_tags?.slice(0, 3).map((tag, i) => (
-                      <span key={i} className="rounded-[3px] bg-[#d4a853]/10 px-2 py-0.5 text-[10px] text-[#d4a853]">
+                      <span key={i} className="rounded-[3px] bg-[#9B7FBB]/8 px-2 py-0.5 text-[10px] text-[#9B7FBB]">
                         {tag}
                       </span>
                     ))}
@@ -227,21 +226,21 @@ export default function ComparisonPage() {
             </div>
 
             <div className="vscode-card space-y-4">
-              <p className="text-xs font-medium tracking-[0.03em] text-[#858585]">你的出生信息</p>
+              <p className="text-xs font-medium tracking-[0.03em] text-[#6B6778]">你的出生信息</p>
 
               <div>
                 <label className="vscode-label">出生日期</label>
                 <input type="date" required value={birthDate} onChange={(e) => { setBirthDate(e.target.value); if (formErrors?.birthDate) setFormErrors(null); }} className="vscode-input mt-1" />
-                {formErrors?.birthDate && <p className="mt-1 text-xs text-[#f44747]">{formErrors.birthDate}</p>}
+                {formErrors?.birthDate && <p className="mt-1 text-xs text-[#E05A5A]">{formErrors.birthDate}</p>}
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="vscode-label">出生时辰</label>
                   <select value={birthHour} onChange={(e) => setBirthHour(e.target.value)} className="vscode-select">
-                    <option value="" className="bg-[#0B0E14]">未知</option>
+                    <option value="">未知</option>
                     {Array.from({ length: 12 }, (_, i) => (
-                      <option key={i} value={i * 2} className="bg-[#0B0E14]">
+                      <option key={i} value={i * 2}>
                         {['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'][i]}时
                       </option>
                     ))}
@@ -250,9 +249,9 @@ export default function ComparisonPage() {
                 <div>
                   <label className="vscode-label">分钟</label>
                   <select value={birthMinute} onChange={(e) => setBirthMinute(e.target.value)} className="vscode-select">
-                    <option value="" className="bg-[#0B0E14]">未知</option>
+                    <option value="">未知</option>
                     {Array.from({ length: 12 }, (_, i) => (
-                      <option key={i} value={i * 5} className="bg-[#0B0E14]">{i * 5} 分</option>
+                      <option key={i} value={i * 5}>{i * 5} 分</option>
                     ))}
                   </select>
                 </div>
@@ -261,18 +260,18 @@ export default function ComparisonPage() {
               <div>
                 <label className="vscode-label">出生地点</label>
                 <input type="text" required value={birthPlace} onChange={(e) => { setBirthPlace(e.target.value); if (formErrors?.birthPlace) setFormErrors(null); }} placeholder="例如：上海市黄浦区" className="vscode-input mt-1" />
-                {formErrors?.birthPlace && <p className="mt-1 text-xs text-[#f44747]">{formErrors.birthPlace}</p>}
+                {formErrors?.birthPlace && <p className="mt-1 text-xs text-[#E05A5A]">{formErrors.birthPlace}</p>}
               </div>
 
               <div className="flex items-center gap-2.5">
                 <label className="relative inline-flex cursor-pointer items-center">
                   <input type="checkbox" checked={isSolar} onChange={(e) => setIsSolar(e.target.checked)} className="peer sr-only" />
-                  <div className="h-5 w-9 rounded-[3px] bg-[#2a3040] after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-[2px] after:bg-[#858585] after:transition-all peer-checked:bg-[#d4a853]/30 peer-checked:after:translate-x-full peer-checked:after:bg-[#d4a853]" />
+                  <div className="h-5 w-9 rounded-[3px] bg-[#E0E0E0] after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-[2px] after:bg-[#FFFFFF] after:transition-all peer-checked:bg-[#9B7FBB]/30 peer-checked:after:translate-x-full peer-checked:after:bg-[#9B7FBB]" />
                 </label>
-                <span className="text-xs text-[#858585]">公历</span>
+                <span className="text-xs text-[#6B6778]">公历</span>
               </div>
 
-              {createError && <p className="text-center text-xs text-[#f44747]">{createError}</p>}
+              {createError && <p className="text-center text-xs text-[#E05A5A]">{createError}</p>}
 
               <Button size="lg" className="w-full" onClick={() => handleCompare()} loading={calcLoading}>
                 开始合盘分析
@@ -286,8 +285,8 @@ export default function ComparisonPage() {
             <Logo size="md" showText={false} />
             <LoadingSpinner size="lg" />
             <div className="text-center">
-              <p className="text-sm text-[#d4d4d4]">正在合盘分析...</p>
-              <p className="mt-1 text-xs text-[#6a6a6a]">基于双方八字进行匹配度计算</p>
+              <p className="text-sm text-[#1F1D2B]">正在合盘分析...</p>
+              <p className="mt-1 text-xs text-[#8A8696]">基于双方八字进行匹配度计算</p>
             </div>
           </div>
         )}

@@ -148,36 +148,35 @@ export default function LandingPage() {
   return (
     <div className="relative">
       <div className="star-field" />
-      <div className="fixed inset-0 bg-gradient-to-b from-[#0B0E14]/60 via-[#111827]/40 to-[#0B0E14]/80 pointer-events-none z-[1]" />
 
       <div className="relative z-10 px-4 pt-16">
         {step === 'input' && (
           <>
             <div className="mb-10 text-center">
-              {/* Decorative constellation */}
+              {/* Decorative dots */}
               <div className="absolute left-6 top-20">
-                <div className="h-1 w-1 rounded-full bg-[#d4a853]/15" />
-                <div className="ml-4 mt-2 h-0.5 w-0.5 rounded-full bg-[#d4a853]/8" />
+                <div className="h-1 w-1 rounded-full bg-[#9B7FBB]/12" />
+                <div className="ml-4 mt-2 h-0.5 w-0.5 rounded-full bg-[#9B7FBB]/6" />
               </div>
               <div className="absolute right-6 top-24">
-                <div className="h-0.5 w-0.5 rounded-full bg-[#d4a853]/10" />
-                <div className="ml-2 mt-3 h-1 w-1 rounded-full bg-[#d4a853]/6" />
+                <div className="h-0.5 w-0.5 rounded-full bg-[#9B7FBB]/8" />
+                <div className="ml-2 mt-3 h-1 w-1 rounded-full bg-[#9B7FBB]/5" />
               </div>
 
               <div className="mb-5 flex justify-center">
                 <Logo size="lg" showText={false} />
               </div>
-              <h1 className="font-serif text-3xl font-bold tracking-wider text-[#d4a853]">
+              <h1 className="font-serif text-3xl font-bold tracking-wider text-[#9B7FBB]">
                 星隅
               </h1>
-              <p className="mt-2 text-sm leading-relaxed text-[#7C8DB5]">
+              <p className="mt-2 text-sm leading-relaxed text-[#6B6778]">
                 输入出生信息，AI 基于八字命理
                 <br />
                 分析你独一无二的人格
               </p>
-              <div className="mt-4 flex items-center justify-center gap-2 text-xs text-[#6a6a6a]">
-                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#d4a853]/12 text-[10px] text-[#d4a853]">✦</span>
-                已有 <span className="font-medium text-[#d4a853]">12,458</span> 人完成测算
+              <div className="mt-4 flex items-center justify-center gap-2 text-xs text-[#8A8696]">
+                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#9B7FBB]/10 text-[10px] text-[#9B7FBB]">✦</span>
+                已有 <span className="font-medium text-[#9B7FBB]">12,458</span> 人完成探索
               </div>
             </div>
 
@@ -188,7 +187,7 @@ export default function LandingPage() {
             </div>
 
             {error && (
-              <p className="mt-4 text-center text-sm text-[#f44747]">{error}</p>
+              <p className="mt-4 text-center text-sm text-[#E05A5A]">{error}</p>
             )}
           </>
         )}
@@ -198,8 +197,8 @@ export default function LandingPage() {
             <Logo size="md" showText={false} />
             <LoadingSpinner size="lg" />
             <div className="text-center">
-              <p className="text-sm text-[#d4d4d4]">正在排盘计算...</p>
-              <p className="mt-1 text-xs text-[#6a6a6a]">基于你的出生信息进行命理分析</p>
+              <p className="text-sm text-[#1F1D2B]">正在排盘计算...</p>
+              <p className="mt-1 text-xs text-[#8A8696]">基于你的出生信息进行命理分析</p>
             </div>
           </div>
         )}
@@ -207,11 +206,11 @@ export default function LandingPage() {
         {step === 'result' && (
           <div className="mx-auto max-w-md">
             <div className="mb-6 text-center">
-              <p className="text-xs font-medium tracking-wider text-[#858585]">你的人格</p>
+              <p className="text-xs font-medium tracking-wider text-[#6B6778]">你的人格</p>
               <div className="mt-1 flex items-center justify-center gap-2">
-                <span className="h-px w-6 bg-[#d4a853]/30" />
-                <span className="text-xs text-[#d4a853]">基于八字命理分析</span>
-                <span className="h-px w-6 bg-[#d4a853]/30" />
+                <span className="h-px w-6 bg-[#9B7FBB]/25" />
+                <span className="text-xs text-[#9B7FBB]">基于八字命理分析</span>
+                <span className="h-px w-6 bg-[#9B7FBB]/25" />
               </div>
             </div>
             <SummaryCard
@@ -224,24 +223,24 @@ export default function LandingPage() {
               onUnlock={handleUnlock}
             />
             {result!.reportId > 0 && effectiveUserId != null && (
-              <div className="mt-6 rounded-[10px] border border-[#d4a853]/20 bg-[#d4a853]/5 px-5 py-4">
+              <div className="mt-6 rounded-[10px] border border-[rgba(0,0,0,0.06)] bg-[#F8F8FA] px-5 py-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#d4a853]/12 text-sm text-[#d4a853]">✦</div>
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#9B7FBB]/8 text-sm text-[#9B7FBB]">✦</div>
                   <div className="flex-1">
-                    <p className="text-xs font-medium text-[#d4a853]">邀请好友对比人格</p>
-                    <p className="mt-0.5 text-[11px] text-[#858585]">你的邀请码：<span className="font-mono text-xs font-semibold text-[#d4d4d4]">u_{effectiveUserId}</span></p>
+                    <p className="text-xs font-medium text-[#9B7FBB]">邀请好友对比人格</p>
+                    <p className="mt-0.5 text-[11px] text-[#6B6778]">你的邀请码：<span className="font-mono text-xs font-semibold text-[#1F1D2B]">u_{effectiveUserId}</span></p>
                   </div>
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(`u_${effectiveUserId}`);
                       trackEvent(EVENTS.SUMMARY_SHARED);
                     }}
-                    className="rounded-md border border-[#d4a853]/30 bg-[#d4a853]/10 px-3 py-1.5 text-xs font-medium text-[#d4a853] transition-colors hover:bg-[#d4a853]/20 active:scale-[0.97]"
+                    className="rounded-md border border-[#9B7FBB]/25 bg-[#9B7FBB]/8 px-3 py-1.5 text-xs font-medium text-[#9B7FBB] transition-colors hover:bg-[#9B7FBB]/15 active:scale-[0.97]"
                   >
                     复制
                   </button>
                 </div>
-                <p className="mt-2 text-[11px] leading-relaxed text-[#6a6a6a]">
+                <p className="mt-2 text-[11px] leading-relaxed text-[#8A8696]">
                   对方在「人格对比」页面输入你的邀请码即可把你们的八字放在一起比较
                 </p>
               </div>
@@ -271,11 +270,11 @@ export default function LandingPage() {
       />
 
       {showShare && result && <div className="fixed inset-0 z-50 flex items-end justify-center">
-        <div className="absolute inset-0 bg-black/70" onClick={() => setShowShare(false)} />
-        <div className="relative w-full max-w-md rounded-t-card border-t border-[#2a3040] bg-[#111827] px-5 pb-8 pt-5 shadow-modal">
+        <div className="absolute inset-0 bg-black/30" onClick={() => setShowShare(false)} />
+        <div className="relative w-full max-w-md rounded-t-card border-t border-[rgba(0,0,0,0.06)] bg-[#FFFFFF] px-5 pb-8 pt-5 shadow-modal">
           <div className="mb-4 text-center">
-            <h3 className="text-sm font-semibold text-[#d4d4d4]">分享你的人格</h3>
-            <p className="mt-1 text-xs text-[#858585]">让朋友也来测一测</p>
+            <h3 className="text-sm font-semibold text-[#1F1D2B]">分享你的人格</h3>
+            <p className="mt-1 text-xs text-[#6B6778]">让朋友也来测一测</p>
           </div>
           <ShareCard
             {...(result.reportId > 0 ? { imageUrl: `/api/v1/og/summary?reportId=${result.reportId}` } : {})}

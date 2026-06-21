@@ -165,7 +165,7 @@ export default function ReportPage() {
   if (error) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-4">
-        <p className="text-sm text-[#f44747]">{error}</p>
+        <p className="text-sm text-[#E05A5A]">{error}</p>
         <Button onClick={() => window.location.reload()}>重试</Button>
       </div>
     );
@@ -175,7 +175,7 @@ export default function ReportPage() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-3">
         <LoadingSpinner size="lg" />
-        <p className="text-sm text-[#858585]">
+        <p className="text-sm text-[#6B6778]">
           {generating ? '正在生成报告...' : transitioning ? '正在更新...' : '加载中...'}
         </p>
       </div>
@@ -186,8 +186,8 @@ export default function ReportPage() {
   if (reportId <= 0 && baziData) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-4">
-        <p className="text-sm text-[#d4a853]">报告数据异常</p>
-        <p className="text-xs text-[#858585]">未获取到有效的报告编号，请尝试重新生成</p>
+        <p className="text-sm text-[#9B7FBB]">报告数据异常</p>
+        <p className="text-xs text-[#6B6778]">未获取到有效的报告编号，请尝试重新生成</p>
         <Button onClick={generateReport} loading={generating}>重新生成报告</Button>
         <Button variant="ghost" size="sm" onClick={() => window.location.href = '/'}>返回首页</Button>
       </div>
@@ -196,28 +196,28 @@ export default function ReportPage() {
   if (invalidReport) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-4">
-        <p className="text-sm text-[#f44747]">报告不存在或已失效</p>
+        <p className="text-sm text-[#E05A5A]">报告不存在或已失效</p>
         <Button onClick={() => window.location.href = '/'}>重新测算</Button>
       </div>
     );
   }
 
   const inviteCodeSection = userId ? (
-    <div className="mt-6 rounded-card border border-[#d4a853]/20 bg-[#d4a853]/5 px-5 py-4">
+    <div className="mt-6 rounded-card border border-[rgba(0,0,0,0.06)] bg-[#F8F8FA] px-5 py-4">
       <div className="flex items-center gap-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#d4a853]/15 text-sm text-[#d4a853]">✦</div>
+        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#9B7FBB]/8 text-sm text-[#9B7FBB]">✦</div>
         <div className="flex-1">
-          <p className="text-xs font-medium text-[#d4a853]">邀请好友对比人格</p>
-          <p className="mt-0.5 text-[11px] text-[#858585]">你的邀请码：<span className="font-mono text-xs font-semibold text-[#d4d4d4]">u_{userId}</span></p>
+          <p className="text-xs font-medium text-[#9B7FBB]">邀请好友对比人格</p>
+          <p className="mt-0.5 text-[11px] text-[#6B6778]">你的邀请码：<span className="font-mono text-xs font-semibold text-[#1F1D2B]">u_{userId}</span></p>
         </div>
         <button
           onClick={() => navigator.clipboard.writeText(`u_${userId}`)}
-          className="rounded-md border border-[#d4a853]/30 bg-[#d4a853]/10 px-3 py-1.5 text-xs font-medium text-[#d4a853] hover:bg-[#d4a853]/20 active:scale-95"
+          className="rounded-md border border-[#9B7FBB]/25 bg-[#9B7FBB]/8 px-3 py-1.5 text-xs font-medium text-[#9B7FBB] hover:bg-[#9B7FBB]/15 active:scale-95"
         >
           复制
         </button>
       </div>
-      <p className="mt-2 text-[11px] leading-relaxed text-[#6a6a6a]">
+      <p className="mt-2 text-[11px] leading-relaxed text-[#8A8696]">
         对方在「人格对比」页面输入你的邀请码即可把你们的八字放在一起比较
       </p>
     </div>
@@ -247,7 +247,7 @@ export default function ReportPage() {
         />
         {inviteCodeSection}
       </div>
-      <div className="sticky bottom-0 left-0 right-0 z-40 border-t border-[#2a3040] bg-[#0B0E14]">
+      <div className="sticky bottom-0 left-0 right-0 z-40 border-t border-[rgba(0,0,0,0.06)] bg-[rgba(255,255,255,0.85)] backdrop-blur-lg">
         <PayWall reportId={reportId} userId={userId ?? 0} compact onSuccess={handlePaySuccess} />
       </div>
     </div>

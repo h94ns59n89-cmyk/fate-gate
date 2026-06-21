@@ -17,7 +17,7 @@ export function TopNav() {
   const user = useUserStore((s) => s.user);
 
   return (
-    <header className="hidden w-full border-b border-[#2a3040] bg-[#111827] md:block">
+    <header className="hidden w-full border-b border-[rgba(0,0,0,0.04)] bg-[rgba(255,255,255,0.82)] backdrop-blur-lg md:block">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-6">
         <Logo />
         <nav className="flex items-center gap-1">
@@ -28,8 +28,8 @@ export function TopNav() {
               className={cn(
                 'rounded-[3px] px-3 py-1.5 text-xs transition-colors',
                 pathname === link.href
-                  ? 'bg-[#d4a853]/15 text-[#d4a853]'
-                  : 'text-[#858585] hover:bg-[#1e2433] hover:text-[#d4d4d4]',
+                  ? 'bg-[#9B7FBB]/15 text-[#9B7FBB]'
+                  : 'text-[#6B6778] hover:bg-[#F5F0FA] hover:text-[#1F1D2B]',
               )}
             >
               {link.label}
@@ -44,7 +44,7 @@ export function TopNav() {
               className="h-7 w-7 rounded-full object-cover"
             />
           ) : (
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#d4a853]/20 text-xs text-[#d4a853]">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#9B7FBB]/20 text-xs text-[#9B7FBB]">
               {(user?.nickname ?? '?').charAt(0)}
             </div>
           )}

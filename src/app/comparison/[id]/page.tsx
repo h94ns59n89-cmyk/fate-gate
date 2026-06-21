@@ -25,7 +25,7 @@ class SafeBoundary extends Component<{ children: ReactNode; fallback?: ReactNode
       return this.props.fallback ?? (
         <div className="min-h-screen flex items-center justify-center p-4">
           <div className="text-center">
-            <p className="text-sm text-[#f44747] mb-2">渲染异常: {String(this.state.error?.message)}</p>
+            <p className="text-sm text-[#E05A5A] mb-2">渲染异常: {String(this.state.error?.message)}</p>
             <Button variant="outline" onClick={() => this.setState({ hasError: false, error: null })}>重试</Button>
           </div>
         </div>
@@ -90,7 +90,7 @@ export default function ComparisonResultPage() {
       if (error || !data) {
         return (
           <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-4">
-            <p className="text-sm text-[#f44747]">{error ?? '对比不存在'}</p>
+            <p className="text-sm text-[#E05A5A]">{error ?? '对比不存在'}</p>
             <Button variant="outline" onClick={fetchComparison}>重试</Button>
           </div>
         );
@@ -104,11 +104,11 @@ export default function ComparisonResultPage() {
         return (
           <div className="px-4">
             <div className="mb-6 text-center">
-              <h1 className="mb-1 text-xl font-semibold text-[#d4d4d4]">人格对比</h1>
+              <h1 className="mb-1 text-xl font-semibold text-[#1F1D2B]">人格对比</h1>
               {typeof data.summary_tag === 'string' && (
-                <p className="mb-2 text-sm font-medium text-[#d4a853]">{String(data.summary_tag)}</p>
+                <p className="mb-2 text-sm font-medium text-[#9B7FBB]">{String(data.summary_tag)}</p>
               )}
-              <p className="text-xs text-[#858585]">解锁完整合盘分析</p>
+              <p className="text-xs text-[#6B6778]">解锁完整合盘分析</p>
             </div>
 
             {dimsObj && (
@@ -121,7 +121,7 @@ export default function ComparisonResultPage() {
             )}
 
             {userId && (
-              <div className="sticky bottom-0 left-0 right-0 z-40 border-t border-[#2a3040] bg-[#0B0E14]">
+              <div className="sticky bottom-0 left-0 right-0 z-40 border-t border-[rgba(0,0,0,0.06)] bg-[rgba(255,255,255,0.85)] backdrop-blur-lg">
                 <PayWall
                   reportId={data.id}
                   userId={userId}
@@ -141,15 +141,15 @@ export default function ComparisonResultPage() {
       {/* Header with decorative line */}
       <div className="mb-6 text-center">
         <div className="mb-3 flex items-center justify-center gap-2">
-          <div className="h-px w-8 bg-gradient-to-r from-transparent to-[#d4a853]/40" />
-          <Sparkles className="h-3 w-3 text-[#d4a853]" />
-          <div className="h-px w-8 bg-gradient-to-l from-transparent to-[#d4a853]/40" />
+          <div className="h-px w-8 bg-gradient-to-r from-transparent to-[#9B7FBB]/30" />
+          <Sparkles className="h-3 w-3 text-[#9B7FBB]" />
+          <div className="h-px w-8 bg-gradient-to-l from-transparent to-[#9B7FBB]/30" />
         </div>
-        <h1 className="text-xl font-semibold text-[#d4d4d4]">合盘对比结果</h1>
+        <h1 className="text-xl font-semibold text-[#1F1D2B]">合盘对比结果</h1>
         {typeof data.summary_tag === 'string' && (
-          <p className="mb-1 mt-1 text-sm font-medium text-[#d4a853]">{String(data.summary_tag)}</p>
+          <p className="mb-1 mt-1 text-sm font-medium text-[#9B7FBB]">{String(data.summary_tag)}</p>
         )}
-        <p className="text-xs text-[#7C8DB5]">你们的人格匹配度分析</p>
+        <p className="text-xs text-[#6B6778]">你们的人格匹配度分析</p>
       </div>
 
       <ComparisonCard
@@ -161,8 +161,8 @@ export default function ComparisonResultPage() {
 
       {dimsObj && (
         <div className="vscode-card mt-4 space-y-4">
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-[#d4d4d4]">
-            <Target className="h-3.5 w-3.5 text-[#7C8DB5]" />
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-[#1F1D2B]">
+            <Target className="h-3.5 w-3.5 text-[#8A8696]" />
             维度分析
           </h3>
           <div className="space-y-3">
@@ -172,19 +172,19 @@ export default function ComparisonResultPage() {
               return (
               <div key={label} className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-[#d4d4d4]/80">{labelZh[label.toLowerCase()] ?? label}</span>
-                  <span className="text-xs font-semibold text-[#d4a853]">{rounded}%</span>
+                  <span className="text-xs font-medium text-[#1F1D2B]/70">{labelZh[label.toLowerCase()] ?? label}</span>
+                  <span className="text-xs font-semibold text-[#9B7FBB]">{rounded}%</span>
                 </div>
-                <div className="relative h-2 overflow-hidden rounded-full bg-[#2a3040]">
+                <div className="relative h-2 overflow-hidden rounded-full bg-[#E8E8EC]">
                   <div
                     className="h-full rounded-full transition-all duration-1000 ease-out"
                     style={{
                       width: `${rounded}%`,
-                      background: 'linear-gradient(90deg, #d4a853 0%, #f0d78c 100%)',
+                      background: 'linear-gradient(90deg, #9B7FBB 0%, #BBA3D5 100%)',
                     }}
                   />
                   <div
-                    className="absolute right-0 top-0 h-full w-2 rounded-full bg-[#d4a853]/30 blur-sm"
+                    className="absolute right-0 top-0 h-full w-2 rounded-full bg-[#9B7FBB]/30 blur-sm"
                     style={{ display: rounded > 80 ? 'block' : 'none' }}
                   />
                 </div>
@@ -196,25 +196,25 @@ export default function ComparisonResultPage() {
       )}
 
       {data.complementarity && (
-        <div className="vscode-card mt-4 border-l-2 border-l-[#d4a853]/40">
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-[#d4d4d4]">
-            <Heart className="h-3.5 w-3.5 text-[#d4a853]" />
+        <div className="vscode-card mt-4 border-l-2 border-l-[#9B7FBB]/30">
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-[#1F1D2B]">
+            <Heart className="h-3.5 w-3.5 text-[#9B7FBB]" />
             互补性
           </h3>
-          <p className="mt-2 text-sm leading-relaxed text-[#d4d4d4]/80">{String(data.complementarity)}</p>
+          <p className="mt-2 text-sm leading-relaxed text-[#1F1D2B]/70">{String(data.complementarity)}</p>
         </div>
       )}
 
       {(data.strengths?.length ?? 0) > 0 && (
         <div className="vscode-card mt-4 space-y-3">
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-[#d4d4d4]">
-            <Zap className="h-3.5 w-3.5 text-[#4CAF50]" />
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-[#1F1D2B]">
+            <Zap className="h-3.5 w-3.5 text-[#8FCFA0]" />
             优势
           </h3>
           <ul className="space-y-2">
             {(data.strengths ?? []).map((s, i) => (
-              <li key={i} className="flex items-start gap-2.5 text-sm leading-relaxed text-[#d4d4d4]/80">
-                <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#4CAF50]/15 text-[10px] text-[#4CAF50]">+</span>
+              <li key={i} className="flex items-start gap-2.5 text-sm leading-relaxed text-[#1F1D2B]/70">
+                <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#8FCFA0]/15 text-[10px] text-[#8FCFA0]">+</span>
                 {typeof s === 'string' ? s : JSON.stringify(s)}
               </li>
             ))}
@@ -224,14 +224,14 @@ export default function ComparisonResultPage() {
 
       {(data.potential_conflicts?.length ?? 0) > 0 && (
         <div className="vscode-card mt-4 space-y-3">
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-[#d4d4d4]">
-            <AlertTriangle className="h-3.5 w-3.5 text-[#FF5722]" />
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-[#1F1D2B]">
+            <AlertTriangle className="h-3.5 w-3.5 text-[#E0978A]" />
             潜在冲突
           </h3>
           <ul className="space-y-2">
             {(data.potential_conflicts ?? []).map((c, i) => (
-              <li key={i} className="flex items-start gap-2.5 text-sm leading-relaxed text-[#d4d4d4]/80">
-                <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#FF5722]/15 text-[10px] text-[#FF5722]">~</span>
+              <li key={i} className="flex items-start gap-2.5 text-sm leading-relaxed text-[#1F1D2B]/70">
+                <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#E0978A]/15 text-[10px] text-[#E0978A]">~</span>
                 {typeof c === 'string' ? c : JSON.stringify(c)}
               </li>
             ))}
@@ -241,22 +241,22 @@ export default function ComparisonResultPage() {
 
       {data.advice && (
         <div className="vscode-card mt-4 space-y-0">
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-[#d4d4d4]">
-            <MessageCircle className="h-3.5 w-3.5 text-[#7C8DB5]" />
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-[#1F1D2B]">
+            <MessageCircle className="h-3.5 w-3.5 text-[#8A8696]" />
             相处建议
           </h3>
-          <p className="mt-2 text-sm leading-relaxed text-[#d4d4d4]/80">{String(data.advice)}</p>
+          <p className="mt-2 text-sm leading-relaxed text-[#1F1D2B]/70">{String(data.advice)}</p>
         </div>
       )}
 
       {/* Divider before disclaimer */}
       <div className="my-8 flex items-center gap-3">
-        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#2a3040] to-transparent" />
-        <span className="text-[10px] text-[#6a6a6a]">✦</span>
-        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#2a3040] to-transparent" />
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[rgba(0,0,0,0.06)] to-transparent" />
+        <span className="text-[10px] text-[#8A8696]">✦</span>
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[rgba(0,0,0,0.06)] to-transparent" />
       </div>
       <div className="text-center">
-        <p className="text-xs text-[#6a6a6a]">本内容由 AI 生成，仅供娱乐参考</p>
+        <p className="text-xs text-[#8A8696]">本内容由 AI 生成，仅供娱乐参考</p>
       </div>
     </div>
       );

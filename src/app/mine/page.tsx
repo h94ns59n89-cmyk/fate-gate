@@ -125,7 +125,7 @@ export default function MinePage() {
   if (error) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-4">
-        <p className="text-sm text-[#f44747]">{error}</p>
+        <p className="text-sm text-[#E05A5A]">{error}</p>
         <Button onClick={() => fetchReports()}>重试</Button>
       </div>
     );
@@ -135,8 +135,8 @@ export default function MinePage() {
     <div className="px-4">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-[#d4d4d4]">我的报告</h1>
-          <p className="mt-0.5 text-xs text-[#858585]">共 {reports.length} 份报告</p>
+          <h1 className="text-xl font-semibold text-[#1F1D2B]">我的报告</h1>
+          <p className="mt-0.5 text-xs text-[#6B6778]">共 {reports.length} 份报告</p>
         </div>
         <div className="flex items-center gap-2">
           {editMode ? (
@@ -145,14 +145,14 @@ export default function MinePage() {
                 <button
                   onClick={handleDelete}
                   disabled={deleting}
-                  className="rounded-md border border-[#f44747]/30 bg-[#f44747]/10 px-3 py-1 text-xs font-medium text-[#f44747] hover:bg-[#f44747]/20 disabled:opacity-50"
+                  className="rounded-md border border-[#E05A5A]/30 bg-[#E05A5A]/10 px-3 py-1 text-xs font-medium text-[#E05A5A] hover:bg-[#E05A5A]/20 disabled:opacity-50"
                 >
                   {deleting ? '删除中...' : `删除 (${selectedKeys.size})`}
                 </button>
               )}
               <button
                 onClick={() => { setEditMode(false); setSelectedKeys(new Set()); }}
-                className="rounded-md border border-[#2a3040] px-3 py-1 text-xs text-[#858585] hover:text-[#d4d4d4]"
+                className="rounded-md border border-[rgba(0,0,0,0.08)] px-3 py-1 text-xs text-[#6B6778] hover:text-[#1F1D2B]"
               >
                 完成
               </button>
@@ -160,20 +160,20 @@ export default function MinePage() {
           ) : (
             <button
               onClick={() => setEditMode(true)}
-              className="rounded-md border border-[#2a3040] px-3 py-1 text-xs text-[#858585] hover:text-[#d4d4d4]"
+              className="rounded-md border border-[rgba(0,0,0,0.08)] px-3 py-1 text-xs text-[#6B6778] hover:text-[#1F1D2B]"
             >
               管理
             </button>
           )}
           {user && (
-            <div className="flex items-center gap-2 text-xs text-[#858585]">
+            <div className="flex items-center gap-2 text-xs text-[#6B6778]">
               {user.avatar_url && (
                 <img src={user.avatar_url} alt="" className="size-6 rounded-full" />
               )}
               <span>{user.nickname ?? '微信用户'}</span>
               <button
                 onClick={() => useUserStore.getState().logout?.()}
-                className="text-[#6a6a6a] hover:text-[#f44747]"
+                className="text-[#8A8696] hover:text-[#E05A5A]"
               >
                 退出
               </button>
@@ -183,20 +183,20 @@ export default function MinePage() {
       </div>
 
       {userId && (
-        <div className="mb-6 flex items-center justify-between rounded-[10px] border border-[#d4a853]/20 bg-[#d4a853]/5 px-5 py-3.5">
+        <div className="mb-6 flex items-center justify-between rounded-[10px] border border-[rgba(0,0,0,0.06)] bg-[#F8F8FA] px-5 py-3.5">
           <div>
-            <p className="text-[11px] tracking-[0.03em] text-[#858585]">邀请码</p>
-            <p className="mt-0.5 font-mono text-sm font-semibold text-[#d4a853]">u_{userId}</p>
+            <p className="text-[11px] tracking-[0.03em] text-[#6B6778]">邀请码</p>
+            <p className="mt-0.5 font-mono text-sm font-semibold text-[#9B7FBB]">u_{userId}</p>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => navigator.clipboard.writeText(`u_${userId}`)}
-              className="rounded-md border border-[#d4a853]/30 bg-[#d4a853]/10 px-3 py-1 text-xs font-medium text-[#d4a853] transition-colors hover:bg-[#d4a853]/20 active:scale-[0.97]"
+              className="rounded-md border border-[#9B7FBB]/25 bg-[#9B7FBB]/8 px-3 py-1 text-xs font-medium text-[#9B7FBB] transition-colors hover:bg-[#9B7FBB]/15 active:scale-[0.97]"
             >
               复制
             </button>
             <Link href="/comparison">
-              <button className="rounded-md border border-[#d4a853]/30 bg-[#d4a853]/10 px-3 py-1 text-xs font-medium text-[#d4a853] transition-colors hover:bg-[#d4a853]/20 active:scale-[0.97]">
+              <button className="rounded-md border border-[#9B7FBB]/25 bg-[#9B7FBB]/8 px-3 py-1 text-xs font-medium text-[#9B7FBB] transition-colors hover:bg-[#9B7FBB]/15 active:scale-[0.97]">
                 合盘
               </button>
             </Link>
@@ -206,7 +206,7 @@ export default function MinePage() {
 
       {reports.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-4 py-20">
-          <p className="text-sm text-[#6a6a6a]">还没有生成过报告</p>
+          <p className="text-sm text-[#8A8696]">还没有生成过报告</p>
           <Link href="/">
             <Button>开始测试</Button>
           </Link>
@@ -230,21 +230,21 @@ export default function MinePage() {
                           if (checked) { next.delete(key); } else { next.add(key); }
                           setSelectedKeys(next);
                         }}
-                        className="size-4 accent-[#d4a853]"
+                        className="size-4 accent-[#9B7FBB]"
                       />
                     )}
                     <Link href={`/comparison/${report.id}`} className="flex flex-1 items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-[#d4a853]">✦</span>
-                        <span className="text-xs text-[#858585]">{new Date(report.created_at).toLocaleDateString('zh-CN')}</span>
-                        <span className="text-xs text-[#6a9955]">合盘</span>
+                        <span className="text-xs text-[#9B7FBB]">✦</span>
+                        <span className="text-xs text-[#6B6778]">{new Date(report.created_at).toLocaleDateString('zh-CN')}</span>
+                        <span className="text-xs text-[#7CB87C]">合盘</span>
                       </div>
                       <div className="flex items-center gap-2">
                         {typeof report.summary_tag === 'string' && (
-                          <span className="text-[10px] text-[#d4a853]">{report.summary_tag}</span>
+                          <span className="text-[10px] text-[#9B7FBB]">{report.summary_tag}</span>
                         )}
                         {report.match_score != null && (
-                          <span className="text-xs font-semibold text-[#d4a853]">{report.match_score}%</span>
+                          <span className="text-xs font-semibold text-[#9B7FBB]">{report.match_score}%</span>
                         )}
                       </div>
                     </Link>
@@ -264,7 +264,7 @@ export default function MinePage() {
                         if (checked) { next.delete(key); } else { next.add(key); }
                         setSelectedKeys(next);
                       }}
-                      className="size-4 shrink-0 accent-[#d4a853]"
+                      className="size-4 shrink-0 accent-[#9B7FBB]"
                     />
                   )}
                   <button
@@ -272,16 +272,16 @@ export default function MinePage() {
                     className="flex flex-1 items-center justify-between text-left"
                   >
                     <div className="flex items-center gap-2">
-                    <svg
-                      className={`size-3 text-[#6a6a6a] transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                      <svg
+                       className={`size-3 text-[#8A8696] transition-transform ${isExpanded ? 'rotate-90' : ''}`}
                       fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
                     >
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                     </svg>
-                    <span className="text-xs text-[#858585]">
+                    <span className="text-xs text-[#6B6778]">
                       {new Date(report.created_at).toLocaleDateString('zh-CN')}
                     </span>
-                    <span className={`text-xs ${report.status === 'completed' ? 'text-[#6a9955]' : 'text-[#d4a853]'}`}>
+                    <span className={`text-xs ${report.status === 'completed' ? 'text-[#7CB87C]' : 'text-[#9B7FBB]'}`}>
                       {report.status === 'completed' ? '已完成' : '生成中'}
                     </span>
                   </div>
@@ -290,7 +290,7 @@ export default function MinePage() {
                       {report.personality_tags.slice(0, 3).map((tag, i) => (
                         <span
                           key={i}
-                          className="rounded-[2px] bg-[#d4a853]/12 px-1.5 py-0.5 text-[10px] text-[#d4a853]"
+                          className="rounded-[2px] bg-[#9B7FBB]/10 px-1.5 py-0.5 text-[10px] text-[#9B7FBB]"
                         >
                           {tag}
                         </span>
@@ -300,7 +300,7 @@ export default function MinePage() {
                 </button>
                   </div>
                   {isExpanded && (
-                    <div className="mt-3 border-t border-[#2a3040] pt-3">
+                    <div className="mt-3 border-t border-[rgba(0,0,0,0.06)] pt-3">
                       <SummaryCard {...{
                         personalityTags: report.personality_tags,
                         fiveElements: report.five_elements as never,
@@ -313,7 +313,7 @@ export default function MinePage() {
                       {report.report_type === 'paid' && (
                         <button
                           onClick={() => router.push(`/report/${report.id}`)}
-                          className="mt-2 w-full rounded bg-[#6a9955]/15 py-2 text-xs text-[#6a9955] transition-colors hover:bg-[#6a9955]/25"
+                          className="mt-2 w-full rounded bg-[#7CB87C]/15 py-2 text-xs text-[#7CB87C] transition-colors hover:bg-[#7CB87C]/25"
                         >
                           查看完整报告
                         </button>

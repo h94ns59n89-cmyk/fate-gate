@@ -7,11 +7,11 @@ interface FiveElementsChartProps {
 }
 
 const elementMeta = {
-  wood: { label: '木', color: '#4CAF50', order: 0 },
-  fire: { label: '火', color: '#FF5722', order: 1 },
-  earth: { label: '土', color: '#FFC107', order: 2 },
-  metal: { label: '金', color: '#E0E0E0', order: 3 },
-  water: { label: '水', color: '#2196F3', order: 4 },
+  wood: { label: '木', color: '#8FCFA0', order: 0 },
+  fire: { label: '火', color: '#E0978A', order: 1 },
+  earth: { label: '土', color: '#D4A87C', order: 2 },
+  metal: { label: '金', color: '#C4C4CC', order: 3 },
+  water: { label: '水', color: '#7FB0C8', order: 4 },
 };
 
 export function FiveElementsChart({ data }: FiveElementsChartProps) {
@@ -28,8 +28,8 @@ export function FiveElementsChart({ data }: FiveElementsChartProps) {
         return (
           <div key={key} className="space-y-1">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-[#d4d4d4]/80">{meta?.label}</span>
-              <span className="text-xs text-[#858585]">{value.score}%</span>
+              <span className="text-xs font-medium text-[#1F1D2B]/70">{meta?.label}</span>
+              <span className="text-xs text-[#6B6778]">{value.score}%</span>
             </div>
             <div
               role="progressbar"
@@ -37,7 +37,7 @@ export function FiveElementsChart({ data }: FiveElementsChartProps) {
               aria-valuemin={0}
               aria-valuemax={100}
               aria-label={`${meta?.label}能量 ${value.score}%`}
-              className="h-1.5 overflow-hidden rounded-[2px] bg-[#2a3040]"
+              className="h-1.5 overflow-hidden rounded-[2px] bg-[#E8E8EC]"
             >
               <div
                 className="h-full rounded-[2px] transition-all duration-1000"

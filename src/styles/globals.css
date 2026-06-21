@@ -4,36 +4,36 @@
 
 @layer base {
   :root {
-    --brand-deep: #0B0E14;
-    --brand-midnight: #111827;
-    --brand-surface: #1a1f2e;
-    --brand-border: #2a3040;
-    --brand-gold: #d4a853;
-    --brand-gold-light: #f0d78c;
-    --brand-gold-dark: #b8923e;
-    --brand-gold-glow: rgba(212, 168, 83, 0.15);
+    --brand-deep: #7D5FA0;
+    --brand-midnight: #9B7FBB;
+    --brand-surface: #BBA3D5;
+    --brand-border: #D0C4E0;
+    --brand-gold: #E8C36A;
+    --brand-gold-light: #F5E2A0;
+    --brand-gold-dark: #C9A64A;
+    --brand-gold-glow: rgba(232, 195, 106, 0.15);
 
-    --stellar-star: #ffffff;
-    --stellar-nebula: #7c8db5;
-    --stellar-comet: #e8c97a;
-    --stellar-dust: #374151;
+    --stellar-star: #1F1D2B;
+    --stellar-nebula: #8A8696;
+    --stellar-comet: #E8C36A;
+    --stellar-dust: #C4C1CE;
 
-    --element-wood: #4caf50;
-    --element-fire: #ff5722;
-    --element-earth: #ffc107;
-    --element-metal: #e5e7eb;
-    --element-water: #2196f3;
+    --element-wood: #8FCFA0;
+    --element-fire: #E0978A;
+    --element-earth: #D4A87C;
+    --element-metal: #C4C4CC;
+    --element-water: #7FB0C8;
 
-    --vscode-bg: #0b0e14;
-    --vscode-sidebar: #111827;
-    --vscode-surface: #1a1f2e;
-    --vscode-hover: #1e2433;
-    --vscode-border: #2a3040;
-    --vscode-border-light: #374151;
-    --vscode-text: #d4d4d4;
-    --vscode-text-secondary: #858585;
-    --vscode-text-muted: #6a6a6a;
-    --vscode-selection: #264f78;
+    --vscode-bg: #FFFFFF;
+    --vscode-sidebar: #F8F8FA;
+    --vscode-surface: #FFFFFF;
+    --vscode-hover: #F5F0FA;
+    --vscode-border: rgba(0,0,0,0.08);
+    --vscode-border-light: rgba(0,0,0,0.04);
+    --vscode-text: #1F1D2B;
+    --vscode-text-secondary: #6B6778;
+    --vscode-text-muted: #8A8696;
+    --vscode-selection: #E8E0F5;
   }
 
   html {
@@ -48,12 +48,12 @@
   }
 
   body {
-    @apply bg-[#0B0E14] text-[#d4d4d4];
+    @apply bg-[#FFFFFF] text-[#1F1D2B];
   }
 
   ::selection {
-    background-color: #264f78;
-    color: #d4d4d4;
+    background-color: #E8E0F5;
+    color: #1F1D2B;
   }
 
   ::-webkit-scrollbar {
@@ -66,12 +66,12 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #2a3040;
+    background: #D0D0D0;
     border-radius: 4px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #374151;
+    background: #B0B0B0;
   }
 }
 
@@ -89,28 +89,27 @@
   }
 
   .vscode-card {
-    @apply rounded-[10px] border border-[#2a3040] bg-gradient-to-b from-[#111827] to-[#1a1f2e] p-5 shadow-card;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.03);
+    @apply rounded-[10px] border border-[rgba(0,0,0,0.08)] bg-[#FFFFFF] p-5 shadow-card;
   }
 
   .vscode-input {
-    @apply w-full rounded-[8px] border border-[#2a3040] bg-[#1a1f2e] px-3.5 py-2.5 text-sm text-[#d4d4d4]
-      placeholder-[#6a6a6a] transition-all duration-200
-      focus:border-[#d4a853] focus:outline-none focus:ring-1 focus:ring-[#d4a853]/30;
+    @apply w-full rounded-[8px] border border-[rgba(0,0,0,0.08)] bg-[#F2F2F5] px-3.5 py-2.5 text-sm text-[#1F1D2B]
+      placeholder-[#C4C1CE] transition-all duration-200
+      focus:border-[#9B7FBB] focus:outline-none focus:ring-1 focus:ring-[rgba(155,127,187,0.25)];
   }
 
   .vscode-select {
-    @apply w-full rounded-[8px] border border-[#2a3040] bg-[#1a1f2e] px-3.5 py-2.5 text-sm text-[#d4d4d4]
+    @apply w-full rounded-[8px] border border-[rgba(0,0,0,0.08)] bg-[#F2F2F5] px-3.5 py-2.5 text-sm text-[#1F1D2B]
       transition-all duration-200
-      focus:border-[#d4a853] focus:outline-none focus:ring-1 focus:ring-[#d4a853]/30;
+      focus:border-[#9B7FBB] focus:outline-none focus:ring-1 focus:ring-[rgba(155,127,187,0.25)];
   }
 
   .vscode-label {
-    @apply mb-1.5 block text-xs font-medium tracking-[0.03em] text-[#858585];
+    @apply mb-1.5 block text-xs font-medium tracking-[0.03em] text-[#6B6778];
   }
 
   .glass-card {
-    @apply rounded-card border border-[#d4a853]/10 bg-[#111827]/80 p-5 shadow-lg backdrop-blur-xl;
+    @apply rounded-card border border-[#9B7FBB]/10 bg-[rgba(255,255,255,0.7)] p-5 shadow-lg backdrop-blur-xl;
   }
 
   .star-field {
@@ -119,54 +118,10 @@
     pointer-events: none;
     overflow: hidden;
     z-index: 0;
-  }
-
-  .star-field::before {
-    content: '';
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    border-radius: 50%;
-    box-shadow:
-      10vw 5vh 0 0 rgba(212, 168, 83, 0.4),
-      25vw 12vh 0 0 rgba(212, 168, 83, 0.3),
-      40vw 8vh 0 0 rgba(255, 255, 255, 0.25),
-      55vw 18vh 0 0 rgba(212, 168, 83, 0.35),
-      70vw 3vh 0 0 rgba(255, 255, 255, 0.2),
-      85vw 15vh 0 0 rgba(212, 168, 83, 0.3),
-      15vw 25vh 0 0 rgba(255, 255, 255, 0.2),
-      35vw 35vh 0 0 rgba(212, 168, 83, 0.25),
-      60vw 45vh 0 0 rgba(255, 255, 255, 0.15),
-      80vw 30vh 0 0 rgba(212, 168, 83, 0.2),
-      20vw 55vh 0 0 rgba(255, 255, 255, 0.3),
-      50vw 65vh 0 0 rgba(212, 168, 83, 0.15),
-      75vw 75vh 0 0 rgba(255, 255, 255, 0.2),
-      5vw 85vh 0 0 rgba(212, 168, 83, 0.25),
-      45vw 90vh 0 0 rgba(255, 255, 255, 0.15),
-      90vw 50vh 0 0 rgba(212, 168, 83, 0.3),
-      30vw 70vh 0 0 rgba(255, 255, 255, 0.2),
-      65vw 85vh 0 0 rgba(212, 168, 83, 0.15),
-      95vw 10vh 0 0 rgba(255, 255, 255, 0.25),
-      12vw 95vh 0 0 rgba(212, 168, 83, 0.2);
-    animation: twinkle 4s ease-in-out infinite;
-  }
-
-  .star-field::after {
-    content: '';
-    position: absolute;
-    width: 2px;
-    height: 2px;
-    border-radius: 50%;
-    box-shadow:
-      30vw 15vh 0 0 rgba(212, 168, 83, 0.5),
-      65vw 25vh 0 0 rgba(255, 255, 255, 0.35),
-      15vw 45vh 0 0 rgba(212, 168, 83, 0.4),
-      80vw 60vh 0 0 rgba(255, 255, 255, 0.3),
-      50vw 80vh 0 0 rgba(212, 168, 83, 0.35),
-      5vw 40vh 0 0 rgba(255, 255, 255, 0.3),
-      90vw 75vh 0 0 rgba(212, 168, 83, 0.25),
-      45vw 20vh 0 0 rgba(255, 255, 255, 0.4);
-    animation: twinkle 6s ease-in-out infinite reverse;
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 256px 256px;
   }
 }
 

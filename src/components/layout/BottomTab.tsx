@@ -21,9 +21,9 @@ export function BottomTab() {
   const pathname = usePathname();
 
   return (
-    <nav className="w-full max-w-md bg-[#111827] md:hidden">
+    <nav className="w-full max-w-md bg-[rgba(255,255,255,0.82)] backdrop-blur-lg md:hidden">
       {/* Navigation tabs */}
-      <div className="flex justify-around border-t border-[#2a3040]">
+      <div className="flex justify-around border-t border-[rgba(0,0,0,0.04)]">
         {tabs.map(({ href, label, icon: Icon }) => {
           const active = pathname === href;
           return (
@@ -32,10 +32,10 @@ export function BottomTab() {
               href={href}
               className={cn(
                 'relative flex flex-1 flex-col items-center gap-0.5 py-2 text-xs transition-colors',
-                active ? 'text-[#d4a853]' : 'text-[#858585] hover:text-[#d4d4d4]',
+                active ? 'text-[#9B7FBB]' : 'text-[#8A8696] hover:text-[#1F1D2B]',
               )}
             >
-              {active && <div className="absolute top-0 h-0.5 w-8 rounded-b-[2px] bg-[#d4a853]" />}
+              {active && <div className="absolute top-0 h-0.5 w-8 rounded-b-[2px] bg-[#9B7FBB]" />}
               <Icon className="h-4 w-4" />
               <span>{label}</span>
             </Link>
@@ -43,13 +43,13 @@ export function BottomTab() {
         })}
       </div>
       {/* Legal links bar */}
-      <div className="flex items-center justify-center gap-3 border-t border-[#2a3040]/30 py-1">
+      <div className="flex items-center justify-center gap-3 border-t border-[rgba(0,0,0,0.03)] py-1">
         {legalLinks.map((link, i) => (
           <span key={link.href} className="flex items-center gap-3">
-            {i > 0 && <span className="text-[10px] text-[#2a3040]">|</span>}
+            {i > 0 && <span className="text-[10px] text-[#C4C1CE]">|</span>}
             <Link
               href={link.href}
-              className="text-[10px] leading-none text-[#6a6a6a] transition-colors hover:text-[#858585]"
+              className="text-[10px] leading-none text-[#8A8696] transition-colors hover:text-[#6B6778]"
             >
               {link.label}
             </Link>

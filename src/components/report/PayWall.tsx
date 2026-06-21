@@ -100,18 +100,18 @@ export function PayWall({ reportId, userId, price = 990, compact = false, produc
       <div className="mx-auto max-w-md px-4 py-3">
         <div className="flex flex-col items-center gap-3">
           <div className="flex items-baseline justify-center gap-2">
-            <span className="text-base font-bold text-[#d4a853]">
+            <span className="text-base font-bold text-[#9B7FBB]">
               ¥{(price / 100).toFixed(1)}
             </span>
-            <span className="text-xs text-[#858585]">/ 永久可查</span>
+            <span className="text-xs text-[#6B6778]">/ 永久可查</span>
           </div>
           <div className="flex items-center gap-3">
             <Button size="md" loading={paying} onClick={handlePay}>
               {paying ? '支付中...' : '立即解锁'}
             </Button>
-            <span className="text-[11px] text-[#6a6a6a]">
+            <span className="text-[11px] text-[#8A8696]">
               即表示同意
-              <Link href="/terms" className="ml-0.5 text-[#858585] underline transition-colors hover:text-[#d4d4d4]">用户协议</Link>
+              <Link href="/terms" className="ml-0.5 text-[#6B6778] underline transition-colors hover:text-[#1F1D2B]">用户协议</Link>
             </span>
           </div>
         </div>
@@ -122,29 +122,29 @@ export function PayWall({ reportId, userId, price = 990, compact = false, produc
   return (
     <div className="vscode-card space-y-5 text-center">
       <div className="space-y-1.5">
-        <h3 className="text-base font-semibold text-[#d4d4d4]">解锁完整星隅报告</h3>
-        <p className="text-sm text-[#858585]">10 页深度分析，全面了解你的人格</p>
+        <h3 className="text-base font-semibold text-[#1F1D2B]">解锁完整星隅报告</h3>
+        <p className="text-sm text-[#6B6778]">10 页深度分析，全面了解你的人格</p>
       </div>
 
-      <div className="border-y border-[#2a3040] py-4">
-        <div className="text-2xl font-bold text-[#d4a853]">
+      <div className="border-y border-[rgba(0,0,0,0.06)] py-4">
+        <div className="text-2xl font-bold text-[#9B7FBB]">
           ¥{(price / 100).toFixed(1)}
-          <span className="ml-1.5 text-xs font-normal text-[#858585]">/ 永久可查</span>
+          <span className="ml-1.5 text-xs font-normal text-[#6B6778]">/ 永久可查</span>
         </div>
       </div>
 
-      <ul className="space-y-1.5 text-left text-sm text-[#d4d4d4]/80">
+      <ul className="space-y-1.5 text-left text-sm text-[#1F1D2B]/70">
         <li className="flex items-center gap-2">
-          <span className="text-[#6a9955]">✓</span> 性格深度分析
+          <span className="text-[#7CB87C]">✓</span> 性格深度分析
         </li>
         <li className="flex items-center gap-2">
-          <span className="text-[#6a9955]">✓</span> 事业发展建议
+          <span className="text-[#7CB87C]">✓</span> 事业发展建议
         </li>
         <li className="flex items-center gap-2">
-          <span className="text-[#6a9955]">✓</span> 感情模式解读
+          <span className="text-[#7CB87C]">✓</span> 感情模式解读
         </li>
         <li className="flex items-center gap-2">
-          <span className="text-[#6a9955]">✓</span> 流年运势洞察
+          <span className="text-[#7CB87C]">✓</span> 流年运势洞察
         </li>
       </ul>
 
@@ -152,8 +152,8 @@ export function PayWall({ reportId, userId, price = 990, compact = false, produc
         {paying ? '支付中...' : '立即解锁 ¥9.9'}
       </Button>
 
-      <p className="text-xs text-[#6a6a6a]">
-        支付即表示同意<Link href="/terms" className="underline text-[#858585] hover:text-[#d4d4d4]">用户协议</Link>
+      <p className="text-xs text-[#8A8696]">
+        支付即表示同意<Link href="/terms" className="underline text-[#6B6778] hover:text-[#1F1D2B]">用户协议</Link>
       </p>
     </div>
   );
