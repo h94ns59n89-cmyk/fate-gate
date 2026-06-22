@@ -5,8 +5,21 @@ import { Logo } from '@/components/common/Logo';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
+function useAdmin() {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem('admin_auth');
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
 export function Header() {
   const pathname = usePathname();
+  const admin = useAdmin();
+
+  if (pathname.startsWith('/admin') && !admin) return null;
 
   return (
     <header className="w-full max-w-md border-b border-[rgba(0,0,0,0.04)] bg-[rgba(255,255,255,0.82)] backdrop-blur-lg md:hidden">

@@ -2,15 +2,25 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, BarChart3, GitCompare, Settings } from 'lucide-react';
+import { Home, BarChart3, GitCompare, Settings, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+function useAdmin() {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem('admin_auth');
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
 
 const tabs = [
   { href: '/', label: '首页', icon: Home },
   { href: '/mine', label: '我的报告', icon: BarChart3 },
   { href: '/comparison', label: '合盘', icon: GitCompare },
   { href: '/admin', label: '报告', icon: Settings },
-  { href: '/admin/users', label: '用户', icon: Settings },
+  { href: '/admin/users', label: '用户', icon: User },
 ];
 
 const legalLinks = [
@@ -21,6 +31,9 @@ const legalLinks = [
 
 export function BottomTab() {
   const pathname = usePathname();
+  const admin = useAdmin();
+
+  if (pathname.startsWith('/admin') && !admin) return null;
 
   return (
     <nav className="w-full max-w-md bg-[rgba(255,255,255,0.82)] backdrop-blur-lg md:hidden">

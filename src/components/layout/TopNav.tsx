@@ -42,7 +42,11 @@ export function TopNav() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const isAdminRoute = pathname.startsWith('/admin');
   const isGuest = user && (user.nickname === '游客' || user.nickname == null);
+
+  // Admin routes without auth: hide nav entirely
+  if (isAdminRoute && !admin) return null;
 
   const handleAdminLogout = () => {
     try { localStorage.removeItem('admin_auth'); } catch {}
