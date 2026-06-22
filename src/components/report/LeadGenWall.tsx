@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface LeadGenWallProps {
   reportId?: number;
+  locked?: boolean;
   onSuccess?: () => void;
 }
 
@@ -24,17 +25,20 @@ function markUnlocked(reportId: number) {
   localStorage.setItem(LEAD_GEN_KEY, JSON.stringify([...set]));
 }
 
-export function LeadGenWall({ reportId, onSuccess }: LeadGenWallProps) {
+export function LeadGenWall({ reportId, locked, onSuccess }: LeadGenWallProps) {
   const [inputValue, setInputValue] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const calledRef = useRef(false);
 
   useEffect(() => {
-    if (reportId && getUnlockedReports().has(reportId)) {
+    if (calledRef.current) return;
+    if (reportId && getUnlockedReports().has(reportId) && locked !== false) {
+      calledRef.current = true;
       setSubmitted(true);
       onSuccess?.();
     }
-  }, [reportId, onSuccess]);
+  }, [reportId, onSuccess, locked]);
 
   const handleSubmit = () => {
     const trimmed = inputValue.trim();
@@ -43,6 +47,7 @@ export function LeadGenWall({ reportId, onSuccess }: LeadGenWallProps) {
       return;
     }
     setError('');
+    calledRef.current = true;
     if (reportId) markUnlocked(reportId);
     setSubmitted(true);
     onSuccess?.();

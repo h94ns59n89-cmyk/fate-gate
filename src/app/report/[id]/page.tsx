@@ -107,7 +107,10 @@ export default function ReportPage() {
   const generateReport = useCallback(async () => {
     if (!baziData) return;
     setGenerating(true);
+    setError(null);
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000);
       const res = await fetch('/api/v1/reports/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -122,24 +125,27 @@ export default function ReportPage() {
             calculationMeta: baziData.m,
           },
         }),
+        signal: controller.signal,
       });
+      clearTimeout(timeout);
       const data = await res.json();
       if (data.code === 0 && data.data?.report) {
         setReport(data.data.report);
         setPaid(true);
       } else {
-        setError('报告生成失败，请稍后重试');
+        setError('报告生成失败，请稍后重试或添加助理微信 Willa106 获取帮助');
       }
     } catch {
-      setError('报告生成失败，请稍后重试');
+      setError('报告生成超时，请稍后重试或添加助理微信 Willa106 获取帮助');
     } finally {
       setGenerating(false);
     }
   }, [baziData]);
 
-  const handlePaySuccess = useCallback(async () => {
+  const handleUnlock = useCallback(async () => {
     trackEvent(EVENTS.PAY_SUCCESS);
     setTransitioning(true);
+    setError(null);
     try {
       const res = await fetch(`/api/v1/reports/${reportId}`);
       const data = await res.json();
@@ -147,13 +153,13 @@ export default function ReportPage() {
         setReport(data.data.full_report);
         setPaid(true);
       } else if (baziData) {
-        generateReport();
+        await generateReport();
       } else {
         setPaid(true);
       }
     } catch {
       if (baziData) {
-        generateReport();
+        await generateReport();
       } else {
         setPaid(true);
       }
@@ -161,6 +167,8 @@ export default function ReportPage() {
       setTransitioning(false);
     }
   }, [baziData, generateReport, reportId]);
+
+  const isUnlocking = transitioning || generating;
 
   if (error) {
     return (
@@ -248,7 +256,7 @@ export default function ReportPage() {
         {inviteCodeSection}
       </div>
       <div className="sticky bottom-0 left-0 right-0 z-40 border-t border-[rgba(0,0,0,0.06)] bg-[rgba(255,255,255,0.85)] backdrop-blur-lg">
-        <LeadGenWall reportId={reportId} onSuccess={handlePaySuccess} />
+        <LeadGenWall reportId={reportId} locked={!isUnlocking} onSuccess={handleUnlock} />
       </div>
     </div>
   );
