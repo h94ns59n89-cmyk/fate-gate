@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
@@ -45,9 +45,9 @@ function renderReportHTML(report: Record<string, unknown>): string {
     ).join('');
   }
 
-  function card(items: string[], icon = '✦'): string {
-    return items.map((item, i) =>
-      `<div style="display:flex;align-items:center;gap:10px;border:1px solid rgba(0,0,0,0.06);border-radius:4px;background:#F8F8FA;padding:8px 12px;margin-bottom:6px;"><span style="display:flex;width:24px;height:24px;border-radius:3px;background:rgba(155,127,187,0.1);align-items:center;justify-content:center;font-size:12px;color:#9B7FBB;flex-shrink:0;">${icon}</span><span style="font-size:12px;color:rgba(31,29,43,0.7);">${esc(item)}</span></div>`
+  function card(items: string[]): string {
+    return items.map((item) =>
+      `<div style="display:flex;align-items:center;gap:10px;border:1px solid rgba(0,0,0,0.06);border-radius:4px;background:#F8F8FA;padding:8px 12px;margin-bottom:6px;"><span style="display:flex;width:24px;height:24px;border-radius:3px;background:rgba(155,127,187,0.1);align-items:center;justify-content:center;font-size:12px;color:#9B7FBB;flex-shrink:0;">✦</span><span style="font-size:12px;color:rgba(31,29,43,0.7);">${esc(item)}</span></div>`
     ).join('');
   }
 
@@ -97,7 +97,7 @@ function renderReportHTML(report: Record<string, unknown>): string {
       if (section.key === 'career') {
         const suitable = data.suitable_directions as string[] | undefined;
         const avoid = data.avoid_directions as string[] | undefined;
-        if (suitable?.length) html += `<div style="margin-bottom:12px;"><p style="font-size:10px;font-weight:600;color:#6B6778;margin:0 0 8px 0;letter-spacing:1px;">适合方向</p>${card(suitable, '✦')}</div>`;
+        if (suitable?.length) html += `<div style="margin-bottom:12px;"><p style="font-size:10px;font-weight:600;color:#6B6778;margin:0 0 8px 0;letter-spacing:1px;">适合方向</p>${card(suitable)}</div>`;
         if (avoid?.length) html += `<div style="margin-bottom:12px;"><p style="font-size:10px;font-weight:600;color:#8A8696;margin:0 0 8px 0;letter-spacing:1px;">建议规避</p><div style="display:flex;flex-wrap:wrap;gap:6px;">${avoid.map(s => `<span style="font-size:11px;color:#8A8696;text-decoration:line-through;">${esc(s)}</span>`).join('')}</div></div>`;
         html += adviceBlock(data.advice as string);
         html += pastTendency(data.past_tendency as string);
@@ -113,7 +113,7 @@ function renderReportHTML(report: Record<string, unknown>): string {
 
       if (section.key === 'health') {
         const areas = data.focus_areas as string[] | undefined;
-        if (areas?.length) html += `<div style="margin-bottom:12px;"><p style="font-size:10px;font-weight:600;color:#6B6778;margin:0 0 8px 0;letter-spacing:1px;">关注领域</p>${card(areas, '✦')}</div>`;
+        if (areas?.length) html += `<div style="margin-bottom:12px;"><p style="font-size:10px;font-weight:600;color:#6B6778;margin:0 0 8px 0;letter-spacing:1px;">关注领域</p>${card(areas)}</div>`;
         html += adviceBlock(data.advice as string);
         html += pastTendency(data.past_tendency as string);
       }
@@ -145,7 +145,7 @@ function renderReportHTML(report: Record<string, unknown>): string {
         const dirs = data.directions as string[] | undefined;
         const books = data.book_suggestions as string[] | undefined;
         if (dirs?.length) html += `<div style="margin-bottom:12px;"><p style="font-size:10px;font-weight:600;color:#6B6778;margin:0 0 8px 0;letter-spacing:1px;">成长方向</p><ul style="margin:0;padding-left:0;list-style:none;">${dirs.map(d => `<li style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="display:flex;width:18px;height:18px;border-radius:999px;background:rgba(143,207,160,0.15);align-items:center;justify-content:center;font-size:9px;color:#8FCFA0;flex-shrink:0;">✓</span><span style="font-size:12px;color:rgba(31,29,43,0.7);">${esc(d)}</span></li>`).join('')}</ul></div>`;
-        if (books?.length) html += `<div style="margin-bottom:12px;"><p style="font-size:10px;font-weight:600;color:#6B6778;margin:0 0 8px 0;letter-spacing:1px;">推荐阅读</p>${card(books, '✦')}</div>`;
+        if (books?.length) html += `<div style="margin-bottom:12px;"><p style="font-size:10px;font-weight:600;color:#6B6778;margin:0 0 8px 0;letter-spacing:1px;">推荐阅读</p>${card(books)}</div>`;
       }
 
       if (section.key === 'glossary') {
@@ -309,7 +309,6 @@ export default function AdminPage() {
       const pageHeight = 297;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       let heightLeft = imgHeight;
-      let position = 0;
 
       const pdf = new jsPDF('p', 'mm', 'a4');
       let page = 0;
@@ -317,19 +316,17 @@ export default function AdminPage() {
       while (heightLeft > 0) {
         if (page > 0) pdf.addPage();
         const srcHeight = (canvas.height * (pageHeight / imgHeight));
-        const sx = 0;
         const sy = page * srcHeight;
         const sHeight = Math.min(srcHeight, canvas.height - sy);
 
         const pageCanvas = document.createElement('canvas');
         pageCanvas.width = canvas.width;
-        pageCanvas.height = sHeight * (canvas.width / imgWidth / (canvas.width / imgWidth));
+        pageCanvas.height = sHeight;
         const ctx = pageCanvas.getContext('2d')!;
         ctx.drawImage(canvas, 0, sy, canvas.width, sHeight, 0, 0, pageCanvas.width, pageCanvas.height);
 
         pdf.addImage(pageCanvas.toDataURL('image/png'), 'PNG', 0, 0, imgWidth, (pageCanvas.height * imgWidth) / pageCanvas.width);
         heightLeft -= pageHeight;
-        position += pageHeight;
         page++;
       }
 

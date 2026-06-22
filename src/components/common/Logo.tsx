@@ -7,9 +7,9 @@ interface LogoProps {
 }
 
 const sizes = {
-  sm: { icon: 20, text: 'text-base' },
-  md: { icon: 24, text: 'text-lg' },
-  lg: { icon: 32, text: 'text-2xl' },
+  sm: { icon: 24, text: 'text-base' },
+  md: { icon: 32, text: 'text-lg' },
+  lg: { icon: 44, text: 'text-2xl' },
 };
 
 export function Logo({ size = 'md', showText = true, className = '' }: LogoProps) {
@@ -20,41 +20,54 @@ export function Logo({ size = 'md', showText = true, className = '' }: LogoProps
       <svg
         width={s.icon}
         height={s.icon}
-        viewBox="0 0 32 32"
+        viewBox="0 0 48 48"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         aria-label="星隅"
         role="img"
       >
         <defs>
-          <linearGradient id="star-grad" x1="0" y1="0" x2="32" y2="32">
-            <stop offset="0%" stopColor="#BBA3D5" />
-            <stop offset="100%" stopColor="#7D5FA0" />
+          <linearGradient id="blob-a" x1="0" y1="0" x2="48" y2="48">
+            <stop offset="0%" stopColor="#FF9A9E" />
+            <stop offset="50%" stopColor="#FAD0C4" />
+            <stop offset="100%" stopColor="#FBC2EB" />
+          </linearGradient>
+          <linearGradient id="blob-b" x1="48" y1="0" x2="0" y2="48">
+            <stop offset="0%" stopColor="#A18CD1" />
+            <stop offset="50%" stopColor="#FBC2EB" />
+            <stop offset="100%" stopColor="#A18CD1" />
+          </linearGradient>
+          <linearGradient id="blob-c" x1="24" y1="0" x2="24" y2="48">
+            <stop offset="0%" stopColor="#FFD1FF" stopOpacity="0.6" />
+            <stop offset="100%" stopColor="#E0BBE4" stopOpacity="0.3" />
           </linearGradient>
         </defs>
 
-        <circle cx="16" cy="16" r="3" fill="#9B7FBB" />
-
-        <circle cx="16" cy="4" r="1.2" fill="#9B7FBB" opacity="0.35" />
-        <circle cx="28" cy="12" r="1" fill="#9B7FBB" opacity="0.25" />
-        <circle cx="24" cy="26" r="1" fill="#9B7FBB" opacity="0.3" />
-        <circle cx="8" cy="24" r="0.8" fill="#9B7FBB" opacity="0.2" />
-        <circle cx="5" cy="9" r="0.8" fill="#9B7FBB" opacity="0.25" />
-
-        <line x1="16" y1="4" x2="16" y2="7" stroke="#9B7FBB" strokeWidth="0.5" opacity="0.25" />
-        <line x1="28" y1="12" x2="19" y2="14" stroke="#9B7FBB" strokeWidth="0.5" opacity="0.2" />
-        <line x1="24" y1="26" x2="19" y2="19" stroke="#9B7FBB" strokeWidth="0.5" opacity="0.2" />
-        <line x1="8" y1="24" x2="13" y2="19" stroke="#9B7FBB" strokeWidth="0.5" opacity="0.2" />
-        <line x1="5" y1="9" x2="13" y2="14" stroke="#9B7FBB" strokeWidth="0.5" opacity="0.2" />
-
+        {/* Back blob */}
         <path
-          d="M16 6 L18 12 L24 14 L18 16 L16 22 L14 16 L8 14 L14 12 Z"
-          fill="url(#star-grad)"
-          opacity="0.9"
+          d="M36 10C40 10 44 14 44 20C44 26 42 32 38 36C34 40 28 42 22 42C16 42 10 40 6 36C2 32 4 24 6 18C8 12 12 8 18 6C24 4 32 10 36 10Z"
+          fill="url(#blob-b)"
+          opacity="0.35"
         />
+        {/* Front blob */}
+        <path
+          d="M32 12C37 12 40 15 42 20C44 25 42 32 38 36C34 40 28 40 22 40C16 40 10 38 8 34C6 30 6 24 8 18C10 12 14 8 20 8C26 8 27 12 32 12Z"
+          fill="url(#blob-a)"
+          opacity="0.55"
+        />
+        {/* Highlight */}
+        <path
+          d="M26 14C30 14 34 17 36 22C38 27 36 32 32 35C28 38 22 38 18 35C14 32 12 27 14 22C16 17 22 14 26 14Z"
+          fill="url(#blob-c)"
+          opacity="0.5"
+        />
+        {/* Small accent dots */}
+        <circle cx="20" cy="18" r="2" fill="#FFFFFF" opacity="0.6" />
+        <circle cx="30" cy="28" r="1.5" fill="#FFFFFF" opacity="0.4" />
+        <circle cx="14" cy="28" r="1" fill="#FBC2EB" opacity="0.5" />
       </svg>
       {showText && (
-        <span className={`font-serif font-semibold tracking-wider text-[#9B7FBB] ${s.text}`}>
+        <span className="font-serif font-semibold tracking-wider text-[#A18CD1] drop-shadow-sm" style={{ fontSize: size === 'sm' ? '1rem' : size === 'md' ? '1.125rem' : '1.5rem' }}>
           星隅
         </span>
       )}

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useUserStore } from '@/stores/userStore';
 import { Logo } from '@/components/common/Logo';
 
@@ -40,13 +41,47 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#FAF8F5] to-[#F5F0FA] p-4">
-      <div className="w-full max-w-sm">
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-[#FAF8F5] to-[#F5F0FA] p-4">
+      {/* Background illustration */}
+      <div className="pointer-events-none absolute inset-0 select-none" aria-hidden="true">
+        <svg className="absolute left-[5%] top-[8%] h-36 w-36 text-[#9B7FBB]/6" viewBox="0 0 120 120" fill="none">
+          <rect x="20" y="15" width="8" height="8" rx="2" fill="currentColor" opacity="0.5" />
+          <rect x="85" y="55" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.4" />
+          <rect x="55" y="85" width="5" height="5" rx="1" fill="currentColor" opacity="0.3" />
+          <rect x="15" y="65" width="4" height="4" rx="1" fill="currentColor" opacity="0.3" />
+          <circle cx="45" cy="40" r="2" fill="currentColor" opacity="0.4" />
+          <circle cx="95" cy="20" r="1.5" fill="currentColor" opacity="0.3" />
+          <path d="M24 19 Q 45 35 45 40 Q 60 55 85 58" stroke="currentColor" strokeWidth="0.4" opacity="0.25" fill="none" />
+          <path d="M45 40 Q 55 70 55 87" stroke="currentColor" strokeWidth="0.4" opacity="0.2" fill="none" />
+        </svg>
+        <svg className="absolute bottom-[12%] right-[5%] h-28 w-28 text-[#C9A88D]/10" viewBox="0 0 100 100" fill="none">
+          <circle cx="50" cy="50" r="18" stroke="currentColor" strokeWidth="0.4" opacity="0.3" />
+          <circle cx="50" cy="50" r="8" stroke="currentColor" strokeWidth="0.3" opacity="0.2" />
+          <rect x="46" y="12" width="8" height="8" rx="2" fill="currentColor" opacity="0.4" />
+          <rect x="70" y="46" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.3" />
+          <rect x="24" y="44" width="5" height="5" rx="1" fill="currentColor" opacity="0.3" />
+          <circle cx="50" cy="30" r="1.5" fill="currentColor" opacity="0.4" />
+          <circle cx="35" cy="50" r="1" fill="currentColor" opacity="0.3" />
+          <circle cx="65" cy="50" r="1" fill="currentColor" opacity="0.3" />
+        </svg>
+        <svg className="absolute right-[15%] top-[22%] h-20 w-20 text-[#D4C0B0]/12" viewBox="0 0 80 80" fill="none">
+          <path d="M20 20 Q35 15 40 25 Q45 35 60 30" stroke="currentColor" strokeWidth="0.4" opacity="0.3" fill="none" />
+          <path d="M20 20 Q15 35 25 40 Q35 45 30 60" stroke="currentColor" strokeWidth="0.4" opacity="0.3" fill="none" />
+          <circle cx="40" cy="25" r="1.5" fill="currentColor" opacity="0.4" />
+          <circle cx="25" cy="40" r="1" fill="currentColor" opacity="0.3" />
+          <rect x="60" y="60" width="4" height="4" rx="1" fill="currentColor" opacity="0.3" />
+        </svg>
+        {/* Subtle glowing orbs */}
+        <div className="absolute left-[20%] top-[30%] h-40 w-40 rounded-full bg-[#9B7FBB]/4 blur-3xl" />
+        <div className="absolute right-[15%] bottom-[25%] h-32 w-32 rounded-full bg-[#C9A88D]/5 blur-3xl" />
+      </div>
+
+      <div className="relative z-10 w-full max-w-sm">
         <div className="mb-8 text-center">
           <Logo size="md" />
         </div>
 
-        <div className="rounded-[16px] bg-[#FFFFFF] p-6 shadow-sm">
+        <div className="rounded-[16px] bg-[#FFFFFF]/95 p-6 shadow-sm backdrop-blur-sm">
           <h1 className="mb-1 text-center text-lg font-semibold text-[#1F1D2B]">登录</h1>
           <p className="mb-6 text-center text-xs leading-relaxed text-[#6B6778]">
             登录后可永久保存您的专属报告
@@ -54,9 +89,7 @@ export default function LoginPage() {
 
           <div className="mb-6 rounded-[8px] bg-[#FAF8F5] px-4 py-3 text-center">
             <p className="text-xs italic leading-relaxed text-[#8A8696]">
-              「星隅，世间人人皆是独一无二的星辰。
-              <br />
-              于八字命理的微光中，照见你本来的模样。」
+              世间人人皆是独一无二的星辰，30秒照见独一无二的你
             </p>
           </div>
 
@@ -94,12 +127,12 @@ export default function LoginPage() {
           </p>
 
           <div className="mt-4 text-center">
-            <a
+            <Link
               href="/"
               className="text-xs text-[#9B7FBB] transition-colors hover:text-[#8A6EAA]"
             >
               以游客身份继续浏览 →
-            </a>
+            </Link>
           </div>
         </div>
       </div>
