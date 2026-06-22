@@ -4,7 +4,7 @@ import { useParams, useSearchParams } from 'next/navigation';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { ReportPageViewer } from '@/components/report/ReportPageViewer';
 import { SummaryCard } from '@/components/report/SummaryCard';
-import { PayWall } from '@/components/report/PayWall';
+import { LeadGenWall } from '@/components/report/LeadGenWall';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { Button } from '@/components/common/Button';
 import { trackEvent, EVENTS } from '@/lib/analytics';
@@ -248,7 +248,7 @@ export default function ReportPage() {
         {inviteCodeSection}
       </div>
       <div className="sticky bottom-0 left-0 right-0 z-40 border-t border-[rgba(0,0,0,0.06)] bg-[rgba(255,255,255,0.85)] backdrop-blur-lg">
-        <PayWall reportId={reportId} userId={userId ?? 0} compact onSuccess={handlePaySuccess} />
+        <LeadGenWall reportId={reportId} onSuccess={handlePaySuccess} />
       </div>
     </div>
   );

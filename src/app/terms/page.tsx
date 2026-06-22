@@ -28,17 +28,16 @@ export default function TermsPage() {
         </section>
 
         <section className="space-y-2">
-          <h2 className="font-semibold text-[#1F1D2B]">3. 付费服务</h2>
-          <p>3.1 部分高级报告为付费内容，付费后永久可查。当前定价为：完整报告 ¥9.9，合盘对比 ¥9.9，月度订阅 ¥19.9，年度订阅 ¥49.9。</p>
-          <p>3.2 支付通过微信支付完成。成功支付后不支持退款，除非因服务方原因导致无法查看报告。</p>
-          <p>3.3 订阅服务将在到期后自动续费，您可随时在个人中心取消自动续费。</p>
+          <h2 className="font-semibold text-[#1F1D2B]">3. 高级报告解锁</h2>
+          <p>3.1 部分高级报告为解锁内容，添加助理微信（Willa106）并确认后即可获取完整报告。</p>
+          <p>3.2 解锁后永久可查，无需额外付费。</p>
         </section>
 
         <section className="space-y-2">
           <h2 className="font-semibold text-[#1F1D2B]">4. 用户行为规范</h2>
           <p>4.1 您承诺不会利用本服务进行任何违法活动，包括但不限于传播色情、暴力、赌博等违法信息。</p>
           <p>4.2 禁止对本服务进行逆向工程、抓取、攻击或干扰系统正常运行。</p>
-          <p>4.3 违反本协议可能导致账户被封禁，已支付的费用不予退还。</p>
+          <p>4.3 违反本协议可能导致账户被封禁及服务终止。</p>
         </section>
 
         <section className="space-y-2">

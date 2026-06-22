@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import { ComparisonCard } from '@/components/comparison/ComparisonCard';
 import { Button } from '@/components/common/Button';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
-import { PayWall } from '@/components/report/PayWall';
+import { LeadGenWall } from '@/components/report/LeadGenWall';
 import { useUserStore } from '@/stores/userStore';
 import { Heart, Zap, AlertTriangle, MessageCircle, Sparkles, Target } from 'lucide-react';
 
@@ -122,14 +122,7 @@ export default function ComparisonResultPage() {
 
             {userId && (
               <div className="sticky bottom-0 left-0 right-0 z-40 border-t border-[rgba(0,0,0,0.06)] bg-[rgba(255,255,255,0.85)] backdrop-blur-lg">
-                <PayWall
-                  reportId={data.id}
-                  userId={userId}
-                  price={990}
-                  productType="COMPARISON"
-                  compact
-                  onSuccess={fetchComparison}
-                />
+                <LeadGenWall reportId={data.id} onSuccess={fetchComparison} />
               </div>
             )}
           </div>

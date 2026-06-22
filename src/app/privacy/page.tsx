@@ -26,7 +26,7 @@ export default function PrivacyPage() {
           <h2 className="font-semibold text-[#1F1D2B]">2. 信息使用</h2>
           <p>您的信息仅用于以下目的：</p>
           <p>2.1 提供八字排盘和 AI 人格分析服务。</p>
-          <p>2.2 处理支付事务。</p>
+          <p>2.2 处理报告解锁和助理对接服务。</p>
           <p>2.3 改善和优化服务算法。</p>
           <p>2.4 防止滥用和保障系统安全。</p>
           <p>我们不会将您的个人信息用于任何与上述目的无关的用途。</p>
@@ -42,7 +42,7 @@ export default function PrivacyPage() {
         <section className="space-y-2">
           <h2 className="font-semibold text-[#1F1D2B]">4. 信息共享</h2>
           <p>4.1 我们不会将您的个人信息出售给第三方。</p>
-          <p>4.2 我们可能会与以下类型的服务提供商共享必要的信息：微信支付（处理支付）、云服务提供商（托管数据）。</p>
+          <p>4.2 我们可能会与以下类型的服务提供商共享必要的信息：云服务提供商（托管数据）。</p>
           <p>4.3 在法律要求或保护合法权益必要时，我们可能会披露您的信息。</p>
         </section>
 

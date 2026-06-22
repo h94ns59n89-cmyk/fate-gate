@@ -118,7 +118,7 @@ export function SummaryCard({
         )}
         {onUnlock && (
           <Button size="md" className="flex-1" onClick={onUnlock}>
-            解锁完整报告 ¥9.9
+            解锁完整报告
           </Button>
         )}
       </div>
