@@ -92,16 +92,31 @@ export default function AdminPage() {
   }, [token, addLog]);
 
   useEffect(() => {
+    try {
+      const raw = localStorage.getItem('admin_auth');
+      if (raw) { setAuthenticated(true); setToken(ADMIN_TOKEN); }
+    } catch {}
+  }, []);
+
+  useEffect(() => {
     if (authenticated) fetchReports();
   }, [authenticated, fetchReports]);
 
   const handleLogin = () => {
     if (token === ADMIN_TOKEN) {
       setAuthenticated(true);
+      try { localStorage.setItem('admin_auth', JSON.stringify({ name: '管理员', loggedIn: true })); } catch {}
       addLog('管理员登录成功');
     } else {
       addLog('密码错误');
     }
+  };
+
+  const handleLogout = () => {
+    setAuthenticated(false);
+    setData(null);
+    try { localStorage.removeItem('admin_auth'); } catch {}
+    addLog('已退出');
   };
 
   const handleGenerate = async (reportId: number) => {
@@ -244,7 +259,7 @@ export default function AdminPage() {
             <p className="text-xs text-[#8A8696]">为免费报告生成完整内容</p>
           </div>
           <button
-            onClick={() => { setAuthenticated(false); setData(null); }}
+            onClick={handleLogout}
             className="rounded-[6px] border border-[rgba(0,0,0,0.1)] px-3 py-1.5 text-xs text-[#6B6778] hover:bg-[#FFFFFF]"
           >
             退出

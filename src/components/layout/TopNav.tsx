@@ -10,11 +10,23 @@ const navLinks = [
   { href: '/', label: '首页' },
   { href: '/mine', label: '我的报告' },
   { href: '/comparison', label: '合盘' },
+  { href: '/admin', label: '管理后台' },
 ];
+
+function useAdmin() {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem('admin_auth');
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
 
 export function TopNav() {
   const pathname = usePathname();
   const user = useUserStore((s) => s.user);
+  const admin = useAdmin();
 
   return (
     <header className="hidden w-full border-b border-[rgba(0,0,0,0.04)] bg-[rgba(255,255,255,0.82)] backdrop-blur-lg md:block">
@@ -37,7 +49,14 @@ export function TopNav() {
           ))}
         </nav>
         <div className="flex items-center gap-2">
-          {user?.avatar_url ? (
+          {admin ? (
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#C9A88D]/20 text-xs font-medium text-[#C9A88D]">
+                管
+              </div>
+              <span className="text-xs text-[#6B6778]">管理员</span>
+            </div>
+          ) : user?.avatar_url ? (
             <img
               src={user.avatar_url}
               alt={user.nickname ?? '用户'}
