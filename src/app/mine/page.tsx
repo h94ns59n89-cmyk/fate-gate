@@ -61,7 +61,7 @@ export default function MinePage() {
         setReports(data.data.items);
       }
     } catch {
-      setError('获取报告列表失败，请稍后重试');
+      setReports([]);
     } finally {
       setLoading(false);
     }

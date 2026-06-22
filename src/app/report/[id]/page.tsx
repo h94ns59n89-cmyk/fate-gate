@@ -33,7 +33,6 @@ export default function ReportPage() {
   const [report, setReport] = useState<FullReport | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
-  const [transitioning, setTransitioning] = useState(false);
   const [personalityTags, setPersonalityTags] = useState<string[]>();
   const [fiveElements, setFiveElements] = useState<FiveElements>();
   const [summary, setSummary] = useState<PersonalityTags>();
@@ -144,31 +143,12 @@ export default function ReportPage() {
 
   const handleUnlock = useCallback(async () => {
     trackEvent(EVENTS.PAY_SUCCESS);
-    setTransitioning(true);
     setError(null);
-    try {
-      const res = await fetch(`/api/v1/reports/${reportId}`);
-      const data = await res.json();
-      if (data.code === 0 && data.data?.full_report) {
-        setReport(data.data.full_report);
-        setPaid(true);
-      } else if (baziData) {
-        await generateReport();
-      } else {
-        setPaid(true);
-      }
-    } catch {
-      if (baziData) {
-        await generateReport();
-      } else {
-        setPaid(true);
-      }
-    } finally {
-      setTransitioning(false);
-    }
-  }, [baziData, generateReport, reportId]);
+    if (!baziData) { setPaid(true); return; }
+    await generateReport();
+  }, [baziData, generateReport]);
 
-  const isUnlocking = transitioning || generating;
+  const isGenerating = generating;
 
   if (error) {
     return (
@@ -179,12 +159,12 @@ export default function ReportPage() {
     );
   }
 
-  if (loading || generating || transitioning) {
+  if (loading || generating) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-3">
         <LoadingSpinner size="lg" />
         <p className="text-sm text-[#6B6778]">
-          {generating ? '正在生成报告...' : transitioning ? '正在更新...' : '加载中...'}
+          {generating ? '正在生成报告...' : '加载中...'}
         </p>
       </div>
     );
@@ -256,7 +236,7 @@ export default function ReportPage() {
         {inviteCodeSection}
       </div>
       <div className="sticky bottom-0 left-0 right-0 z-40 border-t border-[rgba(0,0,0,0.06)] bg-[rgba(255,255,255,0.85)] backdrop-blur-lg">
-        <LeadGenWall reportId={reportId} locked={!isUnlocking} onSuccess={handleUnlock} />
+        <LeadGenWall reportId={reportId} locked={!generating} onSuccess={handleUnlock} />
       </div>
     </div>
   );
