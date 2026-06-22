@@ -10,13 +10,13 @@ export function ToastProvider() {
           duration: 3000,
           style: {
             borderRadius: '4px',
-            background: '#111827',
-            color: '#d4d4d4',
+            background: '#FFFFFF',
+            color: '#1F1D2B',
             fontSize: '13px',
-            border: '1px solid #2a3040',
+            border: '1px solid rgba(0,0,0,0.08)',
           },
-          success: { iconTheme: { primary: '#6a9955', secondary: '#d4d4d4' } },
-          error: { iconTheme: { primary: '#f44747', secondary: '#d4d4d4' } },
+          success: { iconTheme: { primary: '#8FCFA0', secondary: '#FFFFFF' } },
+          error: { iconTheme: { primary: '#f44747', secondary: '#FFFFFF' } },
         }}
       />
   );

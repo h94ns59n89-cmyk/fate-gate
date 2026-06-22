@@ -49,14 +49,14 @@ export function QuizModal({ open, onComplete, onClose, onSkip }: QuizModalProps)
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center">
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
-      <div className="relative w-full max-w-md rounded-t-[6px] border-t border-[#2a3040] bg-[#111827] px-5 pb-8 pt-5 shadow-modal">
+      <div className="relative w-full max-w-md rounded-t-[6px] border-t border-[rgba(0,0,0,0.08)] bg-[#FFFFFF] px-5 pb-8 pt-5 shadow-modal">
         {step === 'quiz' && (
           <div className="space-y-5">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-[#d4d4d4]">出生时辰推测</h2>
+              <h2 className="text-sm font-semibold text-[#1F1D2B]">出生时辰推测</h2>
               <button
                 onClick={onClose}
-                className="rounded-[3px] p-1 text-[#858585] hover:bg-[#1e2433] hover:text-[#d4d4d4]"
+                className="rounded-[3px] p-1 text-[#6B6778] hover:bg-[#F5F0FA] hover:text-[#1F1D2B]"
                 aria-label="关闭"
               >
                 <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -70,22 +70,22 @@ export function QuizModal({ open, onComplete, onClose, onSkip }: QuizModalProps)
                 <div
                   key={i}
                   className={`h-1 flex-1 rounded-[2px] transition-colors ${
-                    i <= currentQ ? 'bg-[#d4a853]' : 'bg-[#2a3040]'
+                    i <= currentQ ? 'bg-[#9B7FBB]' : 'bg-[#E8E8EC]'
                   }`}
                 />
               ))}
             </div>
 
-            <p className="text-xs text-[#6a6a6a]">
+            <p className="text-xs text-[#8A8696]">
               {currentQ + 1} / {QUIZ_QUESTIONS.length}
             </p>
 
             {QUIZ_QUESTIONS[currentQ] && (
               <div className="space-y-3" key={currentQ}>
-                <p className="text-xs text-[#6a6a6a] italic">
+                <p className="text-xs text-[#8A8696] italic">
                   {QUIZ_QUESTIONS[currentQ].dimension}
                 </p>
-                <p className="text-sm text-[#d4d4d4]">
+                <p className="text-sm text-[#1F1D2B]">
                   {QUIZ_QUESTIONS[currentQ].question}
                 </p>
                 <div className="space-y-1.5">
@@ -93,7 +93,7 @@ export function QuizModal({ open, onComplete, onClose, onSkip }: QuizModalProps)
                     <button
                       key={opt.id}
                       onClick={() => handleSelect(opt.id)}
-                      className="w-full rounded-[3px] border border-[#2a3040] px-3 py-2.5 text-left text-sm text-[#d4d4d4]/80 transition-all hover:border-[#d4a853]/40 hover:bg-[#d4a853]/5 hover:text-[#d4d4d4]"
+                      className="w-full rounded-[3px] border border-[rgba(0,0,0,0.08)] px-3 py-2.5 text-left text-sm text-[#1F1D2B]/80 transition-all hover:border-[#9B7FBB]/40 hover:bg-[#9B7FBB]/5 hover:text-[#1F1D2B]"
                     >
                       {opt.text}
                     </button>
@@ -106,45 +106,45 @@ export function QuizModal({ open, onComplete, onClose, onSkip }: QuizModalProps)
 
         {step === 'result' && guessResult && (
           <div className="space-y-5 text-center">
-            <div className="mx-auto w-fit rounded-[4px] bg-[#d4a853]/15 p-3">
-              <svg className="h-6 w-6 text-[#d4a853]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <div className="mx-auto w-fit rounded-[4px] bg-[#9B7FBB]/15 p-3">
+              <svg className="h-6 w-6 text-[#9B7FBB]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
 
             {guessResult.confidence < CONFIDENCE_THRESHOLD ? (
               <div>
-                <h2 className="text-base font-semibold text-[#d4d4d4]">匹配度不足</h2>
-                <p className="mt-1 text-sm text-[#858585]">
+                <h2 className="text-base font-semibold text-[#1F1D2B]">匹配度不足</h2>
+                <p className="mt-1 text-sm text-[#6B6778]">
                   你的回答在各时辰间区分度不够，推测结果仅供参考
                 </p>
               </div>
             ) : (
               <div>
-                <h2 className="text-base font-semibold text-[#d4d4d4]">推测完成</h2>
-                <p className="mt-1 text-sm text-[#858585]">
+                <h2 className="text-base font-semibold text-[#1F1D2B]">推测完成</h2>
+                <p className="mt-1 text-sm text-[#6B6778]">
                   根据你的回答，我们推测你的出生时辰为
                 </p>
               </div>
             )}
 
-            <div className="rounded-[4px] border border-[#2a3040] bg-[#1a1f2e] p-4">
-              <p className="text-2xl font-bold text-[#d4a853]">{guessResult.label}时</p>
-              <p className="mt-1 text-xs text-[#858585]">
+            <div className="rounded-[4px] border border-[rgba(0,0,0,0.06)] bg-[#F8F8FA] p-4">
+              <p className="text-2xl font-bold text-[#9B7FBB]">{guessResult.label}时</p>
+              <p className="mt-1 text-xs text-[#6B6778]">
                 ({String(guessResult.hour).padStart(2, '0')}:00-{String(guessResult.hour + 1).padStart(2, '0')}:59)
               </p>
-              <p className="mt-1 text-xs text-[#6a6a6a]">五行属{guessResult.element}</p>
+              <p className="mt-1 text-xs text-[#8A8696]">五行属{guessResult.element}</p>
               <div className="mt-3 flex items-center justify-center gap-2">
-                <div className="h-1 w-20 overflow-hidden rounded-[2px] bg-[#2a3040]">
+                <div className="h-1 w-20 overflow-hidden rounded-[2px] bg-[#E8E8EC]">
                   <div
                     className={`h-full rounded-[2px] transition-all ${
-                      guessResult.confidence < CONFIDENCE_THRESHOLD ? 'bg-[#f44747]' : 'bg-[#d4a853]'
+                      guessResult.confidence < CONFIDENCE_THRESHOLD ? 'bg-[#f44747]' : 'bg-[#9B7FBB]'
                     }`}
                     style={{ width: `${guessResult.confidence}%` }}
                   />
                 </div>
                 <span className={`text-xs ${
-                  guessResult.confidence < CONFIDENCE_THRESHOLD ? 'text-[#f44747]' : 'text-[#858585]'
+                  guessResult.confidence < CONFIDENCE_THRESHOLD ? 'text-[#f44747]' : 'text-[#6B6778]'
                 }`}>
                   {guessResult.confidence}% 匹配
                 </span>
@@ -162,7 +162,7 @@ export function QuizModal({ open, onComplete, onClose, onSkip }: QuizModalProps)
               </div>
             ) : (
               <>
-                <p className="text-xs text-[#6a6a6a]">
+                <p className="text-xs text-[#8A8696]">
                   *推测结果仅供参考，准确出生时辰可获得更精准的分析
                 </p>
                 <Button size="lg" className="w-full" onClick={handleConfirm}>

@@ -21,8 +21,8 @@ export function ShareCard({ imageUrl, onDownload, onShare }: ShareCardProps) {
           className="w-full rounded-[4px]"
         />
       ) : (
-        <div className="flex h-60 items-center justify-center rounded-[4px] border border-[#2a3040] bg-[#1a1f2e]">
-          <p className="text-xs text-[#6a6a6a]">卡片生成中...</p>
+        <div className="flex h-60 items-center justify-center rounded-[4px] border border-[rgba(0,0,0,0.08)] bg-[#F8F8FA]">
+          <p className="text-xs text-[#8A8696]">卡片生成中...</p>
         </div>
       )}
 

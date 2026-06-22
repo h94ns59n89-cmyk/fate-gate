@@ -54,7 +54,7 @@ export function BirthForm({ onSubmit, loading = false }: BirthFormProps) {
           min="1900-01-01"
           max="2100-12-31"
         />
-        <span id="birth-hint" className="mt-1 block text-xs text-[#6a6a6a]">
+        <span id="birth-hint" className="mt-1 block text-xs text-[#8A8696]">
           请输入公历出生日期
         </span>
       </div>
@@ -70,11 +70,11 @@ export function BirthForm({ onSubmit, loading = false }: BirthFormProps) {
             onChange={(e) => setFormData({ ...formData, birthHour: e.target.value })}
             className="vscode-select"
           >
-            <option value="" className="bg-[#0B0E14]">
-              未知
-            </option>
+<option value="" className="bg-[#FFFFFF]">
+               未知
+             </option>
             {Array.from({ length: 12 }, (_, i) => (
-              <option key={i} value={i * 2} className="bg-[#0B0E14]">
+              <option key={i} value={i * 2} className="bg-[#FFFFFF]">
                 {['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'][i]}时
                 ({i * 2}:00-{i * 2 + 1}:59)
               </option>
@@ -91,11 +91,11 @@ export function BirthForm({ onSubmit, loading = false }: BirthFormProps) {
             onChange={(e) => setFormData({ ...formData, birthMinute: e.target.value })}
             className="vscode-select"
           >
-            <option value="" className="bg-[#0B0E14]">
-              未知
-            </option>
+<option value="" className="bg-[#FFFFFF]">
+               未知
+             </option>
             {Array.from({ length: 12 }, (_, i) => (
-              <option key={i} value={i * 5} className="bg-[#0B0E14]">
+              <option key={i} value={i * 5} className="bg-[#FFFFFF]">
                 {i * 5} 分
               </option>
             ))}
@@ -117,8 +117,8 @@ export function BirthForm({ onSubmit, loading = false }: BirthFormProps) {
           placeholder="例如：上海市黄浦区南京东路 / 北京朝阳区三里屯 / Paris 7e"
           className="vscode-input"
         />
-        <span className="mt-1 block text-xs text-[#6a6a6a]">
-          只需填写详细地址，系统会自动匹配经纬度并换算真太阳时
+<span className="mt-1 block text-xs text-[#8A8696]">
+           只需填写详细地址，系统会自动匹配经纬度并换算真太阳时
         </span>
       </div>
 
@@ -130,9 +130,9 @@ export function BirthForm({ onSubmit, loading = false }: BirthFormProps) {
             onChange={(e) => setFormData({ ...formData, isSolarCalendar: e.target.checked })}
             className="peer sr-only"
           />
-          <div className="h-5 w-9 rounded-[3px] bg-[#2a3040] after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-[2px] after:bg-[#858585] after:transition-all peer-checked:bg-[#d4a853]/30 peer-checked:after:translate-x-full peer-checked:after:bg-[#d4a853]" />
+          <div className="h-5 w-9 rounded-[3px] bg-[#E8E8EC] after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-[2px] after:bg-[#FFFFFF] after:transition-all peer-checked:bg-[#9B7FBB]/30 peer-checked:after:translate-x-full peer-checked:after:bg-[#9B7FBB]" />
         </label>
-        <span className="text-xs text-[#858585]">公历</span>
+        <span className="text-xs text-[#6B6778]">公历</span>
       </div>
 
       <Button type="submit" loading={loading} size="lg" className="w-full">

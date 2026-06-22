@@ -3,7 +3,7 @@ import { Logo } from '@/components/common/Logo';
 
 export function Header() {
   return (
-    <header className="w-full max-w-md border-b border-[rgba(0,0,0,0.04)] bg-[rgba(255,255,255,0.82)] backdrop-blur-lg">
+    <header className="w-full max-w-md border-b border-[rgba(0,0,0,0.04)] bg-[rgba(255,255,255,0.82)] backdrop-blur-lg md:hidden">
       <div className="flex items-center justify-between px-4 py-2.5">
         <Logo size="sm" />
         <nav className="flex items-center gap-3">

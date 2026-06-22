@@ -40,8 +40,8 @@ export class ErrorBoundary extends React.Component<Props, State> {
           className="flex min-h-[400px] flex-col items-center justify-center gap-4 p-8 text-center"
         >
           <div className="text-3xl">😅</div>
-          <h2 className="text-base font-semibold text-[#d4d4d4]">页面出现异常</h2>
-          <p className="text-sm text-[#858585]">请尝试刷新页面</p>
+          <h2 className="text-base font-semibold text-[#1F1D2B]">页面出现异常</h2>
+          <p className="text-sm text-[#6B6778]">请尝试刷新页面</p>
           <Button onClick={() => window.location.reload()}>刷新页面</Button>
         </div>
       );
