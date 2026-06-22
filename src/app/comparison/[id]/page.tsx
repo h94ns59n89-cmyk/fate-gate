@@ -6,7 +6,6 @@ import { ComparisonCard } from '@/components/comparison/ComparisonCard';
 import { Button } from '@/components/common/Button';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { LeadGenWall } from '@/components/report/LeadGenWall';
-import { useUserStore } from '@/stores/userStore';
 import { Heart, Zap, AlertTriangle, MessageCircle, Sparkles, Target } from 'lucide-react';
 
 class SafeBoundary extends Component<{ children: ReactNode; fallback?: ReactNode }, { hasError: boolean; error: Error | null }> {
@@ -52,7 +51,6 @@ interface ComparisonData {
 
 export default function ComparisonResultPage() {
   const params = useParams();
-  const userId = useUserStore((s) => s.userId);
   const [data, setData] = useState<ComparisonData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -100,37 +98,8 @@ export default function ComparisonResultPage() {
         ? (data.dimensions as Record<string, number>)
         : null;
 
-      if (!data.is_paid) {
-        return (
-          <div className="px-4">
-            <div className="mb-6 text-center">
-              <h1 className="mb-1 text-xl font-semibold text-[#1F1D2B]">人格对比</h1>
-              {typeof data.summary_tag === 'string' && (
-                <p className="mb-2 text-sm font-medium text-[#9B7FBB]">{String(data.summary_tag)}</p>
-              )}
-              <p className="text-xs text-[#6B6778]">解锁完整合盘分析</p>
-            </div>
-
-            {dimsObj && (
-              <ComparisonCard
-                matchScore={data.match_score}
-                userTag={data.user_tags?.[0] ?? '我'}
-                targetTag={data.target_tags?.[0] ?? 'TA'}
-                onShare={() => {}}
-              />
-            )}
-
-            {userId && (
-              <div className="sticky bottom-0 left-0 right-0 z-40 border-t border-[rgba(0,0,0,0.06)] bg-[rgba(255,255,255,0.85)] backdrop-blur-lg">
-                <LeadGenWall reportId={data.id} onSuccess={fetchComparison} />
-              </div>
-            )}
-          </div>
-        );
-      }
-
       return (
-    <div className="px-4">
+    <div className="px-4 pb-8">
       {/* Header with decorative line */}
       <div className="mb-6 text-center">
         <div className="mb-3 flex items-center justify-center gap-2">
@@ -241,6 +210,10 @@ export default function ComparisonResultPage() {
           <p className="mt-2 text-sm leading-relaxed text-[#1F1D2B]/70">{String(data.advice)}</p>
         </div>
       )}
+
+      <div className="my-8">
+        <LeadGenWall context="完整合盘分析" />
+      </div>
 
       {/* Divider before disclaimer */}
       <div className="my-8 flex items-center gap-3">
