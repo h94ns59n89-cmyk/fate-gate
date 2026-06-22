@@ -63,6 +63,16 @@ function TagPill({ children, variant = 'default' }: { children: React.ReactNode;
   );
 }
 
+function PastTendencyBlock({ children }: { children: React.ReactNode }) {
+  if (!children) return null;
+  return (
+    <div className="rounded-[4px] border border-dashed border-[#8A8696]/30 bg-[#F8F8FA] px-4 py-3">
+      <p className="text-[10px] font-medium tracking-wide text-[#8A8696]">过去可能倾向</p>
+      <p className="mt-1 text-sm leading-relaxed text-[#1F1D2B]/60 italic">{children}</p>
+    </div>
+  );
+}
+
 function AdviceBlock({ children }: { children: React.ReactNode }) {
   return (
     <div className="rounded-[4px] border-l-2 border-[#9B7FBB] bg-[#9B7FBB]/5 px-4 py-3">
@@ -195,6 +205,8 @@ function PersonalityPage({ data }: { data: Record<string, unknown> }) {
           </div>
         )}
       </div>
+
+      <PastTendencyBlock>{(data.past_tendency as string)}</PastTendencyBlock>
     </div>
   );
 }
@@ -235,6 +247,7 @@ function CareerPage({ data }: { data: Record<string, unknown> }) {
         </div>
       )}
       {(data.advice as string) && <AdviceBlock>{(data.advice as string)}</AdviceBlock>}
+      <PastTendencyBlock>{(data.past_tendency as string)}</PastTendencyBlock>
     </div>
   );
 }
@@ -258,6 +271,7 @@ function RelationshipsPage({ data }: { data: Record<string, unknown> }) {
         </div>
       )}
       {(data.advice as string) && <AdviceBlock>{data.advice as string}</AdviceBlock>}
+      <PastTendencyBlock>{(data.past_tendency as string)}</PastTendencyBlock>
     </div>
   );
 }
@@ -283,6 +297,7 @@ function HealthPage({ data }: { data: Record<string, unknown> }) {
         </div>
       )}
       {(data.advice as string) && <AdviceBlock>{data.advice as string}</AdviceBlock>}
+      <PastTendencyBlock>{(data.past_tendency as string)}</PastTendencyBlock>
     </div>
   );
 }

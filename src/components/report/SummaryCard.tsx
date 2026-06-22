@@ -15,6 +15,7 @@ interface SummaryCardProps {
   isLoading?: boolean | undefined;
   onShare?: (() => void) | undefined;
   onUnlock?: (() => void) | undefined;
+  pastTendencies?: string[] | undefined;
 }
 
 export function SummaryCard({
@@ -26,6 +27,7 @@ export function SummaryCard({
   isLoading,
   onShare,
   onUnlock,
+  pastTendencies,
 }: SummaryCardProps) {
   if (isLoading) {
     return (
@@ -74,6 +76,20 @@ export function SummaryCard({
               <li key={i} className="flex items-start gap-2 text-sm text-[#1F1D2B]/80">
                 <span className="mt-1.5 h-1 w-1 flex-shrink-0 rounded-full bg-[#9B7FBB]" />
                 {trait}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {pastTendencies && pastTendencies.length > 0 && (
+        <div className="space-y-2.5">
+          <h3 className="text-xs font-medium text-[#6B6778] tracking-wide">过去可能倾向</h3>
+          <ul className="space-y-1.5">
+            {pastTendencies.map((t, i) => (
+              <li key={i} className="flex items-start gap-2 text-sm text-[#1F1D2B]/70 italic">
+                <span className="mt-1.5 h-1 w-1 flex-shrink-0 rounded-full bg-[#8A8696]" />
+                {t}
               </li>
             ))}
           </ul>

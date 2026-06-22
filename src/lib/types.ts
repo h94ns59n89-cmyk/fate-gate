@@ -52,11 +52,17 @@ export interface BaziCalculationMeta {
   enabled_true_solar_time: boolean;
 }
 
+export interface PastTendency {
+  summary: string;
+  detail?: string;
+}
+
 export interface PersonalityTags {
   personality_tags: string[];
   core_traits: string[];
   life_theme: string;
   five_elements_summary: string;
+  past_tendencies?: string[];
 }
 
 export interface FullReport {
