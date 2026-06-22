@@ -3,12 +3,13 @@
 import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { SummaryCard } from '@/components/report/SummaryCard';
+import { ReportPageViewer } from '@/components/report/ReportPageViewer';
 import { LeadGenWall } from '@/components/report/LeadGenWall';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { Button } from '@/components/common/Button';
 import { trackEvent, EVENTS } from '@/lib/analytics';
 import { useUserStore } from '@/stores/userStore';
-import type { FiveElements, PersonalityTags } from '@/lib/types';
+import type { FiveElements, PersonalityTags, FullReport } from '@/lib/types';
 
 export default function ReportPage() {
   const params = useParams();
@@ -19,6 +20,7 @@ export default function ReportPage() {
   const [fiveElements, setFiveElements] = useState<FiveElements>();
   const [summary, setSummary] = useState<PersonalityTags>();
   const [pastTendencies, setPastTendencies] = useState<string[]>();
+  const [fullReport, setFullReport] = useState<FullReport | null>(null);
 
   const reportId = parseInt(params?.id as string, 10);
   const validReport = !isNaN(reportId) && reportId > 0;
@@ -37,6 +39,9 @@ export default function ReportPage() {
           setFiveElements(data.data?.five_elements);
           setSummary(data.data?.summary);
           setPastTendencies(data.data?.summary?.past_tendencies);
+          if (data.data?.full_report) {
+            setFullReport(data.data.full_report);
+          }
         }
         setLoading(false);
       })
@@ -63,6 +68,16 @@ export default function ReportPage() {
     );
   }
 
+  // Full report available — show ReportPageViewer
+  if (fullReport) {
+    return (
+      <div className="px-4 pb-8">
+        <ReportPageViewer report={fullReport} onShare={() => trackEvent(EVENTS.SUMMARY_SHARED)} />
+      </div>
+    );
+  }
+
+  // Summary only — show summary + lead gen
   const inviteCodeSection = userId ? (
     <div className="rounded-[12px] border border-[rgba(0,0,0,0.06)] bg-[#F8F8FA] px-5 py-4">
       <div className="flex items-center gap-3">
