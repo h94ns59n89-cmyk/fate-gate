@@ -5,6 +5,7 @@
   "description": "AI命理人格系统 - 将传统八字命理转化为现代人格认知工具",
   "scripts": {
     "dev": "next dev",
+    "dev:sync": "pwsh -NoProfile -File auto-sync.ps1",
     "build": "next build",
     "postinstall": "prisma generate",
     "start": "next start",

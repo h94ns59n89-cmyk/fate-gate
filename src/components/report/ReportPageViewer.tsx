@@ -477,7 +477,7 @@ export function ReportPageViewer({ report, onShare }: ReportPageViewerProps) {
                   <span className="absolute -left-1 select-none text-[48px] font-bold leading-none text-[#9B7FBB]/6">
                     {String(i).padStart(2, '0')}
                   </span>
-                  <span className="ml-9 text-xs font-medium tracking-wide text-[#6B6778]">
+                  <span className="ml-14 text-xs font-medium tracking-wide text-[#6B6778]">
                     {page.title}
                   </span>
                   <div className="ml-auto flex gap-1">
