@@ -14,8 +14,6 @@ interface SummaryCardProps {
   calculationMeta?: BaziCalculationMeta | undefined;
   reportId?: number | undefined;
   isLoading?: boolean | undefined;
-  onShare?: (() => void) | undefined;
-  onUnlock?: (() => void) | undefined;
   pastTendencies?: string[] | undefined;
 }
 
@@ -38,7 +36,7 @@ export function SummaryCard({
       const canvas = await html2canvas(captureRef.current, {
         scale: 2,
         useCORS: true,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: '#FAF8F5',
         logging: false,
       });
       const link = document.createElement('a');
@@ -54,7 +52,7 @@ export function SummaryCard({
 
   if (isLoading) {
     return (
-      <div className="space-y-4 rounded-[16px] bg-[#FFFFFF] p-6 shadow-sm">
+      <div className="space-y-4 rounded-[16px] bg-[#FAF8F5] p-6">
         <Skeleton className="h-6 w-3/4" />
         <Skeleton className="h-3 w-1/2" />
         <div className="space-y-2">
@@ -70,40 +68,42 @@ export function SummaryCard({
     <div className="relative">
       <div
         ref={captureRef}
-        className="overflow-hidden rounded-[16px] bg-[#FFFFFF] shadow-sm"
-        style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", sans-serif' }}
+        className="overflow-hidden rounded-[16px] bg-[#FAF8F5]"
+        style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif' }}
       >
+        {/* Warm decorative top border */}
+        <div className="h-1 bg-gradient-to-r from-[#E8D5C4] via-[#D4C0B0] to-[#E8D5C4]" />
+
         {/* Header */}
-        <div className="relative px-7 pb-7 pt-10 text-center">
-          <div className="absolute left-0 right-0 top-0 h-[3px] bg-gradient-to-r from-transparent via-[#9B7FBB]/40 to-transparent" />
-          <div className="absolute left-4 right-4 top-3 flex justify-between text-[10px] tracking-[0.4em] text-[#9B7FBB]/20">
-            <span>✦</span>
-            <span>✦</span>
-            <span>✦</span>
-            <span>✦</span>
-            <span>✦</span>
+        <div className="relative px-8 pb-6 pt-10 text-center">
+          {/* Corner decorations */}
+          <div className="absolute left-6 top-6 text-[#D4C0B0]/30 text-xs">✦</div>
+          <div className="absolute right-6 top-6 text-[#D4C0B0]/30 text-xs">✦</div>
+
+          <div className="mx-auto mb-3 flex items-center justify-center gap-2">
+            <span className="h-px w-6 bg-[#D4C0B0]/30" />
+            <span className="text-[9px] tracking-[0.25em] text-[#B8A89A]">星 隅</span>
+            <span className="h-px w-6 bg-[#D4C0B0]/30" />
           </div>
-          <div className="mx-auto mb-4 flex items-center justify-center gap-3">
-            <span className="h-px w-10 bg-gradient-to-r from-transparent to-[#9B7FBB]/25" />
-            <span className="text-[10px] tracking-[0.3em] text-[#9B7FBB]/60">星 隅</span>
-            <span className="h-px w-10 bg-gradient-to-l from-transparent to-[#9B7FBB]/25" />
-          </div>
-          <h1 className="text-xl font-semibold tracking-wider text-[#1F1D2B]">人格认知报告</h1>
-          <div className="mx-auto mt-3 h-px w-14 bg-[#9B7FBB]/20" />
-          <p className="mt-3 text-[11px] tracking-widest text-[#8A8696]">摘 要 版</p>
+
+          <h1 className="text-2xl font-bold tracking-wider text-[#4A3F3A]" style={{ fontFamily: '"Noto Serif SC", "STSong", serif' }}>
+            人格认知报告
+          </h1>
+          <div className="mx-auto mt-3 h-px w-16 bg-gradient-to-r from-transparent via-[#D4C0B0]/50 to-transparent" />
+          <p className="mt-3 text-[10px] tracking-[0.3em] text-[#B8A89A]">摘 要 版</p>
         </div>
 
         {personalityTags && personalityTags.length > 0 && (
-          <div className="border-t border-[rgba(0,0,0,0.04)] px-7 py-6">
-            <div className="mb-4 flex items-center gap-2.5">
-              <span className="h-3.5 w-[3px] rounded-full bg-[#9B7FBB]" />
-              <h2 className="text-[11px] font-semibold tracking-wider text-[#6B6778]">你的人格</h2>
+          <div className="px-8 py-5">
+            <div className="mb-4 flex items-center gap-2">
+              <span className="h-3 w-[2px] rounded-full bg-[#C9A88D]" />
+              <h2 className="text-[10px] font-semibold tracking-wider text-[#B8A89A]">你的人格</h2>
             </div>
             <div className="flex flex-wrap gap-2">
               {personalityTags.map((tag, i) => (
                 <span
                   key={i}
-                  className="inline-block rounded-[20px] border border-[#9B7FBB]/12 bg-[#9B7FBB]/6 px-3.5 py-1.5 text-xs font-medium leading-relaxed text-[#9B7FBB]"
+                  className="inline-block rounded-[20px] bg-[#EDE6DE] px-4 py-1.5 text-xs font-medium leading-relaxed text-[#6B5D53]"
                 >
                   {tag}
                 </span>
@@ -113,80 +113,96 @@ export function SummaryCard({
         )}
 
         {fiveElements && (
-          <div className="border-t border-[rgba(0,0,0,0.04)] px-7 py-6">
-            <div className="mb-5 flex items-center gap-2.5">
-              <span className="h-3.5 w-[3px] rounded-full bg-[#9B7FBB]" />
-              <h2 className="text-[11px] font-semibold tracking-wider text-[#6B6778]">五行能量</h2>
+          <>
+            <div className="mx-8 h-px bg-[#EDE6DE]" />
+            <div className="px-8 py-5">
+              <div className="mb-4 flex items-center gap-2">
+                <span className="h-3 w-[2px] rounded-full bg-[#C9A88D]" />
+                <h2 className="text-[10px] font-semibold tracking-wider text-[#B8A89A]">五行能量</h2>
+              </div>
+              <FiveElementsChart data={fiveElements} />
             </div>
-            <FiveElementsChart data={fiveElements} />
-          </div>
+          </>
         )}
 
         {coreTraits && coreTraits.length > 0 && (
-          <div className="border-t border-[rgba(0,0,0,0.04)] px-7 py-6">
-            <div className="mb-4 flex items-center gap-2.5">
-              <span className="h-3.5 w-[3px] rounded-full bg-[#9B7FBB]" />
-              <h2 className="text-[11px] font-semibold tracking-wider text-[#6B6778]">核心特质</h2>
+          <>
+            <div className="mx-8 h-px bg-[#EDE6DE]" />
+            <div className="px-8 py-5">
+              <div className="mb-4 flex items-center gap-2">
+                <span className="h-3 w-[2px] rounded-full bg-[#C9A88D]" />
+                <h2 className="text-[10px] font-semibold tracking-wider text-[#B8A89A]">核心特质</h2>
+              </div>
+              <ul className="space-y-3">
+                {coreTraits.map((trait, i) => (
+                  <li key={i} className="flex items-start gap-3 text-sm leading-relaxed text-[#4A3F3A]/80">
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#EDE6DE] text-[9px] text-[#B8A89A]">{i + 1}</span>
+                    <span className="pt-0.5">{trait}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <ul className="space-y-2.5">
-              {coreTraits.map((trait, i) => (
-                <li key={i} className="flex items-start gap-3 text-sm leading-relaxed text-[#1F1D2B]/80">
-                  <span className="mt-[5px] flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#9B7FBB]/10 text-[9px] text-[#9B7FBB]">{i + 1}</span>
-                  {trait}
-                </li>
-              ))}
-            </ul>
-          </div>
+          </>
         )}
 
         {pastTendencies && pastTendencies.length > 0 && (
-          <div className="border-t border-[rgba(0,0,0,0.04)] px-7 py-6">
-            <div className="mb-4 flex items-center gap-2.5">
-              <span className="h-3.5 w-[3px] rounded-full bg-[#8A8696]" />
-              <h2 className="text-[11px] font-semibold tracking-wider text-[#6B6778]">过去可能倾向</h2>
+          <>
+            <div className="mx-8 h-px bg-[#EDE6DE]" />
+            <div className="px-8 py-5">
+              <div className="mb-4 flex items-center gap-2">
+                <span className="h-3 w-[2px] rounded-full bg-[#C9A88D]" />
+                <h2 className="text-[10px] font-semibold tracking-wider text-[#B8A89A]">过去可能倾向</h2>
+              </div>
+              <ul className="space-y-2.5">
+                {pastTendencies.map((t, i) => (
+                  <li key={i} className="flex items-start gap-3 text-sm leading-relaxed text-[#4A3F3A]/60 italic">
+                    <span className="mt-[5px] h-[3px] w-[3px] shrink-0 rounded-full bg-[#D4C0B0]/50" />
+                    {t}
+                  </li>
+                ))}
+              </ul>
             </div>
-            <ul className="space-y-2.5">
-              {pastTendencies.map((t, i) => (
-                <li key={i} className="flex items-start gap-3 text-sm leading-relaxed text-[#1F1D2B]/60 italic">
-                  <span className="mt-[5px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#8A8696]/30" />
-                  {t}
-                </li>
-              ))}
-            </ul>
-          </div>
+          </>
         )}
 
         {lifeTheme && (
-          <div className="border-t border-[rgba(0,0,0,0.04)] px-7 py-6">
-            <div className="mb-4 flex items-center gap-2.5">
-              <span className="h-3.5 w-[3px] rounded-full bg-[#9B7FBB]" />
-              <h2 className="text-[11px] font-semibold tracking-wider text-[#6B6778]">人生主题</h2>
+          <>
+            <div className="mx-8 h-px bg-[#EDE6DE]" />
+            <div className="px-8 py-5">
+              <div className="mb-4 flex items-center gap-2">
+                <span className="h-3 w-[2px] rounded-full bg-[#C9A88D]" />
+                <h2 className="text-[10px] font-semibold tracking-wider text-[#B8A89A]">人生主题</h2>
+              </div>
+              <div className="relative rounded-[10px] bg-[#EDE6DE]/40 px-5 py-4 text-center">
+                <span className="absolute left-3 top-2 font-serif text-2xl leading-none text-[#D4C0B0]/40">&ldquo;</span>
+                <p className="text-sm font-medium leading-relaxed tracking-wide text-[#8A7A6C]">{lifeTheme}</p>
+                <span className="absolute bottom-0 right-3 font-serif text-2xl leading-none text-[#D4C0B0]/40">&rdquo;</span>
+              </div>
             </div>
-            <div className="relative rounded-[10px] bg-[#F8F6FF] px-5 py-4">
-              <span className="absolute -left-1.5 -top-1.5 text-2xl leading-none text-[#9B7FBB]/15">❝</span>
-              <p className="text-sm font-medium leading-relaxed text-[#9B7FBB]">{lifeTheme}</p>
-              <span className="absolute -bottom-3 -right-1 text-2xl leading-none text-[#9B7FBB]/15">❞</span>
-            </div>
-          </div>
+          </>
         )}
 
         {/* Footer */}
-        <div className="border-t border-[rgba(0,0,0,0.04)] px-7 pb-6 pt-4 text-center">
+        <div className="mt-2 border-t border-[#EDE6DE] px-8 pb-6 pt-4 text-center">
           {calculationMeta?.enabled_true_solar_time && (
-            <p className="mb-2 text-[10px] leading-relaxed text-[#8A8696]">
-              已按出生地换算真太阳时：{calculationMeta.true_solar_time}
-              （修正 {calculationMeta.true_solar_delta_minutes} 分钟）
+            <p className="mb-2 text-[9px] leading-relaxed text-[#B8A89A]">
+              按出生地换算真太阳时：{calculationMeta.true_solar_time}（修正 {calculationMeta.true_solar_delta_minutes} 分钟）
             </p>
           )}
-          <p className="text-[10px] text-[#B8B6C0]">本内容由 AI 生成，仅供娱乐参考</p>
+          <div className="flex items-center justify-center gap-2">
+            <span className="h-px w-4 bg-[#EDE6DE]" />
+            <span className="text-[9px] text-[#D4C0B0]">星隅出品</span>
+            <span className="h-px w-4 bg-[#EDE6DE]" />
+          </div>
+          <p className="mt-1 text-[8px] text-[#D4C0B0]/60">AI 生成 · 仅供娱乐参考</p>
         </div>
       </div>
 
-      {/* Download icon — outside captureRef, positioned at bottom-right */}
+      {/* Download icon */}
       <button
         onClick={handleSaveImage}
         disabled={saving}
-        className="absolute -bottom-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-[#FFFFFF] text-[#9B7FBB] shadow-md transition-colors hover:bg-[#F8F6FF] active:scale-90 disabled:opacity-50"
+        className="absolute -bottom-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-[#FAF8F5] text-[#C9A88D] shadow-[0_2px_8px_rgba(0,0,0,0.08)] transition-colors hover:bg-[#EDE6DE] active:scale-90 disabled:opacity-50"
         title="保存为图片"
       >
         {saving ? (

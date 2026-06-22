@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
-const ADMIN_TOKEN = 'admin888';
+const ADMIN_TOKEN = '123456';
 
 export default function AdminPage() {
   const [token, setToken] = useState('');

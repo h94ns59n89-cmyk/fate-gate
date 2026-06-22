@@ -8,7 +8,7 @@ import { Logger } from '@/lib/logger';
 export const POST = withMiddleware(async (req) => {
   const body = await req.json();
   const { token } = body;
-  const ADMIN_TOKEN = process.env.ADMIN_TOKEN ?? 'admin888';
+  const ADMIN_TOKEN = process.env.ADMIN_TOKEN ?? '123456';
   if (token !== ADMIN_TOKEN) {
     return error(401, '未授权访问', 401);
   }

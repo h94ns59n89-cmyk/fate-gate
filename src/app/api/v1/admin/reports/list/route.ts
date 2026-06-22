@@ -9,7 +9,7 @@ const jsonNull = Prisma.JsonNullValueFilter.DbNull;
 export const GET = withMiddleware(async (req) => {
   const url = new URL(req.url);
   const token = url.searchParams.get('token');
-  const ADMIN_TOKEN = process.env.ADMIN_TOKEN ?? 'admin888';
+  const ADMIN_TOKEN = process.env.ADMIN_TOKEN ?? '123456';
   if (token !== ADMIN_TOKEN) {
     return error(401, '未授权访问', 401);
   }
