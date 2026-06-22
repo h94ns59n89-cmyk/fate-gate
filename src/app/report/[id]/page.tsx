@@ -103,33 +103,57 @@ export default function ReportPage() {
     return () => { cancelled = true; stop(); };
   }, [reportId]);
 
-  const generateReport = useCallback(async () => {
-    if (!baziData) return;
-    setGenerating(true);
+  const handleUnlock = useCallback(async () => {
+    trackEvent(EVENTS.PAY_SUCCESS);
     setError(null);
+    setGenerating(true);
+
+    let body: Record<string, unknown>;
+
+    if (baziData) {
+      body = {
+        dayMaster: baziData.d,
+        dayMasterElement: baziData.de,
+        pillars: baziData.b,
+        fiveElements: baziData.f,
+        shishen: {},
+        dayun: {},
+        calculationMeta: baziData.m,
+      };
+    } else {
+      try {
+        const res = await fetch(`/api/v1/reports/${reportId}`);
+        const data = await res.json();
+        if (data.code !== 0) throw new Error('获取报告失败');
+        const rd = data.data;
+        body = {
+          dayMaster: (rd.bazi as Record<string, unknown>)?.dayMaster ?? '',
+          pillars: rd.bazi as Record<string, unknown>,
+          fiveElements: rd.five_elements as Record<string, unknown>,
+          shishen: {},
+          dayun: {},
+          calculationMeta: (rd.bazi as Record<string, unknown>)?.calculation_meta,
+        };
+      } catch {
+        setError('获取报告数据失败，请返回重新测算');
+        setGenerating(false);
+        return;
+      }
+    }
+
     try {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 30000);
-      const res = await fetch('/api/v1/reports/generate', {
+      const genRes = await fetch('/api/v1/reports/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          bazi_data: {
-            dayMaster: baziData.d,
-            dayMasterElement: baziData.de,
-            pillars: baziData.b,
-            fiveElements: baziData.f,
-            shishen: {},
-            dayun: {},
-            calculationMeta: baziData.m,
-          },
-        }),
+        body: JSON.stringify({ bazi_data: body }),
         signal: controller.signal,
       });
       clearTimeout(timeout);
-      const data = await res.json();
-      if (data.code === 0 && data.data?.report) {
-        setReport(data.data.report);
+      const genData = await genRes.json();
+      if (genData.code === 0 && genData.data?.report) {
+        setReport(genData.data.report);
         setPaid(true);
       } else {
         setError('报告生成失败，请稍后重试或添加助理微信 Willa106 获取帮助');
@@ -139,16 +163,7 @@ export default function ReportPage() {
     } finally {
       setGenerating(false);
     }
-  }, [baziData]);
-
-  const handleUnlock = useCallback(async () => {
-    trackEvent(EVENTS.PAY_SUCCESS);
-    setError(null);
-    if (!baziData) { setPaid(true); return; }
-    await generateReport();
-  }, [baziData, generateReport]);
-
-  const isGenerating = generating;
+  }, [baziData, reportId]);
 
   if (error) {
     return (
@@ -176,7 +191,7 @@ export default function ReportPage() {
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-4">
         <p className="text-sm text-[#9B7FBB]">报告数据异常</p>
         <p className="text-xs text-[#6B6778]">未获取到有效的报告编号，请尝试重新生成</p>
-        <Button onClick={generateReport} loading={generating}>重新生成报告</Button>
+        <Button onClick={handleUnlock} loading={generating}>重新生成报告</Button>
         <Button variant="ghost" size="sm" onClick={() => window.location.href = '/'}>返回首页</Button>
       </div>
     );
