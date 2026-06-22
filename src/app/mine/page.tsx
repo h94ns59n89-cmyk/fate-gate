@@ -307,17 +307,13 @@ export default function MinePage() {
                         coreTraits: report.summary?.core_traits,
                         lifeTheme: report.summary?.life_theme,
                         calculationMeta: report.bazi?.calculation_meta as never,
-                        onUnlock: report.report_type !== 'paid' ? () => router.push(`/report/${report.id}`) : undefined,
-                        onShare: undefined,
                       } as any} />
-                      {report.report_type === 'paid' && (
-                        <button
-                          onClick={() => router.push(`/report/${report.id}`)}
-                          className="mt-2 w-full rounded bg-[#7CB87C]/15 py-2 text-xs text-[#7CB87C] transition-colors hover:bg-[#7CB87C]/25"
-                        >
-                          查看完整报告
-                        </button>
-                      )}
+                      <button
+                        onClick={() => router.push(`/report/${report.id}`)}
+                        className="mt-2 w-full rounded-[8px] border border-[#9B7FBB]/20 bg-[#9B7FBB]/6 py-2.5 text-sm font-medium text-[#9B7FBB] transition-colors hover:bg-[#9B7FBB]/15"
+                      >
+                        查看完整报告
+                      </button>
                     </div>
                   )}
               </div>

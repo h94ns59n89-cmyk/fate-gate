@@ -219,9 +219,15 @@ export default function LandingPage() {
               coreTraits={result!.coreTraits}
               lifeTheme={result!.lifeTheme}
               calculationMeta={result!.calculationMeta}
-              onShare={handleShare}
-              onUnlock={handleUnlock}
             />
+            {result!.reportId > 0 && (
+              <button
+                onClick={handleUnlock}
+                className="mt-4 w-full rounded-[10px] bg-[#9B7FBB]/8 py-3 text-sm font-medium text-[#9B7FBB] transition-colors hover:bg-[#9B7FBB]/15 active:scale-[0.98]"
+              >
+                获取完整报告 →
+              </button>
+            )}
             {result!.reportId > 0 && effectiveUserId != null && (
               <div className="mt-6 rounded-[10px] border border-[rgba(0,0,0,0.06)] bg-[#F8F8FA] px-5 py-4">
                 <div className="flex items-center gap-3">
