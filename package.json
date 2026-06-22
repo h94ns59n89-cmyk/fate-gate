@@ -23,6 +23,7 @@
     "db:migrate:prod": "prisma migrate deploy",
     "db:studio": "prisma studio",
     "db:seed": "tsx src/lib/db/seed.ts",
+    "db:backfill-mbti": "tsx scripts/backfill-mbti.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

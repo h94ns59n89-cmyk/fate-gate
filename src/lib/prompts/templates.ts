@@ -11,7 +11,7 @@ export function buildPersonalityTagsPrompt(baziData: Record<string, unknown>): s
 # 输出要求
 严格按照以下 JSON 格式输出，不要添加任何额外内容：
 {
-  "personality_tags": ["<日主五行型>·<核心人格标签>", "<最强十神格>·<副标签>", "<次强十神格>·<副标签>"],
+  "personality_tags": ["<日主五行型>·<核心人格标签> (MBTI)", "<最强十神格>·<副标签> (MBTI)", "<次强十神格>·<副标签> (MBTI)"],
   "core_traits": ["<3-5 条核心性格特征>"],
   "life_theme": "<一句有诗意的人生主题>",
   "five_elements_summary": "<一句话点评五行格局>",
@@ -23,7 +23,8 @@ export function buildPersonalityTagsPrompt(baziData: Record<string, unknown>): s
 2. 标签种类 ≥ 20 种组合
 3. 禁止负面表述: 命硬/克夫/短命/大凶
 4. 发展性视角: "建议补火" 而非 "火弱命差"
-5. past_tendencies 必须基于大运/流年五行能量做出推测，使用"可能""倾向"等推测性语气，不构成确定性断言`;
+5. past_tendencies 必须基于大运/流年五行能量做出推测，使用"可能""倾向"等推测性语气，不构成确定性断言
+6. 每个标签末尾必须追加对应的 MBTI 人格类型代码（如 ENTJ/INFP/ESTP 等），格式为 "·标签名 (MBTI)"`;
 }
 
 export function buildFullReportPrompt(baziData: Record<string, unknown>): string {
@@ -45,6 +46,8 @@ export function buildFullReportPrompt(baziData: Record<string, unknown>): string
 - career.past_tendency: 过去职场中可能经历的能量周期
 - relationships.past_tendency: 过去感情/人际关系中的可能模式
 - health.past_tendency: 过去健康状况的可能能量影响
+
+personality.type 末尾须追加对应的 MBTI 人格类型代码（如 "甲木型·领导者人格 (ENTJ)"）
 
 # 约束
 1. 禁止: 大凶/必败/克夫/短命/血光
