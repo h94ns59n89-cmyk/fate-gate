@@ -67,7 +67,7 @@ function renderReportHTML(report: Record<string, unknown>): string {
       html += `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:600px;text-align:center;">`;
       html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:24px;"><div style="width:40px;height:1px;background:linear-gradient(to right,transparent,rgba(155,127,187,0.3));"></div><div style="display:flex;gap:3px;"><div style="width:4px;height:4px;border-radius:999px;background:#9B7FBB;"></div><div style="width:4px;height:4px;border-radius:999px;background:rgba(155,127,187,0.5);"></div><div style="width:4px;height:4px;border-radius:999px;background:rgba(155,127,187,0.2);"></div></div><div style="width:40px;height:1px;background:linear-gradient(to left,transparent,rgba(155,127,187,0.3));"></div></div>`;
       if (data.day_master) html += `<span style="display:inline-block;border:1px solid rgba(155,127,187,0.25);background:rgba(155,127,187,0.08);border-radius:3px;padding:4px 14px;font-size:11px;color:#9B7FBB;font-weight:500;">日主 ${esc(data.day_master as string)}</span>`;
-      if (data.title) html += `<h1 style="font-size:28px;font-weight:700;margin:20px 0 8px 0;color:#1F1D2B;font-family:serif;">${esc(data.title as string)}</h1>`;
+      if (data.title) html += `<h1 style="font-size:28px;font-size:28px;font-weight:700;margin:20px 0 8px 0;color:#1F1D2B;font-family:serif;">${esc(data.title as string)}</h1>`;
       if (data.subtitle) html += `<p style="font-size:13px;color:#6B6778;margin:0 0 20px 0;">${esc(data.subtitle as string)}</p>`;
       html += `<div style="width:60px;height:1px;background:linear-gradient(to right,transparent,rgba(155,127,187,0.25),transparent);margin-bottom:20px;"></div>`;
       if (data.life_theme) html += `<div style="border-left:2px solid rgba(155,127,187,0.3);padding-left:14px;max-width:320px;"><p style="font-size:14px;font-style:italic;font-family:serif;color:#9B7FBB;margin:0;">「${esc(data.life_theme as string)}」</p></div>`;
@@ -172,13 +172,7 @@ export default function AdminPage() {
   const [log, setLog] = useState<string[]>([]);
   const [selectedReport, setSelectedReport] = useState<{ id: number; content: string } | null>(null);
   const [exportingPDF, setExportingPDF] = useState<Set<number>>(new Set());
-  const [activeTab, setActiveTab] = useState<'reports' | 'users'>('reports');
-  // User management state
-  const [users, setUsers] = useState<{ id: number; username: string; nickname: string; created_at: string }[]>([]);
-  const [newUsername, setNewUsername] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [newNickname, setNewNickname] = useState('');
-  const [creatingUser, setCreatingUser] = useState(false);
+  const [tab, setTab] = useState<'pending' | 'completed' | 'log'>('pending');
 
   const addLog = useCallback((msg: string) => {
     setLog((prev) => [`[${new Date().toLocaleTimeString()}] ${msg}`, ...prev.slice(0, 99)]);
@@ -197,18 +191,6 @@ export default function AdminPage() {
     }
   }, [token, addLog]);
 
-  const fetchUsers = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/v1/admin/users/list?token=${token}`);
-      const json = await res.json();
-      if (json.code === 0) {
-        setUsers(json.data.users);
-      }
-    } catch {
-      addLog('加载用户列表失败');
-    }
-  }, [token, addLog]);
-
   useEffect(() => {
     try {
       const raw = localStorage.getItem('admin_auth');
@@ -217,8 +199,8 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
-    if (authenticated) { fetchReports(); fetchUsers(); }
-  }, [authenticated, fetchReports, fetchUsers]);
+    if (authenticated) fetchReports();
+  }, [authenticated, fetchReports]);
 
   const handleLogin = () => {
     if (token === ADMIN_TOKEN) {
@@ -228,13 +210,6 @@ export default function AdminPage() {
     } else {
       addLog('密码错误');
     }
-  };
-
-  const handleLogout = () => {
-    setAuthenticated(false);
-    setData(null);
-    try { localStorage.removeItem('admin_auth'); } catch {}
-    addLog('已退出');
   };
 
   const handleGenerate = async (reportId: number) => {
@@ -339,36 +314,12 @@ export default function AdminPage() {
     }
   };
 
-  const handleCreateUser = async () => {
-    if (!newUsername || !newPassword) { addLog('请输入用户名和密码'); return; }
-    setCreatingUser(true);
-    try {
-      const res = await fetch('/api/v1/admin/users/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, username: newUsername, password: newPassword, nickname: newNickname || undefined }),
-      });
-      const json = await res.json();
-      if (json.code === 0) {
-        addLog(`✅ 用户 ${json.data.username} 创建成功`);
-        setNewUsername(''); setNewPassword(''); setNewNickname('');
-        fetchUsers();
-      } else {
-        addLog(`❌ 创建失败: ${json.message}`);
-      }
-    } catch {
-      addLog('❌ 创建用户请求异常');
-    } finally {
-      setCreatingUser(false);
-    }
-  };
-
   if (!authenticated) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#1F1D2B] p-4">
         <div className="w-full max-w-sm rounded-[12px] bg-[#FFFFFF] p-6 shadow-lg">
           <h1 className="mb-1 text-center text-lg font-semibold text-[#1F1D2B]">管理员登录</h1>
-          <p className="mb-5 text-center text-xs text-[#8A8696]">星隅报告生成后台</p>
+          <p className="mb-5 text-center text-xs text-[#8A8696]">报告管理后台</p>
           <input
             type="password"
             value={token}
@@ -390,116 +341,65 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-[#F5F4F7]">
-      <div className="mx-auto max-w-5xl px-4 py-6">
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h1 className="text-lg font-semibold text-[#1F1D2B]">星隅管理后台</h1>
-            <p className="text-xs text-[#8A8696]">报告管理 · 用户管理 · PDF 导出</p>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="rounded-[6px] border border-[rgba(0,0,0,0.1)] px-3 py-1.5 text-xs text-[#6B6778] hover:bg-[#FFFFFF]"
-          >
-            退出
-          </button>
-        </div>
-
+      <div className="mx-auto max-w-4xl px-4 py-6">
         {/* Tab bar */}
         <div className="mb-6 flex gap-1 rounded-[10px] bg-[#FFFFFF] p-1 shadow-sm">
           <button
-            onClick={() => setActiveTab('reports')}
-            className={`flex-1 rounded-[8px] py-2 text-xs font-medium transition-colors ${activeTab === 'reports' ? 'bg-[#9B7FBB] text-[#FFFFFF]' : 'text-[#6B6778] hover:text-[#1F1D2B]'}`}
+            onClick={() => setTab('pending')}
+            className={`flex-1 rounded-[8px] py-2 text-xs font-medium transition-colors ${tab === 'pending' ? 'bg-[#9B7FBB] text-[#FFFFFF]' : 'text-[#6B6778] hover:text-[#1F1D2B]'}`}
           >
-            报告管理
+            待生成报告
+            {data && data.pending.length > 0 && (
+              <span className="ml-1 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#E0978A]/20 px-1 text-[9px] font-bold text-[#E0978A]">{data.pending.length}</span>
+            )}
           </button>
           <button
-            onClick={() => setActiveTab('users')}
-            className={`flex-1 rounded-[8px] py-2 text-xs font-medium transition-colors ${activeTab === 'users' ? 'bg-[#9B7FBB] text-[#FFFFFF]' : 'text-[#6B6778] hover:text-[#1F1D2B]'}`}
+            onClick={() => setTab('completed')}
+            className={`flex-1 rounded-[8px] py-2 text-xs font-medium transition-colors ${tab === 'completed' ? 'bg-[#9B7FBB] text-[#FFFFFF]' : 'text-[#6B6778] hover:text-[#1F1D2B]'}`}
           >
-            用户管理
+            已生成报告
+            {data && data.completed.length > 0 && (
+              <span className="ml-1 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#8FCFA0]/20 px-1 text-[9px] font-bold text-[#8FCFA0]">{data.completed.length}</span>
+            )}
+          </button>
+          <button
+            onClick={() => setTab('log')}
+            className={`flex-1 rounded-[8px] py-2 text-xs font-medium transition-colors ${tab === 'log' ? 'bg-[#9B7FBB] text-[#FFFFFF]' : 'text-[#6B6778] hover:text-[#1F1D2B]'}`}
+          >
+            操作日志
           </button>
         </div>
 
-        {activeTab === 'reports' && (
-          <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
-            <div>
-              <div className="mb-6">
-                <h2 className="mb-3 text-sm font-semibold text-[#1F1D2B]">
-                  待生成报告
-                  <span className="ml-2 text-xs font-normal text-[#8A8696]">{data?.pending.length ?? '-'} 条</span>
-                </h2>
-                {data?.pending.length === 0 && (
-                  <div className="rounded-[10px] bg-[#FFFFFF] px-4 py-8 text-center text-sm text-[#8A8696]">
-                    暂无待生成报告
+        {tab === 'pending' && (
+          <div>
+            {data?.pending.length === 0 ? (
+              <div className="rounded-[10px] bg-[#FFFFFF] px-4 py-12 text-center text-sm text-[#8A8696] shadow-sm">
+                暂无待生成报告
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {data?.pending.map((r) => (
+                  <div key={r.id} className="flex items-center justify-between rounded-[10px] bg-[#FFFFFF] px-4 py-3 shadow-sm">
+                    <div className="min-w-0">
+                      <span className="text-sm font-medium text-[#1F1D2B]">#{r.id}</span>
+                      <span className="ml-2 text-xs text-[#8A8696]">{r.user_nickname}</span>
+                      <span className="ml-2 text-xs text-[#B8B6C0]">{new Date(r.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <button
+                      onClick={() => handleGenerate(r.id)}
+                      disabled={generating.has(r.id)}
+                      className="shrink-0 rounded-[6px] bg-[#9B7FBB] px-3 py-1.5 text-xs font-medium text-[#FFFFFF] transition-colors hover:bg-[#8A6EAA] disabled:opacity-50"
+                    >
+                      {generating.has(r.id) ? '生成中...' : '生成完整报告'}
+                    </button>
                   </div>
-                )}
-                <div className="space-y-2">
-                  {data?.pending.map((r) => (
-                    <div key={r.id} className="flex items-center justify-between rounded-[10px] bg-[#FFFFFF] px-4 py-3 shadow-sm">
-                      <div className="min-w-0">
-                        <span className="text-sm font-medium text-[#1F1D2B]">#{r.id}</span>
-                        <span className="ml-2 text-xs text-[#8A8696]">{r.user_nickname}</span>
-                        <span className="ml-2 text-xs text-[#B8B6C0]">{new Date(r.created_at).toLocaleDateString()}</span>
-                      </div>
-                      <button
-                        onClick={() => handleGenerate(r.id)}
-                        disabled={generating.has(r.id)}
-                        className="shrink-0 rounded-[6px] bg-[#9B7FBB] px-3 py-1.5 text-xs font-medium text-[#FFFFFF] transition-colors hover:bg-[#8A6EAA] disabled:opacity-50"
-                      >
-                        {generating.has(r.id) ? '生成中...' : '生成完整报告'}
-                      </button>
-                    </div>
-                  ))}
-                </div>
+                ))}
               </div>
-
-              <div>
-                <h2 className="mb-3 text-sm font-semibold text-[#1F1D2B]">
-                  已生成报告
-                  <span className="ml-2 text-xs font-normal text-[#8A8696]">{data?.completed.length ?? '-'} 条</span>
-                </h2>
-                <div className="space-y-2">
-                  {data?.completed.map((r) => (
-                    <div key={r.id} className="flex items-center justify-between rounded-[10px] bg-[#FFFFFF] px-4 py-3 shadow-sm">
-                      <div className="min-w-0">
-                        <span className="text-sm font-medium text-[#1F1D2B]">#{r.id}</span>
-                        <span className="ml-2 text-xs text-[#8A8696]">{r.user_nickname}</span>
-                        <span className="ml-2 text-xs text-[#7CB87C]">✓</span>
-                      </div>
-                      <div className="flex shrink-0 gap-1.5">
-                        <button
-                          onClick={() => handleView(r.id)}
-                          className="rounded-[6px] border border-[rgba(0,0,0,0.1)] px-3 py-1.5 text-xs text-[#6B6778] hover:bg-[#FFFFFF]"
-                        >
-                          查看
-                        </button>
-                        <button
-                          onClick={() => handleExportPDF(r.id)}
-                          disabled={exportingPDF.has(r.id)}
-                          className="rounded-[6px] bg-[#C9A88D] px-3 py-1.5 text-xs font-medium text-[#FFFFFF] transition-colors hover:bg-[#B89A7D] disabled:opacity-50"
-                        >
-                          {exportingPDF.has(r.id) ? '导出中...' : '导出PDF'}
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <div className="mb-4 rounded-[10px] bg-[#FFFFFF] p-4 shadow-sm">
-                <h3 className="mb-2 text-xs font-semibold text-[#6B6778]">操作日志</h3>
-                <div className="h-60 space-y-1 overflow-y-auto text-[11px] text-[#8A8696]">
-                  {log.map((msg, i) => (
-                    <div key={i} className="leading-relaxed">{msg}</div>
-                  ))}
-                  {log.length === 0 && <div className="text-[#B8B6C0]">暂无日志</div>}
-                </div>
-              </div>
+            )}
+            <div className="mt-4 text-center">
               <button
-                onClick={() => { fetchReports(); fetchUsers(); }}
-                className="w-full rounded-[8px] border border-[rgba(0,0,0,0.1)] bg-[#FFFFFF] py-2 text-xs font-medium text-[#6B6778] hover:bg-[#F8F8FA]"
+                onClick={fetchReports}
+                className="rounded-[8px] border border-[rgba(0,0,0,0.1)] bg-[#FFFFFF] px-6 py-2 text-xs font-medium text-[#6B6778] hover:bg-[#F8F8FA]"
               >
                 刷新列表
               </button>
@@ -507,67 +407,61 @@ export default function AdminPage() {
           </div>
         )}
 
-        {activeTab === 'users' && (
-          <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
-            <div>
-              <h2 className="mb-3 text-sm font-semibold text-[#1F1D2B]">
-                用户列表
-                <span className="ml-2 text-xs font-normal text-[#8A8696]">{users.length} 个用户名用户</span>
-              </h2>
-              {users.length === 0 && (
-                <div className="rounded-[10px] bg-[#FFFFFF] px-4 py-8 text-center text-sm text-[#8A8696]">
-                  暂无用户，请创建一个
-                </div>
-              )}
+        {tab === 'completed' && (
+          <div>
+            {data?.completed.length === 0 ? (
+              <div className="rounded-[10px] bg-[#FFFFFF] px-4 py-12 text-center text-sm text-[#8A8696] shadow-sm">
+                暂无已生成报告
+              </div>
+            ) : (
               <div className="space-y-2">
-                {users.map((u) => (
-                  <div key={u.id} className="flex items-center justify-between rounded-[10px] bg-[#FFFFFF] px-4 py-3 shadow-sm">
-                    <div>
-                      <span className="text-sm font-medium text-[#1F1D2B]">{u.nickname}</span>
-                      <span className="ml-2 text-xs text-[#8A8696]">@{u.username}</span>
+                {data?.completed.map((r) => (
+                  <div key={r.id} className="flex items-center justify-between rounded-[10px] bg-[#FFFFFF] px-4 py-3 shadow-sm">
+                    <div className="min-w-0">
+                      <span className="text-sm font-medium text-[#1F1D2B]">#{r.id}</span>
+                      <span className="ml-2 text-xs text-[#8A8696]">{r.user_nickname}</span>
+                      <span className="ml-1 text-xs text-[#7CB87C]">✓</span>
                     </div>
-                    <span className="text-xs text-[#B8B6C0]">ID: {u.id}</span>
+                    <div className="flex shrink-0 gap-1.5">
+                      <button
+                        onClick={() => handleView(r.id)}
+                        className="rounded-[6px] border border-[rgba(0,0,0,0.1)] px-3 py-1.5 text-xs text-[#6B6778] hover:bg-[#FFFFFF]"
+                      >
+                        查看
+                      </button>
+                      <button
+                        onClick={() => handleExportPDF(r.id)}
+                        disabled={exportingPDF.has(r.id)}
+                        className="rounded-[6px] bg-[#C9A88D] px-3 py-1.5 text-xs font-medium text-[#FFFFFF] transition-colors hover:bg-[#B89A7D] disabled:opacity-50"
+                      >
+                        {exportingPDF.has(r.id) ? '导出中...' : '导出PDF'}
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
-            </div>
-
-            <div>
-              <div className="mb-4 rounded-[10px] bg-[#FFFFFF] p-4 shadow-sm">
-                <h3 className="mb-3 text-xs font-semibold text-[#6B6778]">创建新用户</h3>
-                <input
-                  value={newUsername}
-                  onChange={(e) => setNewUsername(e.target.value)}
-                  placeholder="用户名"
-                  className="mb-2 w-full rounded-[6px] border border-[rgba(0,0,0,0.12)] px-3 py-2 text-xs outline-none focus:border-[#9B7FBB]"
-                />
-                <input
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="密码 (默认 123456)"
-                  className="mb-2 w-full rounded-[6px] border border-[rgba(0,0,0,0.12)] px-3 py-2 text-xs outline-none focus:border-[#9B7FBB]"
-                />
-                <input
-                  value={newNickname}
-                  onChange={(e) => setNewNickname(e.target.value)}
-                  placeholder="昵称 (选填)"
-                  className="mb-3 w-full rounded-[6px] border border-[rgba(0,0,0,0.12)] px-3 py-2 text-xs outline-none focus:border-[#9B7FBB]"
-                />
-                <button
-                  onClick={handleCreateUser}
-                  disabled={creatingUser}
-                  className="w-full rounded-[6px] bg-[#9B7FBB] py-2 text-xs font-medium text-[#FFFFFF] transition-colors hover:bg-[#8A6EAA] disabled:opacity-50"
-                >
-                  {creatingUser ? '创建中...' : '创建用户'}
-                </button>
-              </div>
+            )}
+            <div className="mt-4 text-center">
               <button
-                onClick={() => { fetchUsers(); }}
-                className="w-full rounded-[8px] border border-[rgba(0,0,0,0.1)] bg-[#FFFFFF] py-2 text-xs font-medium text-[#6B6778] hover:bg-[#F8F8FA]"
+                onClick={fetchReports}
+                className="rounded-[8px] border border-[rgba(0,0,0,0.1)] bg-[#FFFFFF] px-6 py-2 text-xs font-medium text-[#6B6778] hover:bg-[#F8F8FA]"
               >
-                刷新用户列表
+                刷新列表
               </button>
+            </div>
+          </div>
+        )}
+
+        {tab === 'log' && (
+          <div className="rounded-[10px] bg-[#FFFFFF] p-4 shadow-sm">
+            <div className="space-y-1 text-[11px] text-[#8A8696]">
+              {log.length === 0 ? (
+                <div className="py-8 text-center text-[#B8B6C0]">暂无日志</div>
+              ) : (
+                log.map((msg, i) => (
+                  <div key={i} className="leading-relaxed">{msg}</div>
+                ))
+              )}
             </div>
           </div>
         )}

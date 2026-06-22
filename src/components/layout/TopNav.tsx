@@ -12,6 +12,7 @@ const navLinks = [
   { href: '/mine', label: '我的报告' },
   { href: '/comparison', label: '合盘' },
   { href: '/admin', label: '报告管理' },
+  { href: '/admin/users', label: '用户管理' },
 ];
 
 function useAdmin() {
@@ -79,7 +80,7 @@ export function TopNav() {
                 <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#C9A88D]/20 text-xs font-medium text-[#C9A88D]">
                   管
                 </div>
-                <span className="text-xs text-[#6B6778]">管理员</span>
+                <span className="text-xs text-[#6B6778]">{admin?.name ?? '管理员'}</span>
               </button>
               {dropdownOpen && (
                 <div className="absolute right-0 top-full mt-1 w-36 overflow-hidden rounded-[8px] border border-[rgba(0,0,0,0.08)] bg-[#FFFFFF] py-1 shadow-lg">

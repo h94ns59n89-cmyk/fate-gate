@@ -16,9 +16,12 @@ export function Header() {
           <Link href="/mine" className={cn('text-xs transition-colors', pathname === '/mine' ? 'text-[#9B7FBB] font-medium' : 'text-[#6B6778] hover:text-[#1F1D2B]')}>
             我的
           </Link>
-          <Link href="/admin" className={cn('text-xs transition-colors', pathname === '/admin' ? 'text-[#C9A88D] font-medium' : 'text-[#6B6778] hover:text-[#1F1D2B]')}>
+          <Link href="/admin" className={cn('text-xs transition-colors', pathname.startsWith('/admin') && !pathname.includes('/users') ? 'text-[#C9A88D] font-medium' : 'text-[#6B6778] hover:text-[#1F1D2B]')}>
              报告
-          </Link>
+           </Link>
+           <Link href="/admin/users" className={cn('text-xs transition-colors', pathname.includes('/users') ? 'text-[#C9A88D] font-medium' : 'text-[#6B6778] hover:text-[#1F1D2B]')}>
+             用户
+           </Link>
         </nav>
       </div>
     </header>

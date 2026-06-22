@@ -10,6 +10,7 @@ const tabs = [
   { href: '/mine', label: '我的报告', icon: BarChart3 },
   { href: '/comparison', label: '合盘', icon: GitCompare },
   { href: '/admin', label: '报告', icon: Settings },
+  { href: '/admin/users', label: '用户', icon: Settings },
 ];
 
 const legalLinks = [
