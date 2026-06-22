@@ -6,7 +6,7 @@ import jsPDF from 'jspdf';
 
 const ADMIN_TOKEN = '123456';
 
-function renderReportContent(report: Record<string, unknown>): string {
+function renderReportHTML(report: Record<string, unknown>): string {
   const sections = [
     { key: 'cover', label: '封面' },
     { key: 'personality', label: '人格分析' },
@@ -19,60 +19,166 @@ function renderReportContent(report: Record<string, unknown>): string {
     { key: 'glossary', label: '术语解释' },
     { key: 'footer', label: '声明' },
   ];
+  const d = (key: string) => report[key] as Record<string, unknown> | undefined;
 
-  let html = `<div style="font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;padding:40px 48px;background:#FAF8F5;color:#4A3F3A;max-width:800px;margin:0 auto;">`;
+  function esc(s: string): string {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function tag(text: string): string {
+    return `<span style="display:inline-block;border-radius:999px;background:rgba(155,127,187,0.08);padding:2px 10px;font-size:11px;color:#9B7FBB;">${esc(text)}</span>`;
+  }
+
+  function pastTendency(text?: string): string {
+    if (!text) return '';
+    return `<div style="border:1px dashed rgba(138,134,150,0.3);border-radius:4px;background:#F8F8FA;padding:10px 14px;margin-top:12px;"><p style="font-size:9px;color:#8A8696;margin:0 0 4px 0;letter-spacing:1px;">过去可能倾向</p><p style="font-size:12px;line-height:1.6;color:rgba(31,29,43,0.55);margin:0;font-style:italic;">${esc(text)}</p></div>`;
+  }
+
+  function adviceBlock(text?: string): string {
+    if (!text) return '';
+    return `<div style="border-left:2px solid #9B7FBB;border-radius:4px;background:rgba(155,127,187,0.05);padding:8px 14px;margin-top:12px;"><p style="font-size:9px;color:rgba(155,127,187,0.6);margin:0 0 4px 0;letter-spacing:1px;">建议</p><p style="font-size:12px;line-height:1.6;color:rgba(31,29,43,0.7);margin:0;">${esc(text)}</p></div>`;
+  }
+
+  function numberedList(items: string[]): string {
+    return items.map((item, i) =>
+      `<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;"><span style="display:flex;width:18px;height:18px;border-radius:999px;background:rgba(155,127,187,0.1);align-items:center;justify-content:center;font-size:9px;font-weight:600;color:#9B7FBB;flex-shrink:0;">${i + 1}</span><span style="font-size:12px;line-height:1.5;color:rgba(31,29,43,0.7);">${esc(item)}</span></div>`
+    ).join('');
+  }
+
+  function card(items: string[], icon = '✦'): string {
+    return items.map((item, i) =>
+      `<div style="display:flex;align-items:center;gap:10px;border:1px solid rgba(0,0,0,0.06);border-radius:4px;background:#F8F8FA;padding:8px 12px;margin-bottom:6px;"><span style="display:flex;width:24px;height:24px;border-radius:3px;background:rgba(155,127,187,0.1);align-items:center;justify-content:center;font-size:12px;color:#9B7FBB;flex-shrink:0;">${icon}</span><span style="font-size:12px;color:rgba(31,29,43,0.7);">${esc(item)}</span></div>`
+    ).join('');
+  }
+
+  function sideCard(items: string[], title: string, color: string): string {
+    return `<div style="border-left:2px solid ${color};border-radius:4px;background:rgba(${color === '#8FCFA0' ? '143,207,160' : '224,151,138'},0.05);padding:8px 12px;"><p style="font-size:9px;font-weight:600;color:${color};margin:0 0 6px 0;letter-spacing:1px;">${esc(title)}</p><ul style="margin:0;padding-left:14px;">${items.map(s => `<li style="font-size:11px;line-height:1.5;color:rgba(31,29,43,0.6);margin-bottom:2px;">${esc(s)}</li>`).join('')}</ul></div>`;
+  }
+
+  let html = `<div style="font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;padding:0;background:#FFFFFF;color:rgba(31,29,43,0.85);max-width:800px;margin:0 auto;">`;
 
   for (const section of sections) {
-    const data = report[section.key] as Record<string, unknown> | undefined;
+    const data = d(section.key);
     if (!data) continue;
 
-    html += `<div style="margin-bottom:40px;">`;
-    html += `<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
-      <span style="width:3px;height:18px;background:#C9A88D;border-radius:2px;display:inline-block;"></span>
-      <h2 style="font-size:16px;font-weight:600;margin:0;color:#6B5D53;">${section.label}</h2>
-    </div>`;
+    html += `<div style="padding:20px 32px;page-break-inside:avoid;">`;
 
-    for (const [key, value] of Object.entries(data)) {
-      const label = key.replace(/_/g, ' ');
-      if (typeof value === 'string') {
-        html += `<div style="margin-bottom:12px;">
-          <p style="font-size:11px;color:#B8A89A;margin:0 0 4px 0;text-transform:${key.length < 6 ? 'none' : 'none'};">${label}</p>
-          <p style="font-size:14px;line-height:1.7;margin:0;color:#4A3F3A/85;">${value}</p>
-        </div>`;
-      } else if (Array.isArray(value)) {
-        html += `<div style="margin-bottom:12px;">
-          <p style="font-size:11px;color:#B8A89A;margin:0 0 4px 0;">${label}</p>
-          <ul style="margin:0;padding-left:18px;">`;
-        for (const item of value) {
-          html += `<li style="font-size:14px;line-height:1.7;color:#4A3F3A/85;">${String(item)}</li>`;
+    if (section.key === 'cover') {
+      html += `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:600px;text-align:center;">`;
+      html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:24px;"><div style="width:40px;height:1px;background:linear-gradient(to right,transparent,rgba(155,127,187,0.3));"></div><div style="display:flex;gap:3px;"><div style="width:4px;height:4px;border-radius:999px;background:#9B7FBB;"></div><div style="width:4px;height:4px;border-radius:999px;background:rgba(155,127,187,0.5);"></div><div style="width:4px;height:4px;border-radius:999px;background:rgba(155,127,187,0.2);"></div></div><div style="width:40px;height:1px;background:linear-gradient(to left,transparent,rgba(155,127,187,0.3));"></div></div>`;
+      if (data.day_master) html += `<span style="display:inline-block;border:1px solid rgba(155,127,187,0.25);background:rgba(155,127,187,0.08);border-radius:3px;padding:4px 14px;font-size:11px;color:#9B7FBB;font-weight:500;">日主 ${esc(data.day_master as string)}</span>`;
+      if (data.title) html += `<h1 style="font-size:28px;font-weight:700;margin:20px 0 8px 0;color:#1F1D2B;font-family:serif;">${esc(data.title as string)}</h1>`;
+      if (data.subtitle) html += `<p style="font-size:13px;color:#6B6778;margin:0 0 20px 0;">${esc(data.subtitle as string)}</p>`;
+      html += `<div style="width:60px;height:1px;background:linear-gradient(to right,transparent,rgba(155,127,187,0.25),transparent);margin-bottom:20px;"></div>`;
+      if (data.life_theme) html += `<div style="border-left:2px solid rgba(155,127,187,0.3);padding-left:14px;max-width:320px;"><p style="font-size:14px;font-style:italic;font-family:serif;color:#9B7FBB;margin:0;">「${esc(data.life_theme as string)}」</p></div>`;
+      if (data.generated_at) html += `<p style="margin-top:40px;font-size:10px;color:#8A8696;">生成于 ${new Date(data.generated_at as string).toLocaleDateString('zh-CN')}</p>`;
+      html += `</div>`;
+    } else if (section.key === 'footer') {
+      html += `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;"><div style="width:48px;border-top:1px solid rgba(0,0,0,0.06);"></div><p style="margin-top:14px;font-size:11px;color:#8A8696;">本内容由 AI 生成，仅供娱乐参考</p></div>`;
+    } else {
+      html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;border-bottom:1px solid rgba(0,0,0,0.06);padding-bottom:10px;"><span style="color:#6B6778;font-size:12px;font-weight:500;">${section.label}</span></div>`;
+
+      if (section.key === 'personality') {
+        if (data.type) html += `<div style="text-align:center;margin-bottom:12px;">${tag(data.type as string)}</div>`;
+        if (data.five_elements) html += `<p style="text-align:center;font-size:12px;color:#6B6778;margin:0 0 12px 0;">${esc(data.five_elements as string)}</p>`;
+        const traits = data.core_traits as string[] | undefined;
+        if (traits?.length) html += `<div style="margin-bottom:12px;"><p style="font-size:10px;font-weight:600;color:#6B6778;margin:0 0 8px 0;letter-spacing:1px;">✦ 核心特质</p>${numberedList(traits)}</div>`;
+        const strengths = data.strengths as string[] | undefined;
+        const growth = data.growth_areas as string[] | undefined;
+        if (strengths?.length || growth?.length) {
+          html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">`;
+          if (strengths?.length) html += sideCard(strengths, '优势', '#8FCFA0');
+          if (growth?.length) html += sideCard(growth, '成长', '#E0978A');
+          html += `</div>`;
         }
-        html += `</ul></div>`;
-      } else if (typeof value === 'object' && value !== null) {
-        html += `<div style="margin-bottom:12px;">
-          <p style="font-size:11px;color:#B8A89A;margin:0 0 4px 0;">${label}</p>
-          <pre style="font-size:12px;line-height:1.6;background:#EDE6DE;padding:12px;border-radius:8px;overflow-x:auto;margin:0;color:#6B5D53;">${JSON.stringify(value, null, 2)}</pre>
-        </div>`;
+        html += pastTendency(data.past_tendency as string);
+      }
+
+      if (section.key === 'career') {
+        const suitable = data.suitable_directions as string[] | undefined;
+        const avoid = data.avoid_directions as string[] | undefined;
+        if (suitable?.length) html += `<div style="margin-bottom:12px;"><p style="font-size:10px;font-weight:600;color:#6B6778;margin:0 0 8px 0;letter-spacing:1px;">适合方向</p>${card(suitable, '✦')}</div>`;
+        if (avoid?.length) html += `<div style="margin-bottom:12px;"><p style="font-size:10px;font-weight:600;color:#8A8696;margin:0 0 8px 0;letter-spacing:1px;">建议规避</p><div style="display:flex;flex-wrap:wrap;gap:6px;">${avoid.map(s => `<span style="font-size:11px;color:#8A8696;text-decoration:line-through;">${esc(s)}</span>`).join('')}</div></div>`;
+        html += adviceBlock(data.advice as string);
+        html += pastTendency(data.past_tendency as string);
+      }
+
+      if (section.key === 'relationships') {
+        if (data.communication_style) html += `<div style="border:1px solid rgba(0,0,0,0.06);border-radius:4px;background:#F8F8FA;padding:12px;text-align:center;margin-bottom:12px;"><p style="font-size:9px;font-weight:600;color:#6B6778;margin:0 0 4px 0;letter-spacing:1px;">沟通风格</p><p style="font-size:12px;font-weight:500;color:#1F1D2B;margin:0;">${esc(data.communication_style as string)}</p></div>`;
+        const compat = data.compatibility as string[] | undefined;
+        if (compat?.length) html += `<div style="margin-bottom:12px;"><p style="font-size:10px;font-weight:600;color:#6B6778;margin:0 0 8px 0;letter-spacing:1px;">兼容类型</p><div style="display:flex;flex-wrap:wrap;gap:4px;">${compat.map(s => tag(s)).join('')}</div></div>`;
+        html += adviceBlock(data.advice as string);
+        html += pastTendency(data.past_tendency as string);
+      }
+
+      if (section.key === 'health') {
+        const areas = data.focus_areas as string[] | undefined;
+        if (areas?.length) html += `<div style="margin-bottom:12px;"><p style="font-size:10px;font-weight:600;color:#6B6778;margin:0 0 8px 0;letter-spacing:1px;">关注领域</p>${card(areas, '✦')}</div>`;
+        html += adviceBlock(data.advice as string);
+        html += pastTendency(data.past_tendency as string);
+      }
+
+      if (section.key === 'current_year') {
+        const items = [
+          { label: '整体运势', key: 'overall' },
+          { label: '事业', key: 'career' },
+          { label: '财富', key: 'wealth' },
+          { label: '感情', key: 'relationships' },
+        ];
+        html += `<p style="font-size:10px;font-weight:600;color:#6B6778;text-align:center;margin:0 0 12px 0;">${new Date().getFullYear()} 年运势</p>`;
+        html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">`;
+        for (const { label, key } of items) {
+          const v = data[key] as string | undefined;
+          html += `<div style="border:1px solid rgba(0,0,0,0.06);border-radius:4px;background:#F8F8FA;padding:10px;text-align:center;"><p style="font-size:9px;color:#8A8696;margin:0 0 6px 0;">${label}</p><span style="display:inline-block;border-radius:999px;border:1px solid rgba(0,0,0,0.08);padding:2px 10px;font-size:10px;color:#6B6778;background:#F8F8FA;">${v ?? '-'}</span></div>`;
+        }
+        html += `</div>`;
+      }
+
+      if (section.key === 'decade_trend') {
+        html += `<div style="border:1px solid rgba(155,127,187,0.15);border-radius:4px;background:linear-gradient(to bottom,rgba(155,127,187,0.05),transparent);padding:16px;text-align:center;margin-bottom:12px;"><div style="width:24px;height:3px;background:#9B7FBB;border-radius:2px;margin:0 auto 8px auto;"></div><p style="font-size:9px;font-weight:600;color:#6B6778;margin:0 0 8px 0;letter-spacing:1px;">当前大运</p>`;
+        if (data.age_range) html += `<p style="font-size:16px;font-weight:700;color:#9B7FBB;margin:0 0 4px 0;">${esc(data.age_range as string)} 岁</p>`;
+        if (data.focus) html += `<p style="font-size:12px;color:rgba(31,29,43,0.6);margin:0;">${esc(data.focus as string)}</p></div>`;
+        html += adviceBlock(data.advice as string);
+      }
+
+      if (section.key === 'self_improvement') {
+        const dirs = data.directions as string[] | undefined;
+        const books = data.book_suggestions as string[] | undefined;
+        if (dirs?.length) html += `<div style="margin-bottom:12px;"><p style="font-size:10px;font-weight:600;color:#6B6778;margin:0 0 8px 0;letter-spacing:1px;">成长方向</p><ul style="margin:0;padding-left:0;list-style:none;">${dirs.map(d => `<li style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="display:flex;width:18px;height:18px;border-radius:999px;background:rgba(143,207,160,0.15);align-items:center;justify-content:center;font-size:9px;color:#8FCFA0;flex-shrink:0;">✓</span><span style="font-size:12px;color:rgba(31,29,43,0.7);">${esc(d)}</span></li>`).join('')}</ul></div>`;
+        if (books?.length) html += `<div style="margin-bottom:12px;"><p style="font-size:10px;font-weight:600;color:#6B6778;margin:0 0 8px 0;letter-spacing:1px;">推荐阅读</p>${card(books, '✦')}</div>`;
+      }
+
+      if (section.key === 'glossary') {
+        const glossaryZh: Record<string, string> = { day_master: '日主', five_elements: '五行', shishen: '十神', heavenly_stem: '天干', earthly_branch: '地支', hidden_stems: '藏干', dayun: '大运', liunian: '流年', nayin: '纳音', shensha: '神煞', kongwang: '空亡', yong_shen: '用神', xi_shen: '喜神', ji_shen: '忌神' };
+        const entries = Object.entries(data).filter(([k]) => k !== 'id');
+        for (const [term, desc] of entries) {
+          html += `<div style="border:1px solid rgba(0,0,0,0.06);border-radius:4px;background:#F8F8FA;padding:8px 12px;margin-bottom:6px;"><p style="font-size:10px;font-weight:600;color:#9B7FBB;margin:0 0 2px 0;">${glossaryZh[term] ?? term}</p><p style="font-size:11px;line-height:1.5;color:rgba(31,29,43,0.6);margin:0;">${esc(desc as string)}</p></div>`;
+        }
       }
     }
+
     html += `</div>`;
   }
 
-  html += `<div style="text-align:center;padding-top:20px;border-top:1px solid #EDE6DE;">
-    <p style="font-size:10px;color:#D4C0B0;">星隅出品 · AI 生成 · 仅供娱乐参考</p>
-  </div></div>`;
-
+  html += `<div style="text-align:center;padding:16px 32px;border-top:1px solid #EDE6DE;"><p style="font-size:9px;color:#D4C0B0;">星隅出品 · AI 生成 · 仅供娱乐参考</p></div></div>`;
   return html;
 }
 
 export default function AdminPage() {
   const [token, setToken] = useState('');
   const [authenticated, setAuthenticated] = useState(false);
-  const [data, setData] = useState<{ pending: { id: number; user_id: number; created_at: string }[]; completed: { id: number; user_id: number; created_at: string; generated_at: string | null }[] } | null>(null);
+  const [data, setData] = useState<{ pending: { id: number; user_id: number; user_nickname: string; created_at: string }[]; completed: { id: number; user_id: number; user_nickname: string; created_at: string; generated_at: string | null }[] } | null>(null);
   const [generating, setGenerating] = useState<Set<number>>(new Set());
   const [log, setLog] = useState<string[]>([]);
   const [selectedReport, setSelectedReport] = useState<{ id: number; content: string } | null>(null);
   const [exportingPDF, setExportingPDF] = useState<Set<number>>(new Set());
-  const pdfRenderRef = useRef<HTMLDivElement>(null);
+  const [activeTab, setActiveTab] = useState<'reports' | 'users'>('reports');
+  // User management state
+  const [users, setUsers] = useState<{ id: number; username: string; nickname: string; created_at: string }[]>([]);
+  const [newUsername, setNewUsername] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [newNickname, setNewNickname] = useState('');
+  const [creatingUser, setCreatingUser] = useState(false);
 
   const addLog = useCallback((msg: string) => {
     setLog((prev) => [`[${new Date().toLocaleTimeString()}] ${msg}`, ...prev.slice(0, 99)]);
@@ -84,10 +190,22 @@ export default function AdminPage() {
       const json = await res.json();
       if (json.code === 0) {
         setData(json.data);
-        addLog(`已加载 ${json.data.pending.length} 个待生成报告`);
+        addLog(`已加载 ${json.data.pending.length} 个待生成, ${json.data.completed.length} 个已完成`);
       }
     } catch {
       addLog('加载报告列表失败');
+    }
+  }, [token, addLog]);
+
+  const fetchUsers = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/v1/admin/users/list?token=${token}`);
+      const json = await res.json();
+      if (json.code === 0) {
+        setUsers(json.data.users);
+      }
+    } catch {
+      addLog('加载用户列表失败');
     }
   }, [token, addLog]);
 
@@ -99,8 +217,8 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
-    if (authenticated) fetchReports();
-  }, [authenticated, fetchReports]);
+    if (authenticated) { fetchReports(); fetchUsers(); }
+  }, [authenticated, fetchReports, fetchUsers]);
 
   const handleLogin = () => {
     if (token === ADMIN_TOKEN) {
@@ -168,9 +286,8 @@ export default function AdminPage() {
       }
 
       const reportData = json.data.full_report as Record<string, unknown>;
-      const html = renderReportContent(reportData);
+      const html = renderReportHTML(reportData);
 
-      // Create temp container off-screen
       const container = document.createElement('div');
       container.style.position = 'absolute';
       container.style.left = '-9999px';
@@ -182,14 +299,14 @@ export default function AdminPage() {
       const canvas = await html2canvas(container, {
         scale: 2,
         useCORS: true,
-        backgroundColor: '#FAF8F5',
+        backgroundColor: '#FFFFFF',
         logging: false,
       });
 
       document.body.removeChild(container);
 
-      const imgWidth = 210; // A4 width in mm
-      const pageHeight = 297; // A4 height in mm
+      const imgWidth = 210;
+      const pageHeight = 297;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       let heightLeft = imgHeight;
       let position = 0;
@@ -225,6 +342,30 @@ export default function AdminPage() {
     }
   };
 
+  const handleCreateUser = async () => {
+    if (!newUsername || !newPassword) { addLog('请输入用户名和密码'); return; }
+    setCreatingUser(true);
+    try {
+      const res = await fetch('/api/v1/admin/users/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, username: newUsername, password: newPassword, nickname: newNickname || undefined }),
+      });
+      const json = await res.json();
+      if (json.code === 0) {
+        addLog(`✅ 用户 ${json.data.username} 创建成功`);
+        setNewUsername(''); setNewPassword(''); setNewNickname('');
+        fetchUsers();
+      } else {
+        addLog(`❌ 创建失败: ${json.message}`);
+      }
+    } catch {
+      addLog('❌ 创建用户请求异常');
+    } finally {
+      setCreatingUser(false);
+    }
+  };
+
   if (!authenticated) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#1F1D2B] p-4">
@@ -252,11 +393,11 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-[#F5F4F7]">
-      <div className="mx-auto max-w-4xl px-4 py-6">
+      <div className="mx-auto max-w-5xl px-4 py-6">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-semibold text-[#1F1D2B]">报告管理后台</h1>
-            <p className="text-xs text-[#8A8696]">为免费报告生成完整内容</p>
+            <h1 className="text-lg font-semibold text-[#1F1D2B]">星隅管理后台</h1>
+            <p className="text-xs text-[#8A8696]">报告管理 · 用户管理 · PDF 导出</p>
           </div>
           <button
             onClick={handleLogout}
@@ -266,91 +407,173 @@ export default function AdminPage() {
           </button>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
-          <div>
-            <div className="mb-6">
+        {/* Tab bar */}
+        <div className="mb-6 flex gap-1 rounded-[10px] bg-[#FFFFFF] p-1 shadow-sm">
+          <button
+            onClick={() => setActiveTab('reports')}
+            className={`flex-1 rounded-[8px] py-2 text-xs font-medium transition-colors ${activeTab === 'reports' ? 'bg-[#9B7FBB] text-[#FFFFFF]' : 'text-[#6B6778] hover:text-[#1F1D2B]'}`}
+          >
+            报告管理
+          </button>
+          <button
+            onClick={() => setActiveTab('users')}
+            className={`flex-1 rounded-[8px] py-2 text-xs font-medium transition-colors ${activeTab === 'users' ? 'bg-[#9B7FBB] text-[#FFFFFF]' : 'text-[#6B6778] hover:text-[#1F1D2B]'}`}
+          >
+            用户管理
+          </button>
+        </div>
+
+        {activeTab === 'reports' && (
+          <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
+            <div>
+              <div className="mb-6">
+                <h2 className="mb-3 text-sm font-semibold text-[#1F1D2B]">
+                  待生成报告
+                  <span className="ml-2 text-xs font-normal text-[#8A8696]">{data?.pending.length ?? '-'} 条</span>
+                </h2>
+                {data?.pending.length === 0 && (
+                  <div className="rounded-[10px] bg-[#FFFFFF] px-4 py-8 text-center text-sm text-[#8A8696]">
+                    暂无待生成报告
+                  </div>
+                )}
+                <div className="space-y-2">
+                  {data?.pending.map((r) => (
+                    <div key={r.id} className="flex items-center justify-between rounded-[10px] bg-[#FFFFFF] px-4 py-3 shadow-sm">
+                      <div className="min-w-0">
+                        <span className="text-sm font-medium text-[#1F1D2B]">#{r.id}</span>
+                        <span className="ml-2 text-xs text-[#8A8696]">{r.user_nickname}</span>
+                        <span className="ml-2 text-xs text-[#B8B6C0]">{new Date(r.created_at).toLocaleDateString()}</span>
+                      </div>
+                      <button
+                        onClick={() => handleGenerate(r.id)}
+                        disabled={generating.has(r.id)}
+                        className="shrink-0 rounded-[6px] bg-[#9B7FBB] px-3 py-1.5 text-xs font-medium text-[#FFFFFF] transition-colors hover:bg-[#8A6EAA] disabled:opacity-50"
+                      >
+                        {generating.has(r.id) ? '生成中...' : '生成完整报告'}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h2 className="mb-3 text-sm font-semibold text-[#1F1D2B]">
+                  已生成报告
+                  <span className="ml-2 text-xs font-normal text-[#8A8696]">{data?.completed.length ?? '-'} 条</span>
+                </h2>
+                <div className="space-y-2">
+                  {data?.completed.map((r) => (
+                    <div key={r.id} className="flex items-center justify-between rounded-[10px] bg-[#FFFFFF] px-4 py-3 shadow-sm">
+                      <div className="min-w-0">
+                        <span className="text-sm font-medium text-[#1F1D2B]">#{r.id}</span>
+                        <span className="ml-2 text-xs text-[#8A8696]">{r.user_nickname}</span>
+                        <span className="ml-2 text-xs text-[#7CB87C]">✓</span>
+                      </div>
+                      <div className="flex shrink-0 gap-1.5">
+                        <button
+                          onClick={() => handleView(r.id)}
+                          className="rounded-[6px] border border-[rgba(0,0,0,0.1)] px-3 py-1.5 text-xs text-[#6B6778] hover:bg-[#FFFFFF]"
+                        >
+                          查看
+                        </button>
+                        <button
+                          onClick={() => handleExportPDF(r.id)}
+                          disabled={exportingPDF.has(r.id)}
+                          className="rounded-[6px] bg-[#C9A88D] px-3 py-1.5 text-xs font-medium text-[#FFFFFF] transition-colors hover:bg-[#B89A7D] disabled:opacity-50"
+                        >
+                          {exportingPDF.has(r.id) ? '导出中...' : '导出PDF'}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div className="mb-4 rounded-[10px] bg-[#FFFFFF] p-4 shadow-sm">
+                <h3 className="mb-2 text-xs font-semibold text-[#6B6778]">操作日志</h3>
+                <div className="h-60 space-y-1 overflow-y-auto text-[11px] text-[#8A8696]">
+                  {log.map((msg, i) => (
+                    <div key={i} className="leading-relaxed">{msg}</div>
+                  ))}
+                  {log.length === 0 && <div className="text-[#B8B6C0]">暂无日志</div>}
+                </div>
+              </div>
+              <button
+                onClick={() => { fetchReports(); fetchUsers(); }}
+                className="w-full rounded-[8px] border border-[rgba(0,0,0,0.1)] bg-[#FFFFFF] py-2 text-xs font-medium text-[#6B6778] hover:bg-[#F8F8FA]"
+              >
+                刷新列表
+              </button>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'users' && (
+          <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+            <div>
               <h2 className="mb-3 text-sm font-semibold text-[#1F1D2B]">
-                待生成报告
-                <span className="ml-2 text-xs font-normal text-[#8A8696]">{data?.pending.length ?? '-'} 条</span>
+                用户列表
+                <span className="ml-2 text-xs font-normal text-[#8A8696]">{users.length} 个用户名用户</span>
               </h2>
-              {data?.pending.length === 0 && (
+              {users.length === 0 && (
                 <div className="rounded-[10px] bg-[#FFFFFF] px-4 py-8 text-center text-sm text-[#8A8696]">
-                  暂无待生成报告
+                  暂无用户，请创建一个
                 </div>
               )}
               <div className="space-y-2">
-                {data?.pending.map((r) => (
-                  <div key={r.id} className="flex items-center justify-between rounded-[10px] bg-[#FFFFFF] px-4 py-3 shadow-sm">
+                {users.map((u) => (
+                  <div key={u.id} className="flex items-center justify-between rounded-[10px] bg-[#FFFFFF] px-4 py-3 shadow-sm">
                     <div>
-                      <span className="text-sm font-medium text-[#1F1D2B]">#{r.id}</span>
-                      <span className="ml-2 text-xs text-[#8A8696]">用户 {r.user_id}</span>
-                      <span className="ml-2 text-xs text-[#B8B6C0]">{new Date(r.created_at).toLocaleDateString()}</span>
+                      <span className="text-sm font-medium text-[#1F1D2B]">{u.nickname}</span>
+                      <span className="ml-2 text-xs text-[#8A8696]">@{u.username}</span>
                     </div>
-                    <button
-                      onClick={() => handleGenerate(r.id)}
-                      disabled={generating.has(r.id)}
-                      className="rounded-[6px] bg-[#9B7FBB] px-3 py-1.5 text-xs font-medium text-[#FFFFFF] transition-colors hover:bg-[#8A6EAA] disabled:opacity-50"
-                    >
-                      {generating.has(r.id) ? '生成中...' : '生成完整报告'}
-                    </button>
+                    <span className="text-xs text-[#B8B6C0]">ID: {u.id}</span>
                   </div>
                 ))}
               </div>
             </div>
 
             <div>
-              <h2 className="mb-3 text-sm font-semibold text-[#1F1D2B]">
-                已生成报告
-                <span className="ml-2 text-xs font-normal text-[#8A8696]">{data?.completed.length ?? '-'} 条</span>
-              </h2>
-              <div className="space-y-2">
-                {data?.completed.map((r) => (
-                  <div key={r.id} className="flex items-center justify-between rounded-[10px] bg-[#FFFFFF] px-4 py-3 shadow-sm">
-                    <div>
-                      <span className="text-sm font-medium text-[#1F1D2B]">#{r.id}</span>
-                      <span className="ml-2 text-xs text-[#8A8696]">用户 {r.user_id}</span>
-                      <span className="ml-2 text-xs text-[#7CB87C]">✓</span>
-                    </div>
-                    <div className="flex gap-1.5">
-                      <button
-                        onClick={() => handleView(r.id)}
-                        className="rounded-[6px] border border-[rgba(0,0,0,0.1)] px-3 py-1.5 text-xs text-[#6B6778] hover:bg-[#FFFFFF]"
-                      >
-                        查看
-                      </button>
-                      <button
-                        onClick={() => handleExportPDF(r.id)}
-                        disabled={exportingPDF.has(r.id)}
-                        className="rounded-[6px] bg-[#C9A88D] px-3 py-1.5 text-xs font-medium text-[#FFFFFF] transition-colors hover:bg-[#B89A7D] disabled:opacity-50"
-                      >
-                        {exportingPDF.has(r.id) ? '导出中...' : '导出PDF'}
-                      </button>
-                    </div>
-                  </div>
-                ))}
+              <div className="mb-4 rounded-[10px] bg-[#FFFFFF] p-4 shadow-sm">
+                <h3 className="mb-3 text-xs font-semibold text-[#6B6778]">创建新用户</h3>
+                <input
+                  value={newUsername}
+                  onChange={(e) => setNewUsername(e.target.value)}
+                  placeholder="用户名"
+                  className="mb-2 w-full rounded-[6px] border border-[rgba(0,0,0,0.12)] px-3 py-2 text-xs outline-none focus:border-[#9B7FBB]"
+                />
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="密码 (默认 123456)"
+                  className="mb-2 w-full rounded-[6px] border border-[rgba(0,0,0,0.12)] px-3 py-2 text-xs outline-none focus:border-[#9B7FBB]"
+                />
+                <input
+                  value={newNickname}
+                  onChange={(e) => setNewNickname(e.target.value)}
+                  placeholder="昵称 (选填)"
+                  className="mb-3 w-full rounded-[6px] border border-[rgba(0,0,0,0.12)] px-3 py-2 text-xs outline-none focus:border-[#9B7FBB]"
+                />
+                <button
+                  onClick={handleCreateUser}
+                  disabled={creatingUser}
+                  className="w-full rounded-[6px] bg-[#9B7FBB] py-2 text-xs font-medium text-[#FFFFFF] transition-colors hover:bg-[#8A6EAA] disabled:opacity-50"
+                >
+                  {creatingUser ? '创建中...' : '创建用户'}
+                </button>
               </div>
+              <button
+                onClick={() => { fetchUsers(); }}
+                className="w-full rounded-[8px] border border-[rgba(0,0,0,0.1)] bg-[#FFFFFF] py-2 text-xs font-medium text-[#6B6778] hover:bg-[#F8F8FA]"
+              >
+                刷新用户列表
+              </button>
             </div>
           </div>
-
-          <div>
-            <div className="mb-4 rounded-[10px] bg-[#FFFFFF] p-4 shadow-sm">
-              <h3 className="mb-2 text-xs font-semibold text-[#6B6778]">操作日志</h3>
-              <div className="h-60 space-y-1 overflow-y-auto text-[11px] text-[#8A8696]">
-                {log.map((msg, i) => (
-                  <div key={i} className="leading-relaxed">{msg}</div>
-                ))}
-                {log.length === 0 && <div className="text-[#B8B6C0]">暂无日志</div>}
-              </div>
-            </div>
-
-            <button
-              onClick={fetchReports}
-              className="w-full rounded-[8px] border border-[rgba(0,0,0,0.1)] bg-[#FFFFFF] py-2 text-xs font-medium text-[#6B6778] hover:bg-[#F8F8FA]"
-            >
-              刷新列表
-            </button>
-          </div>
-        </div>
+        )}
       </div>
 
       {selectedReport && (

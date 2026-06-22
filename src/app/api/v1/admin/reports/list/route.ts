@@ -2,7 +2,6 @@ import { withMiddleware } from '@/lib/middleware';
 import { success, error } from '@/lib/api-response';
 import prisma from '@/lib/db/client';
 import { Prisma } from '@prisma/client';
-import { createTraceContext, getTraceFromHeaders } from '@/lib/trace';
 
 const jsonNull = Prisma.JsonNullValueFilter.DbNull;
 
@@ -21,6 +20,7 @@ export const GET = withMiddleware(async (req) => {
         status: 'COMPLETED',
         fullReportJson: { equals: jsonNull },
       },
+      include: { user: { select: { nickname: true } } },
       orderBy: { createdAt: 'desc' },
       take: 50,
     }),
@@ -30,6 +30,7 @@ export const GET = withMiddleware(async (req) => {
         status: 'COMPLETED',
         NOT: { fullReportJson: { equals: jsonNull } },
       },
+      include: { user: { select: { nickname: true } } },
       orderBy: { createdAt: 'desc' },
       take: 20,
     }),
@@ -39,11 +40,13 @@ export const GET = withMiddleware(async (req) => {
     pending: pendingReports.map((r) => ({
       id: Number(r.id),
       user_id: Number(r.userId),
+      user_nickname: r.user.nickname ?? '未知用户',
       created_at: r.createdAt.toISOString(),
     })),
     completed: completedReports.map((r) => ({
       id: Number(r.id),
       user_id: Number(r.userId),
+      user_nickname: r.user.nickname ?? '未知用户',
       created_at: r.createdAt.toISOString(),
       generated_at: r.generatedAt?.toISOString() ?? null,
     })),

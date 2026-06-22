@@ -9,6 +9,7 @@ interface UserState {
   isLogin: () => boolean;
   initGuest: () => Promise<number>;
   login: (code: string, invite?: string) => Promise<void>;
+  loginWithPassword: (token: string, userId: number, user: UserProfile) => void;
   logout: () => void;
   setUser: (user: UserProfile) => void;
 }
@@ -83,6 +84,12 @@ export const useUserStore = create<UserState>((set, get) => ({
       set({ isLoading: false });
       throw error;
     }
+  },
+
+  loginWithPassword: (token: string, userId: number, user: UserProfile) => {
+    set({ token, userId, user, isLoading: false });
+    localStorage.setItem('token', token);
+    localStorage.setItem('user_id', String(userId));
   },
 
   logout: () => {

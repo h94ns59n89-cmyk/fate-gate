@@ -17,7 +17,7 @@ export function Header() {
             我的
           </Link>
           <Link href="/admin" className={cn('text-xs transition-colors', pathname === '/admin' ? 'text-[#C9A88D] font-medium' : 'text-[#6B6778] hover:text-[#1F1D2B]')}>
-            管理
+             报告
           </Link>
         </nav>
       </div>

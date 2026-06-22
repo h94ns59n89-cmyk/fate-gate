@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useState, useRef, useEffect } from 'react';
 import { useUserStore } from '@/stores/userStore';
 import { Logo } from '@/components/common/Logo';
 import { cn } from '@/lib/utils';
@@ -10,7 +11,7 @@ const navLinks = [
   { href: '/', label: '首页' },
   { href: '/mine', label: '我的报告' },
   { href: '/comparison', label: '合盘' },
-  { href: '/admin', label: '管理后台' },
+  { href: '/admin', label: '报告管理' },
 ];
 
 function useAdmin() {
@@ -27,6 +28,26 @@ export function TopNav() {
   const pathname = usePathname();
   const user = useUserStore((s) => s.user);
   const admin = useAdmin();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const isGuest = user && (user.nickname === '游客' || user.nickname == null);
+
+  const handleAdminLogout = () => {
+    try { localStorage.removeItem('admin_auth'); } catch {}
+    setDropdownOpen(false);
+    window.location.reload();
+  };
 
   return (
     <header className="hidden w-full border-b border-[rgba(0,0,0,0.04)] bg-[rgba(255,255,255,0.82)] backdrop-blur-lg md:block">
@@ -50,21 +71,52 @@ export function TopNav() {
         </nav>
         <div className="flex items-center gap-2">
           {admin ? (
-            <div className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#C9A88D]/20 text-xs font-medium text-[#C9A88D]">
-                管
-              </div>
-              <span className="text-xs text-[#6B6778]">管理员</span>
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="flex items-center gap-2 rounded-[6px] px-2 py-1 transition-colors hover:bg-[#F5F0FA]"
+              >
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#C9A88D]/20 text-xs font-medium text-[#C9A88D]">
+                  管
+                </div>
+                <span className="text-xs text-[#6B6778]">管理员</span>
+              </button>
+              {dropdownOpen && (
+                <div className="absolute right-0 top-full mt-1 w-36 overflow-hidden rounded-[8px] border border-[rgba(0,0,0,0.08)] bg-[#FFFFFF] py-1 shadow-lg">
+                  <button
+                    onClick={handleAdminLogout}
+                    className="w-full px-3 py-1.5 text-left text-xs text-[#6B6778] transition-colors hover:bg-[#F5F4F7]"
+                  >
+                    退出登录
+                  </button>
+                </div>
+              )}
             </div>
           ) : user?.avatar_url ? (
-            <img
-              src={user.avatar_url}
-              alt={user.nickname ?? '用户'}
-              className="h-7 w-7 rounded-full object-cover"
-            />
+            <div className="flex items-center gap-2">
+              <img
+                src={user.avatar_url}
+                alt={user.nickname ?? '用户'}
+                className="h-7 w-7 rounded-full object-cover"
+              />
+              <span className="text-xs text-[#6B6778]">{user.nickname}</span>
+            </div>
           ) : (
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#9B7FBB]/20 text-xs text-[#9B7FBB]">
-              {(user?.nickname ?? '?').charAt(0)}
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#9B7FBB]/20 text-xs text-[#9B7FBB]">
+                {(user?.nickname ?? '?').charAt(0)}
+              </div>
+              {isGuest && (
+                <>
+                  <span className="text-xs text-[#8A8696]">游客</span>
+                  <Link
+                    href="/login"
+                    className="ml-1 rounded-[6px] border border-[#9B7FBB]/30 px-2.5 py-1 text-xs text-[#9B7FBB] transition-colors hover:bg-[#9B7FBB]/10"
+                  >
+                    登录
+                  </Link>
+                </>
+              )}
             </div>
           )}
         </div>
