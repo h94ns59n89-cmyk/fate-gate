@@ -7,6 +7,7 @@
     "dev": "next dev",
     "dev:sync": "pwsh -NoProfile -File auto-sync.ps1",
     "build": "next build",
+    "vercel-build": "prisma generate --schema=prisma/schema.postgres.prisma && prisma db push --schema=prisma/schema.postgres.prisma --accept-data-loss && next build",
     "postinstall": "prisma generate",
     "start": "next start",
     "lint": "next lint && prettier --check .",

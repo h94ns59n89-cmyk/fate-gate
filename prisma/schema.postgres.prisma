@@ -1,0 +1,235 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ReportType {
+  FREE
+  PAID
+  COMPARISON
+}
+
+enum ReportStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum ProductType {
+  FULL_REPORT
+  COMPARISON
+  SUBSCRIPTION_MONTHLY
+  SUBSCRIPTION_YEARLY
+  PROFESSIONAL
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  EXPIRED
+}
+
+enum SubscriptionPlan {
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAUSED
+  CANCELLED
+  EXPIRED
+}
+
+model User {
+  id            BigInt    @id @default(autoincrement())
+  username      String?   @unique @db.VarChar(32)
+  passwordHash  String?   @map("password_hash") @db.VarChar(256)
+  wechatOpenid  String    @unique @map("wechat_openid")
+  unionId       String?   @map("union_id")
+  phone         String?
+  nickname      String?   @db.VarChar(64)
+  avatarUrl     String?   @map("avatar_url") @db.VarChar(256)
+  source        String?   @default("direct") @db.VarChar(32)
+  inviteBy      BigInt?
+  isTestUser    Boolean   @default(false) @map("is_test_user")
+  version       Int       @default(0)
+  lastLoginAt   DateTime  @default(now()) @map("last_login_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  deletedAt     DateTime? @map("deleted_at")
+
+  invitedBy     User?              @relation("UserInvite", fields: [inviteBy], references: [id])
+  invites       User[]             @relation("UserInvite")
+  birthInfos    BirthInfo[]
+  reports       PersonalityReport[]
+  orders        Order[]
+  subscriptions Subscription[]
+  comparisons   Comparison[]
+  targetedComparisons Comparison[] @relation("TargetUser")
+  sharingRecords SharingRecord[]
+  invitedRecords SharingRecord[] @relation("InvitedUser")
+
+  @@index([wechatOpenid])
+  @@index([inviteBy])
+  @@map("users")
+}
+
+model BirthInfo {
+  id              BigInt    @id @default(autoincrement())
+  userId          BigInt    @map("user_id")
+  birthDate       DateTime  @map("birth_date") @db.Date
+  birthHour       Int?      @map("birth_hour")
+  birthMinute     Int?      @map("birth_minute")
+  birthPlace      String?   @db.VarChar(128)
+  longitude       Decimal?  @db.Decimal(10, 6)
+  latitude        Decimal?  @db.Decimal(10, 6)
+  isSolarCalendar Boolean   @default(true) @map("is_solar_calendar")
+  timezone        Int       @default(8)
+  isApproxTime    Boolean   @default(false) @map("is_approx_time")
+  approxTimeRange Json?     @map("approx_time_range")
+  isCurrent       Boolean   @default(true) @map("is_current")
+  version         Int       @default(0)
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  deletedAt       DateTime? @map("deleted_at")
+
+  user          User                 @relation(fields: [userId], references: [id])
+  reports       PersonalityReport[]
+
+  @@index([userId])
+  @@index([userId, isCurrent])
+  @@map("birth_infos")
+}
+
+model PersonalityReport {
+  id              BigInt       @id @default(autoincrement())
+  userId          BigInt       @map("user_id")
+  birthInfoId     BigInt       @map("birth_info_id")
+  reportType      ReportType   @default(FREE) @map("report_type")
+  status          ReportStatus @default(PENDING)
+  version         Int          @default(0)
+  baziJson        Json         @map("bazi_json")
+  fiveElementsJson Json?       @map("five_elements_json")
+  shishenJson     Json?        @map("shishen_json")
+  dayunJson       Json?        @map("dayun_json")
+  personalityTags Json?        @map("personality_tags")
+  summaryJson     Json?        @map("summary_json")
+  fullReportJson  Json?        @map("full_report_json")
+  aiModel         String?      @db.VarChar(32)
+  promptVersion   String?      @db.VarChar(16)
+  cacheKey        String?      @unique @map("cache_key") @db.VarChar(64)
+  errorMessage    String?      @map("error_message")
+  generatedAt     DateTime?    @map("generated_at")
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+  deletedAt       DateTime?    @map("deleted_at")
+
+  user      User       @relation(fields: [userId], references: [id])
+  birthInfo BirthInfo  @relation(fields: [birthInfoId], references: [id])
+  orders    Order[]
+
+  @@index([userId])
+  @@index([reportType, status])
+  @@index([personalityTags], type: Gin)
+  @@map("personality_reports")
+}
+
+model Order {
+  id              BigInt       @id @default(autoincrement())
+  orderNo         String       @unique @db.VarChar(32)
+  userId          BigInt       @map("user_id")
+  reportId        BigInt?      @map("report_id")
+  productType     ProductType  @map("product_type")
+  productName     String?      @db.VarChar(64)
+  amount          Int
+  couponDeduction Int          @default(0) @map("coupon_deduction")
+  finalAmount     Int          @map("final_amount")
+  status          OrderStatus  @default(PENDING)
+  paymentMethod   String?      @db.VarChar(16)
+  idempotencyKey  String?      @map("idempotency_key") @db.VarChar(64)
+  prepayId        String?      @db.VarChar(64)
+  transactionId   String?      @unique @map("transaction_id") @db.VarChar(64)
+  paidAt          DateTime?    @map("paid_at")
+  expiredAt       DateTime?    @map("expired_at")
+  version         Int          @default(0)
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+
+  user          User           @relation(fields: [userId], references: [id])
+  report        PersonalityReport? @relation(fields: [reportId], references: [id])
+  subscriptions Subscription[]
+
+  @@index([userId])
+  @@index([orderNo])
+  @@index([status])
+  @@index([idempotencyKey])
+  @@map("orders")
+}
+
+model Subscription {
+  id                BigInt             @id @default(autoincrement())
+  userId            BigInt             @map("user_id")
+  planType          SubscriptionPlan   @map("plan_type")
+  status            SubscriptionStatus @default(ACTIVE)
+  startDate         DateTime           @map("start_date") @db.Date
+  endDate           DateTime           @map("end_date") @db.Date
+  autoRenew         Boolean            @default(true) @map("auto_renew")
+  wxAgreementId     String?            @map("wx_agreement_id") @db.VarChar(64)
+  currentPeriodStart DateTime?         @map("current_period_start")
+  currentPeriodEnd   DateTime?         @map("current_period_end")
+  lastOrderId       BigInt?            @map("last_order_id")
+  version           Int                @default(0)
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  canceledAt        DateTime?          @map("canceled_at")
+  deletedAt         DateTime?          @map("deleted_at")
+
+  user      User   @relation(fields: [userId], references: [id])
+  lastOrder Order? @relation(fields: [lastOrderId], references: [id])
+
+  @@unique([userId, planType, status])
+  @@index([userId])
+  @@map("subscriptions")
+}
+
+model Comparison {
+  id              BigInt   @id @default(autoincrement())
+  userId          BigInt   @map("user_id")
+  targetUserId    BigInt?  @map("target_user_id")
+  matchScore      Int?     @map("match_score")
+  dimensionsJson  Json?    @map("dimensions_json")
+  adviceJson      Json?    @map("advice_json")
+  shareImageUrl   String?  @map("share_image_url") @db.VarChar(256)
+  isPaid          Boolean  @default(false) @map("is_paid")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  user       User @relation(fields: [userId], references: [id])
+  targetUser User? @relation("TargetUser", fields: [targetUserId], references: [id])
+
+  @@index([userId])
+  @@map("comparisons")
+}
+
+model SharingRecord {
+  id            BigInt   @id @default(autoincrement())
+  userId        BigInt   @map("user_id")
+  shareType     String   @db.VarChar(32)
+  invitedUserId BigInt?  @map("invited_user_id")
+  platform      String?  @db.VarChar(32)
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  user       User  @relation(fields: [userId], references: [id])
+  invitedUser User? @relation("InvitedUser", fields: [invitedUserId], references: [id])
+
+  @@index([userId])
+  @@map("sharing_records")
+}
