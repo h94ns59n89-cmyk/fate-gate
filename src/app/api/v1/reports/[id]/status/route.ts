@@ -7,7 +7,7 @@ export const GET = withMiddleware(async (req, { params }) => {
   if (!id) return notFound('报告不存在');
 
   const report = await prisma.personalityReport.findUnique({
-    where: { id: BigInt(id) },
+    where: { id: Number(id) },
     select: { id: true, status: true, reportType: true, createdAt: true },
   });
 

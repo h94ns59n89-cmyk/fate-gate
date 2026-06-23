@@ -9,7 +9,7 @@ export const GET = withMiddleware(async (req, { params }) => {
 
   try {
     const report = await prisma.personalityReport.findUnique({
-      where: { id: BigInt(id) },
+      where: { id: Number(id) },
     });
 
     if (!report) return notFound('报告不存在');
@@ -38,17 +38,17 @@ export const DELETE = withMiddleware(async (req, { params }) => {
   const id = parseInt(params.id ?? '0', 10);
   if (!id) return notFound('报告不存在');
 
-  const userId = BigInt(auth.userId);
+  const userId = Number(auth.userId);
 
   try {
     const report = await prisma.personalityReport.findFirst({
-      where: { id: BigInt(id), userId, deletedAt: null },
+      where: { id: Number(id), userId, deletedAt: null },
     });
 
     if (!report) return notFound('报告不存在');
 
     await prisma.personalityReport.update({
-      where: { id: BigInt(id) },
+      where: { id: Number(id) },
       data: { deletedAt: new Date() },
     });
 

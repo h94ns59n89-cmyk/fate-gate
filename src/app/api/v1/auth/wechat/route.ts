@@ -46,14 +46,14 @@ export const POST = withMiddleware(async (req) => {
 
     if (invite_code && user.inviteBy == null) {
       const inviterId = parseInt(invite_code.replace('u_', ''), 10);
-      if (!isNaN(inviterId) && BigInt(inviterId) !== user.id) {
+      if (!isNaN(inviterId) && Number(inviterId) !== user.id) {
         await prisma.user.update({
           where: { id: user.id },
-          data: { inviteBy: BigInt(inviterId) },
+          data: { inviteBy: Number(inviterId) },
         });
         await prisma.sharingRecord.create({
           data: {
-            userId: BigInt(inviterId),
+            userId: Number(inviterId),
             shareType: 'direct_invite',
             invitedUserId: user.id,
             platform: 'h5',

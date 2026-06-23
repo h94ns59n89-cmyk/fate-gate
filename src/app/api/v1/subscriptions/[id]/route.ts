@@ -7,7 +7,7 @@ export const DELETE = withMiddleware(async (req, { params }) => {
   if (!id) return notFound('订阅不存在');
 
   const sub = await prisma.subscription.updateMany({
-    where: { id: BigInt(id), status: 'ACTIVE' },
+    where: { id: Number(id), status: 'ACTIVE' },
     data: {
       status: 'CANCELLED',
       autoRenew: false,

@@ -42,11 +42,11 @@ export function TopNav() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const isAdminRoute = pathname.startsWith('/admin');
   const isGuest = user && (user.nickname === '游客' || user.nickname == null);
 
-  // Admin routes without auth: hide nav entirely
-  if (isAdminRoute && !admin) return null;
+  const visibleLinks = navLinks.filter(
+    (link) => !link.href.startsWith('/admin') || admin,
+  );
 
   const handleAdminLogout = () => {
     try { localStorage.removeItem('admin_auth'); } catch {}
@@ -59,7 +59,7 @@ export function TopNav() {
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-6">
         <Logo />
         <nav className="flex items-center gap-1">
-          {navLinks.map((link) => (
+          {visibleLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}

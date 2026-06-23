@@ -13,7 +13,7 @@ export const POST = withMiddleware(async (req) => {
 
   const record = await prisma.sharingRecord.create({
     data: {
-      userId: BigInt(user_id),
+      userId: Number(user_id),
       shareType: share_type,
       platform: platform ?? 'h5',
     },

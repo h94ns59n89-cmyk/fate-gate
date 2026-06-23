@@ -97,13 +97,13 @@ export const POST = withMiddleware(async (req) => {
   if (user_id != null) {
     try {
       await prisma.birthInfo.updateMany({
-        where: { userId: BigInt(user_id), isCurrent: true, deletedAt: null },
+        where: { userId: Number(user_id), isCurrent: true, deletedAt: null },
         data: { isCurrent: false },
       });
 
       const birthInfo = await prisma.birthInfo.create({
         data: {
-          userId: BigInt(user_id),
+          userId: Number(user_id),
           birthDate: new Date(`${birth_date}T00:00:00`),
           birthHour: normalizedBirthHour,
           birthMinute: normalizedBirthMinute,
@@ -119,7 +119,7 @@ export const POST = withMiddleware(async (req) => {
 
       const report = await prisma.personalityReport.create({
         data: {
-          userId: BigInt(user_id),
+          userId: Number(user_id),
           birthInfoId: birthInfo.id,
           reportType: 'FREE',
           status: 'COMPLETED',

@@ -15,10 +15,13 @@ function useAdmin() {
   }
 }
 
-const tabs = [
+const baseTabs = [
   { href: '/', label: '首页', icon: Home },
   { href: '/mine', label: '我的报告', icon: BarChart3 },
   { href: '/comparison', label: '合盘', icon: GitCompare },
+];
+
+const adminTabs = [
   { href: '/admin', label: '报告', icon: Settings },
   { href: '/admin/users', label: '用户', icon: User },
 ];
@@ -32,8 +35,7 @@ const legalLinks = [
 export function BottomTab() {
   const pathname = usePathname();
   const admin = useAdmin();
-
-  if (pathname.startsWith('/admin') && !admin) return null;
+  const tabs = [...baseTabs, ...(admin ? adminTabs : [])];
 
   return (
     <nav className="w-full max-w-md bg-[rgba(255,255,255,0.82)] backdrop-blur-lg md:hidden">

@@ -32,7 +32,7 @@ export const POST = withMiddleware(async (req, { params }) => {
     const comparisonId = body.comparison_id ?? (order.reportId ? Number(order.reportId) : null);
     if (comparisonId) {
       await prisma.comparison.update({
-        where: { id: BigInt(comparisonId) },
+        where: { id: Number(comparisonId) },
         data: { isPaid: true },
       });
     }

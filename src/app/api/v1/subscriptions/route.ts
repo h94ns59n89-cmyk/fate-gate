@@ -39,14 +39,14 @@ export const POST = withMiddleware(async (req) => {
   }
 
   const prisma = (await import('@/lib/db/client')).default;
-  const user = await prisma.user.findUnique({ where: { id: BigInt(auth.userId) } });
+  const user = await prisma.user.findUnique({ where: { id: Number(auth.userId) } });
   if (!user?.wechatOpenid) {
     return error(200102, '请先完成微信登录后再支付', 402);
   }
 
   const existingSub = await prisma.subscription.findFirst({
     where: {
-      userId: BigInt(auth.userId),
+      userId: Number(auth.userId),
       planType: plan_type,
       status: 'ACTIVE',
     },
@@ -63,7 +63,7 @@ export const POST = withMiddleware(async (req) => {
   const orderNo = generateOrderNo();
   await tryPersistOrder({
     orderNo,
-    userId: BigInt(auth.userId),
+    userId: Number(auth.userId),
     productType: priceKey,
     productName: `订阅-${plan_type}`,
     amount: price,

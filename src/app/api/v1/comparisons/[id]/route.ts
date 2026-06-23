@@ -8,7 +8,7 @@ export const GET = withMiddleware(async (req, { params }) => {
   if (!id) return notFound('对比不存在');
 
   const comparison = await prisma.comparison.findUnique({
-    where: { id: BigInt(id) },
+    where: { id: Number(id) },
   });
 
   if (!comparison) return notFound('对比不存在');
@@ -38,17 +38,17 @@ export const DELETE = withMiddleware(async (req, { params }) => {
   const id = parseInt(params.id ?? '0', 10);
   if (!id) return notFound('对比不存在');
 
-  const userId = BigInt(auth.userId);
+  const userId = Number(auth.userId);
 
   try {
     const comparison = await prisma.comparison.findFirst({
-      where: { id: BigInt(id), userId },
+      where: { id: Number(id), userId },
     });
 
     if (!comparison) return notFound('对比不存在');
 
     await prisma.comparison.delete({
-      where: { id: BigInt(id) },
+      where: { id: Number(id) },
     });
 
     return success({ id: Number(id) });

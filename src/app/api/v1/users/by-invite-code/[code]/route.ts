@@ -8,13 +8,13 @@ export const GET = withMiddleware(async (req, { params }) => {
   if (!userId || isNaN(userId)) return notFound('邀请码无效');
 
   const user = await prisma.user.findUnique({
-    where: { id: BigInt(userId) },
+    where: { id: Number(userId) },
     select: { id: true, nickname: true, avatarUrl: true },
   });
   if (!user) return notFound('用户不存在');
 
   const report = await prisma.personalityReport.findFirst({
-    where: { userId: BigInt(userId), status: 'COMPLETED' },
+    where: { userId: Number(userId), status: 'COMPLETED' },
     orderBy: { createdAt: 'desc' },
     select: { id: true, personalityTags: true, baziJson: true },
   });

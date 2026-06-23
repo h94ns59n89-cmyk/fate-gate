@@ -24,8 +24,8 @@ export const POST = withMiddleware(async (req) => {
 
   const comparison = await prisma.comparison.create({
     data: {
-      userId: user_id ? BigInt(user_id) : BigInt(0),
-      targetUserId: target_user_id ? BigInt(target_user_id) : null,
+      userId: user_id ? Number(user_id) : Number(0),
+      targetUserId: target_user_id ? Number(target_user_id) : null,
       matchScore: overall_match,
       dimensionsJson: dimensions as never,
       adviceJson: {

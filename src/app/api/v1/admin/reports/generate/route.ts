@@ -22,7 +22,7 @@ export const POST = withMiddleware(async (req) => {
   const log = Logger.for('admin:report:generate', trace);
 
   const report = await prisma.personalityReport.findUnique({
-    where: { id: BigInt(reportId) },
+    where: { id: Number(reportId) },
     include: { birthInfo: true },
   });
 
@@ -51,7 +51,7 @@ export const POST = withMiddleware(async (req) => {
 
     if (reportData) {
       await prisma.personalityReport.update({
-        where: { id: BigInt(reportId) },
+        where: { id: Number(reportId) },
         data: {
           status: 'COMPLETED',
           fullReportJson: reportData as never,
@@ -69,7 +69,7 @@ export const POST = withMiddleware(async (req) => {
       });
     } else {
       await prisma.personalityReport.update({
-        where: { id: BigInt(reportId) },
+        where: { id: Number(reportId) },
         data: { status: 'FAILED', errorMessage: 'AI generation returned empty result' },
       });
       return error(500, 'AI 生成返回空结果', 502);
@@ -78,7 +78,7 @@ export const POST = withMiddleware(async (req) => {
     const msg = err instanceof Error ? err.message : String(err);
     log.error(`Failed to generate report ${reportId}`, { error: msg });
     await prisma.personalityReport.update({
-      where: { id: BigInt(reportId) },
+      where: { id: Number(reportId) },
       data: { status: 'FAILED', errorMessage: msg },
     }).catch(() => {});
     return error(500, `生成失败: ${msg}`, 500);

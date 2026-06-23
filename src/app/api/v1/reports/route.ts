@@ -24,7 +24,7 @@ export const POST = withMiddleware(async (req) => {
   }
 
   const birthInfo = await prisma.birthInfo.findUnique({
-    where: { id: BigInt(birth_info_id) },
+    where: { id: Number(birth_info_id) },
   });
 
   if (!birthInfo) {
@@ -48,7 +48,7 @@ export const POST = withMiddleware(async (req) => {
   const failTimer = setTimeout(async () => {
     log.error(`Generation ${reportId} timed out after 120s`);
     await prisma.personalityReport.update({
-      where: { id: BigInt(reportId) },
+      where: { id: Number(reportId) },
       data: { status: 'FAILED', errorMessage: 'AI生成超时，请稍后重试' },
     }).catch(() => {});
   }, 120_000);
@@ -76,7 +76,7 @@ export const POST = withMiddleware(async (req) => {
       }
       if (reportData) {
         await prisma.personalityReport.update({
-          where: { id: BigInt(reportId) },
+          where: { id: Number(reportId) },
           data: {
             status: 'COMPLETED',
             fullReportJson: reportData as never,
@@ -88,7 +88,7 @@ export const POST = withMiddleware(async (req) => {
         log.info(`Generated report ${reportId}`, { provider, latency_ms: latencyMs });
       } else {
         await prisma.personalityReport.update({
-          where: { id: BigInt(reportId) },
+          where: { id: Number(reportId) },
           data: { status: 'FAILED', errorMessage: 'AI generation returned empty result' },
         });
       }
@@ -97,7 +97,7 @@ export const POST = withMiddleware(async (req) => {
       const msg = err instanceof Error ? err.message : String(err);
       log.error(`Failed to generate report ${reportId}`, { error: msg });
       await prisma.personalityReport.update({
-        where: { id: BigInt(reportId) },
+        where: { id: Number(reportId) },
         data: { status: 'FAILED', errorMessage: msg },
       }).catch(() => {});
     }

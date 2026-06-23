@@ -54,7 +54,7 @@ export const POST = withMiddleware(async (req) => {
     openid = `mock_openid_${userId}`;
   } else {
     const prisma = (await import('@/lib/db/client')).default;
-    const user = await prisma.user.findUnique({ where: { id: BigInt(userId) } });
+    const user = await prisma.user.findUnique({ where: { id: Number(userId) } });
     if (!user?.wechatOpenid) {
       return error(200102, '请先完成微信登录后再支付', 402);
     }
@@ -65,8 +65,8 @@ export const POST = withMiddleware(async (req) => {
 
   await tryPersistOrder({
     orderNo,
-    userId: BigInt(userId),
-    reportId: report_id ? BigInt(report_id) : null,
+    userId: Number(userId),
+    reportId: report_id ? Number(report_id) : null,
     productType: product_type,
     productName: product_type,
     amount: price,

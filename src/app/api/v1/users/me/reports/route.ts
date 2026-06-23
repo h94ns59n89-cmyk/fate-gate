@@ -6,7 +6,7 @@ import prisma from '@/lib/db/client';
 export const GET = withMiddleware(async (req) => {
   const auth = await requireAuth(req);
   if (auth instanceof NextResponse) return auth;
-  const userId = BigInt(auth.userId);
+  const userId = Number(auth.userId);
 
   try {
     const [reports, comparisons] = await Promise.all([

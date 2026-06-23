@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { Logo } from '@/components/common/Logo';
 
 const ADMIN_TOKEN = '123456';
 
@@ -316,10 +317,13 @@ export default function AdminPage() {
 
   if (!authenticated) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#1F1D2B] p-4">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#F5F4F7] p-4">
+        <div className="mb-6 flex items-center gap-2">
+          <Logo />
+          <span className="text-[15px] font-semibold text-[#1F1D2B]" style={{ fontFamily: 'Noto Serif SC, serif' }}>星隅</span>
+        </div>
         <div className="w-full max-w-sm rounded-[12px] bg-[#FFFFFF] p-6 shadow-lg">
-          <h1 className="mb-1 text-center text-lg font-semibold text-[#1F1D2B]">管理员登录</h1>
-          <p className="mb-5 text-center text-xs text-[#8A8696]">报告管理后台</p>
+          <h1 className="mb-5 text-center text-lg font-semibold text-[#1F1D2B]">管理员登录</h1>
           <input
             type="password"
             value={token}
