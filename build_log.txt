@@ -1,0 +1,47 @@
+
+> fate-gate@1.0.0 build
+> next build
+
+   ▲ Next.js 15.5.18
+   - Environments: .env.local, .env.production, .env
+   - Experiments (use with caution):
+     · clientTraceMetadata
+
+   Creating an optimized production build ...
+[@sentry/nextjs - Node.js] Info: Sending telemetry data on issues and performance to Sentry. To disable telemetry, set `options.telemetry` to `false`.
+[@sentry/nextjs - Node.js] Warning: No auth token provided. Will not create release. Please set the `authToken` option. You can find information on how to generate a Sentry auth token here: https://docs.sentry.io/api/auth/
+[@sentry/nextjs - Node.js] Warning: No auth token provided. Will not upload source maps. Please set the `authToken` option. You can find information on how to generate a Sentry auth token here: https://docs.sentry.io/api/auth/
+[@sentry/nextjs - Edge] Info: Sending telemetry data on issues and performance to Sentry. To disable telemetry, set `options.telemetry` to `false`.
+[@sentry/nextjs - Edge] Warning: No auth token provided. Will not create release. Please set the `authToken` option. You can find information on how to generate a Sentry auth token here: https://docs.sentry.io/api/auth/
+[@sentry/nextjs - Edge] Warning: No auth token provided. Will not upload source maps. Please set the `authToken` option. You can find information on how to generate a Sentry auth token here: https://docs.sentry.io/api/auth/
+[@sentry/nextjs - Client] Info: Sending telemetry data on issues and performance to Sentry. To disable telemetry, set `options.telemetry` to `false`.
+[@sentry/nextjs - Client] Warning: No auth token provided. Will not create release. Please set the `authToken` option. You can find information on how to generate a Sentry auth token here: https://docs.sentry.io/api/auth/
+[@sentry/nextjs - Client] Warning: No auth token provided. Will not upload source maps. Please set the `authToken` option. You can find information on how to generate a Sentry auth token here: https://docs.sentry.io/api/auth/
+ ✓ Compiled successfully in 20.6s
+   Linting and checking validity of types ...
+
+./src/app/comparison/[id]/page.tsx
+75:6  Warning: React Hook useEffect has a missing dependency: 'fetchComparison'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/app/mine/page.tsx
+214:28  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/page.tsx
+110:9  Warning: 'handleShare' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/components/layout/TopNav.tsx
+102:15  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/lib/middleware.ts
+24:9  Warning: 'ttl' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+   Collecting page data ...
+ ⚠ Using edge runtime on a page currently disables static generation for that page
+   Generating static pages (0/30) ...
+   Generating static pages (7/30) 
+   Generating static pages (14/30) 
+   Generating static pages (22/30) 
+ ✓ Generating static pages (30/30)
+   Finalizing page optimization ...
+   Collecting build traces ...
