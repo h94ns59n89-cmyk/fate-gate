@@ -13,6 +13,7 @@ export interface AICompletionOptions {
   maxTokens?: number;
   timeout?: number;
   trace?: TraceContext;
+  seed?: number;
 }
 
 export interface AIProvider {
@@ -84,8 +85,9 @@ export async function chatCompletion(
         const response = await provider.client.chat.completions.create({
           model,
           messages,
-          temperature: options.temperature ?? 0.7,
+          temperature: options.temperature ?? 0,
           max_tokens: options.maxTokens ?? 4096,
+          ...(options.seed !== undefined ? { seed: options.seed } : {}),
         });
 
         const content = response.choices[0]?.message?.content;
@@ -116,7 +118,7 @@ export async function parseJsonFromAI<T>(
       ...messages,
       { role: 'user', content: '请严格按照要求的 JSON 格式输出，不要包含任何其他文字。' },
     ],
-    { ...options, temperature: 0.1 },
+    options,
   );
 
   if (!content) return null;

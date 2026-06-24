@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { SummaryCard } from '@/components/report/SummaryCard';
 import { ReportPageViewer } from '@/components/report/ReportPageViewer';
 import { LeadGenWall } from '@/components/report/LeadGenWall';
@@ -16,6 +16,7 @@ export default function ReportPage() {
   const userId = useUserStore((s) => s.userId);
 
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [personalityTags, setPersonalityTags] = useState<string[]>();
   const [fiveElements, setFiveElements] = useState<FiveElements>();
   const [summary, setSummary] = useState<PersonalityTags>();
@@ -25,36 +26,48 @@ export default function ReportPage() {
   const reportId = parseInt(params?.id as string, 10);
   const validReport = !isNaN(reportId) && reportId > 0;
 
+  const fetchReport = useCallback(async () => {
+    setLoading(true);
+    setFetchError(null);
+    try {
+      const res = await fetch(`/api/v1/reports/${reportId}`);
+      const json = await res.json();
+      if (json.code === 0) {
+        setPersonalityTags(json.data?.personality_tags);
+        setFiveElements(json.data?.five_elements);
+        setSummary(json.data?.summary);
+        setPastTendencies(json.data?.summary?.past_tendencies);
+        if (json.data?.full_report) {
+          setFullReport(json.data.full_report);
+        }
+      }
+    } catch (e) {
+      setFetchError(e instanceof Error ? e.message : '网络错误，加载失败');
+    } finally {
+      setLoading(false);
+    }
+  }, [reportId]);
+
   useEffect(() => {
     trackEvent(EVENTS.REPORT_VIEWED);
     if (!validReport) { setLoading(false); return; }
-    let cancelled = false;
-
-    fetch(`/api/v1/reports/${reportId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (cancelled) return;
-        if (data.code === 0) {
-          setPersonalityTags(data.data?.personality_tags);
-          setFiveElements(data.data?.five_elements);
-          setSummary(data.data?.summary);
-          setPastTendencies(data.data?.summary?.past_tendencies);
-          if (data.data?.full_report) {
-            setFullReport(data.data.full_report);
-          }
-        }
-        setLoading(false);
-      })
-      .catch(() => { if (!cancelled) setLoading(false); });
-
-    return () => { cancelled = true; };
-  }, [reportId, validReport]);
+    fetchReport();
+  }, [reportId, validReport, fetchReport]);
 
   if (loading) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-3">
         <LoadingSpinner size="lg" />
         <p className="text-sm text-[#6B6778]">加载中...</p>
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-4">
+        <p className="text-sm text-[#E05A5A]">{fetchError}</p>
+        <Button variant="outline" onClick={fetchReport}>重试</Button>
       </div>
     );
   }

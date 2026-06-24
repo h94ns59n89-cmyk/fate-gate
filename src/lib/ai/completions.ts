@@ -4,6 +4,13 @@ import { generateJsonWithFallback } from './provider';
 import { mockPersonalityTags, mockFullReport, mockComparison } from './mock';
 import type { PersonalityTags, FullReport, ComparisonResult } from '@/lib/types';
 import type { AICompletionOptions } from './client';
+import { sha256 } from '@/lib/utils';
+
+function computeSeed(baziData: Record<string, unknown>): number {
+  const raw = JSON.stringify(baziData);
+  const hash = sha256(raw);
+  return parseInt(hash.substring(0, 8), 16);
+}
 
 export async function generatePersonalityTags(
   baziData: Record<string, unknown>,
@@ -23,7 +30,7 @@ export async function generatePersonalityTags(
       { role: 'user', content: buildPersonalityTagsPrompt(baziData) },
     ],
     'personality_tags',
-    options,
+    { ...options, seed: computeSeed(baziData) },
   );
 
   return { data: result.data, provider: result.provider, latencyMs: result.latencyMs };
@@ -47,7 +54,7 @@ export async function generateFullReport(
       { role: 'user', content: buildFullReportPrompt(baziData) },
     ],
     'full_report',
-    options,
+    { ...options, seed: computeSeed(baziData) },
   );
 
   return { data: result.data, provider: result.provider, latencyMs: result.latencyMs };
@@ -65,13 +72,14 @@ export async function generateComparison(
     return { data, provider: 'mock', latencyMs: 0 };
   }
 
+  const combined = { ...userABazi, _partner: userBBazi };
   const result = await generateJsonWithFallback<ComparisonResult>(
     () => [
       { role: 'system', content: '你是精通八字合盘的关系分析师。请严格按照要求的 JSON 格式输出。' },
       { role: 'user', content: buildComparisonPrompt(userABazi, userBBazi) },
     ],
     'comparison',
-    options,
+    { ...options, seed: computeSeed(combined) },
   );
 
   return { data: result.data, provider: result.provider, latencyMs: result.latencyMs };

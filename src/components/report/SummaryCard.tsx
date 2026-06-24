@@ -195,6 +195,9 @@ export function SummaryCard({
             <span className="h-px w-4 bg-[#EDE6DE]" />
           </div>
           <p className="mt-1 text-[8px] text-[#D4C0B0]/60">AI 生成 · 仅供娱乐参考</p>
+          {personalityTags?.some(t => t.includes('(')) && (
+            <p className="mt-0.5 text-[7px] text-[#D4C0B0]/40">MBTI 类型为 AI 据八字特征生成的分析标签，非标准 MBTI 测评结果</p>
+          )}
         </div>
       </div>
 

@@ -121,7 +121,10 @@ export default function ComparisonResultPage() {
         matchScore={data.match_score}
         userTag={data.user_tags?.[0] ?? '我'}
         targetTag={data.target_tags?.[0] ?? 'TA'}
-        onShare={() => {}}
+        onShare={() => {
+          const url = window.location.href;
+          navigator.clipboard.writeText(url).catch(() => {});
+        }}
       />
 
       {/* Summary: score overview, always visible */}
