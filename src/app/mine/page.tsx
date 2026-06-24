@@ -38,12 +38,8 @@ export default function MinePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<number | null>(null);
-  const [editMode, setEditMode] = useState(false);
-  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
-  const [deleting, setDeleting] = useState(false);
   const userId = useUserStore((s) => s.userId);
-  const user = useUserStore((s) => s.user);
-  const login = useUserStore((s) => s.login);
+  const initGuest = useUserStore((s) => s.initGuest);
   const userLoading = useUserStore((s) => s.isLoading);
   const [loggingIn, setLoggingIn] = useState(false);
 
@@ -55,12 +51,13 @@ export default function MinePage() {
       const res = await fetch(`/api/v1/users/me/reports`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
-      if (!res.ok) throw new Error('获取报告列表失败');
+      if (!res.ok) throw new Error(`获取报告列表失败 (${res.status})`);
       const data = await res.json();
       if (data.code === 0 && data.data?.items) {
         setReports(data.data.items);
       }
-    } catch {
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '获取报告列表失败');
       setReports([]);
     } finally {
       setLoading(false);
@@ -68,33 +65,6 @@ export default function MinePage() {
   }, []);
 
   const itemKey = (r: ReportItem) => `${r.kind === 'comparison' ? 'c' : 'p'}_${r.id}`;
-
-  const handleDelete = useCallback(async () => {
-    if (selectedKeys.size === 0) return;
-    if (!window.confirm(`确定删除 ${selectedKeys.size} 份报告？此操作不可恢复。`)) return;
-    setDeleting(true);
-    for (const key of selectedKeys) {
-      const parts = key.split('_');
-      const kind = parts[0];
-      const id = parseInt(parts[1] ?? '', 10);
-      if (!id) continue;
-      try {
-        const state = useUserStore.getState();
-        const token = state.token;
-        const path = kind === 'c' ? `/api/v1/comparisons/${id}` : `/api/v1/reports/${id}`;
-        await fetch(path, {
-          method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${token}` },
-        });
-      } catch {
-        // continue deleting others
-      }
-    }
-    setSelectedKeys(new Set());
-    setEditMode(false);
-    setDeleting(false);
-    fetchReports();
-  }, [selectedKeys, fetchReports]);
 
   useEffect(() => {
     trackEvent(EVENTS.USER_RETURN);
@@ -104,15 +74,15 @@ export default function MinePage() {
       return;
     }
     setLoggingIn(true);
-    const mockCode = `mock_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-    login(mockCode).then(() => {
+    initGuest().then(() => {
       setLoggingIn(false);
       fetchReports();
     }).catch(() => {
       setLoggingIn(false);
-      setError('微信登录失败');
+      setLoading(false);
+      setError('登录状态恢复失败，请重新进入首页');
     });
-  }, [userLoading, userId, login, fetchReports]);
+  }, [userLoading, userId, initGuest, fetchReports]);
 
   if (loading || loggingIn) {
     return (
@@ -138,48 +108,7 @@ export default function MinePage() {
           <h1 className="text-xl font-semibold text-[#1F1D2B]">我的报告</h1>
           <p className="mt-0.5 text-xs text-[#6B6778]">共 {reports.length} 份报告</p>
         </div>
-        <div className="flex items-center gap-2">
-          {editMode ? (
-            <>
-              {selectedKeys.size > 0 && (
-                <button
-                  onClick={handleDelete}
-                  disabled={deleting}
-                  className="rounded-md border border-[#E05A5A]/30 bg-[#E05A5A]/10 px-3 py-1 text-xs font-medium text-[#E05A5A] hover:bg-[#E05A5A]/20 disabled:opacity-50"
-                >
-                  {deleting ? '删除中...' : `删除 (${selectedKeys.size})`}
-                </button>
-              )}
-              <button
-                onClick={() => { setEditMode(false); setSelectedKeys(new Set()); }}
-                className="rounded-md border border-[rgba(0,0,0,0.08)] px-3 py-1 text-xs text-[#6B6778] hover:text-[#1F1D2B]"
-              >
-                完成
-              </button>
-            </>
-          ) : (
-            <button
-              onClick={() => setEditMode(true)}
-              className="rounded-md border border-[rgba(0,0,0,0.08)] px-3 py-1 text-xs text-[#6B6778] hover:text-[#1F1D2B]"
-            >
-              管理
-            </button>
-          )}
-          {user && (
-            <div className="flex items-center gap-2 text-xs text-[#6B6778]">
-              {user.avatar_url && (
-                <img src={user.avatar_url} alt="" className="size-6 rounded-full" />
-              )}
-              <span>{user.nickname ?? '微信用户'}</span>
-              <button
-                onClick={() => useUserStore.getState().logout?.()}
-                className="text-[#8A8696] hover:text-[#E05A5A]"
-              >
-                退出
-              </button>
-            </div>
-          )}
-        </div>
+        <div />
       </div>
 
       {userId && (
@@ -216,23 +145,10 @@ export default function MinePage() {
           {reports.map((report) => {
             const isExpanded = expandedId === report.id;
             const key = itemKey(report);
-            const checked = selectedKeys.has(key);
             if (report.kind === 'comparison') {
               return (
-                <div key={key} className={`vscode-card overflow-hidden ${editMode ? 'pl-2' : ''}`}>
+                <div key={key} className="vscode-card overflow-hidden">
                   <div className="flex items-center gap-2 py-0.5">
-                    {editMode && (
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={() => {
-                          const next = new Set(selectedKeys);
-                          if (checked) { next.delete(key); } else { next.add(key); }
-                          setSelectedKeys(next);
-                        }}
-                        className="size-4 accent-[#9B7FBB]"
-                      />
-                    )}
                     <Link href={`/comparison/${report.id}`} className="flex flex-1 items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-[#9B7FBB]">✦</span>
@@ -253,20 +169,8 @@ export default function MinePage() {
               );
             }
             return (
-              <div key={key} className={`vscode-card overflow-hidden ${editMode ? 'pl-2' : ''}`}>
+              <div key={key} className="vscode-card overflow-hidden">
                 <div className="flex items-center gap-2">
-                  {editMode && (
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      onChange={() => {
-                        const next = new Set(selectedKeys);
-                        if (checked) { next.delete(key); } else { next.add(key); }
-                        setSelectedKeys(next);
-                      }}
-                      className="size-4 shrink-0 accent-[#9B7FBB]"
-                    />
-                  )}
                   <button
                     onClick={() => setExpandedId(isExpanded ? null : report.id)}
                     className="flex flex-1 items-center justify-between text-left"

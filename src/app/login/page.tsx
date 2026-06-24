@@ -9,6 +9,7 @@ import { Logo } from '@/components/common/Logo';
 export default function LoginPage() {
   const router = useRouter();
   const loginStore = useUserStore((s) => s.loginWithPassword);
+  const currentUserId = useUserStore((s) => s.userId);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -23,7 +24,7 @@ export default function LoginPage() {
       const res = await fetch('/api/v1/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password, guest_user_id: currentUserId }),
       });
       const json = await res.json();
       if (json.code === 0 && json.data) {

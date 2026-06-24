@@ -8,7 +8,7 @@ interface LeadGenWallProps {
 
 export function LeadGenWall({ context }: LeadGenWallProps) {
   const [copied, setCopied] = useState(false);
-  const wechatId = 'Willa106';
+  const wechatId = 'janeai01';
 
   const handleCopy = async () => {
     try {

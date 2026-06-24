@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/common/Button';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
@@ -29,6 +29,11 @@ export default function ComparisonPage() {
   const [lookupError, setLookupError] = useState('');
   const [lookupLoading, setLookupLoading] = useState(false);
 
+  // Direct comparison mode
+  const [hasReport, setHasReport] = useState<boolean | null>(null);
+  const [userReportData, setUserReportData] = useState<{ bazi: Record<string, unknown>; tags: string[] } | null>(null);
+  const [forceForm, setForceForm] = useState(false);
+
   // Birth form state
   const [birthDate, setBirthDate] = useState('');
   const [birthHour, setBirthHour] = useState('');
@@ -50,6 +55,65 @@ export default function ComparisonPage() {
     birthDate: string; birthMinute: string; birthPlace: string; isSolar: boolean;
   } | null>(null);
 
+  useEffect(() => {
+    const checkReport = async () => {
+      const state = useUserStore.getState();
+      const token = state.token;
+      if (!token) { setHasReport(false); return; }
+      try {
+        const res = await fetch('/api/v1/users/me/reports', {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        const json = await res.json();
+        if (json.code === 0 && json.data?.items) {
+          const completed = json.data.items.find(
+            (item: { kind: string; status: string; bazi: unknown }) =>
+              item.kind === 'personality' && item.status === 'completed' && item.bazi
+          );
+          if (completed) {
+            setHasReport(true);
+            setUserReportData({ bazi: completed.bazi, tags: completed.personality_tags ?? [] });
+          } else {
+            setHasReport(false);
+          }
+        } else {
+          setHasReport(false);
+        }
+      } catch { setHasReport(false); }
+    };
+    checkReport();
+  }, [userId]);
+
+  const showDirectMode = hasReport === true && !forceForm;
+
+  const handleDirectCompare = useCallback(async () => {
+    if (!targetUser || !userReportData) return;
+    setStep('generating');
+    setCreateError('');
+    try {
+      const uid = userId ?? await initGuest();
+      const compRes = await fetch('/api/v1/comparisons', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: uid,
+          target_user_id: targetUser.user_id,
+          target_bazi: targetUser.bazi,
+          user_bazi: userReportData.bazi,
+          target_tags: targetUser.personality_tags,
+          user_tags: userReportData.tags,
+        }),
+      });
+      const compJson = await compRes.json();
+      if (compJson.code !== 0) throw new Error(compJson.message ?? '合盘创建失败');
+      trackEvent(EVENTS.COMPARISON_CREATED);
+      router.push(`/comparison/${compJson.data.id}`);
+    } catch (err) {
+      setCreateError(err instanceof Error ? err.message : '合盘创建失败');
+      setStep('invite');
+    }
+  }, [targetUser, userReportData, userId, initGuest, router]);
+
   const handleLookup = async () => {
     const code = inviteCode.trim();
     const codeError = validateInviteCode(code);
@@ -65,6 +129,7 @@ export default function ComparisonPage() {
       const json = await res.json();
       if (json.code !== 0) throw new Error(json.message ?? '未找到用户');
       setTargetUser(json.data);
+      if (showDirectMode) return; // don't advance step in direct mode
       setStep('birth');
     } catch (err) {
       setLookupError(err instanceof Error ? err.message : '查找失败');
@@ -151,6 +216,15 @@ export default function ComparisonPage() {
     }
   }, [handleCompare]);
 
+  // Loading state while checking report
+  if (hasReport === null) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
   return (
     <div className="relative">
       <div className="star-field" />
@@ -166,7 +240,87 @@ export default function ComparisonPage() {
           <p className="mt-2 text-sm text-[#6B6778]">输入对方的邀请码，合盘分析你们的匹配度</p>
         </div>
 
-        {step === 'invite' && (
+        {showDirectMode && step === 'invite' && !targetUser && (
+          <div className="mx-auto max-w-md">
+            <div className="mb-4 rounded-[10px] border border-[#8FCFA0]/30 bg-[#8FCFA0]/8 px-4 py-3 text-center">
+              <p className="text-xs font-medium text-[#5BA06B]">检测到已有完整报告，可直接合盘</p>
+            </div>
+            <div className="vscode-card space-y-4">
+              <div>
+                <label className="vscode-label">对方的邀请码</label>
+                <input
+                  type="text"
+                  value={inviteCode}
+                  onChange={(e) => {
+                    setInviteCode(e.target.value);
+                    if (inviteCodeError) setInviteCodeError('');
+                  }}
+                  placeholder="例如：u_12345"
+                  className="vscode-input mt-1"
+                  onKeyDown={(e) => e.key === 'Enter' && handleLookup()}
+                />
+                {inviteCodeError && <p className="mt-1 text-xs text-[#E05A5A]">{inviteCodeError}</p>}
+              </div>
+
+              {lookupError && (
+                <p className="text-center text-xs text-[#E05A5A]">{lookupError}</p>
+              )}
+
+              <Button size="lg" className="w-full" onClick={handleLookup} loading={lookupLoading}>
+                查找对方
+              </Button>
+            </div>
+
+            <div className="mt-6 text-center">
+              <button
+                onClick={() => setForceForm(true)}
+                className="text-xs text-[#8A8696] underline underline-offset-2 hover:text-[#6B6778]"
+              >
+                重新测试
+              </button>
+            </div>
+          </div>
+        )}
+
+        {showDirectMode && targetUser && (
+          <div className="mx-auto max-w-md space-y-5">
+            <div className="vscode-card space-y-3">
+              <p className="text-xs font-medium tracking-[0.03em] text-[#6B6778]">对方</p>
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#9B7FBB]/8 text-sm text-[#9B7FBB]">
+                  ✦
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-[#1F1D2B]">{targetUser.nickname ?? '匿名用户'}</p>
+                  <div className="mt-1 flex flex-wrap gap-1">
+                    {targetUser.personality_tags?.slice(0, 3).map((tag, i) => (
+                      <span key={i} className="rounded-[3px] bg-[#9B7FBB]/8 px-2 py-0.5 text-[10px] text-[#9B7FBB]">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {createError && <p className="text-center text-xs text-[#E05A5A]">{createError}</p>}
+
+            <Button size="lg" className="w-full" onClick={handleDirectCompare}>
+              直接合盘
+            </Button>
+
+            <div className="text-center">
+              <button
+                onClick={() => { setTargetUser(null); setInviteCode(''); }}
+                className="text-xs text-[#8A8696] underline underline-offset-2 hover:text-[#6B6778]"
+              >
+                重新选择对方
+              </button>
+            </div>
+          </div>
+        )}
+
+        {!showDirectMode && step === 'invite' && (
           <div className="mx-auto max-w-md">
             <div className="vscode-card space-y-4">
               <div>

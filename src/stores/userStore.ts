@@ -33,6 +33,8 @@ function loadToken(): string | null {
   }
 }
 
+let guestPromise: Promise<number> | null = null;
+
 export const useUserStore = create<UserState>((set, get) => ({
   token: loadToken(),
   user: null,
@@ -46,23 +48,30 @@ export const useUserStore = create<UserState>((set, get) => ({
     const existingToken = get().token;
     if (existing && existingToken) return existing;
 
+    if (guestPromise) return guestPromise;
+
     set({ isLoading: true });
-    try {
-      const response = await fetch('/api/v1/users/guest', { method: 'POST' });
-      const data = await response.json();
-      if (data.code === 0 && data.data) {
-        const uid = data.data.user_id;
-        const token = data.data.token;
-        set({ userId: uid, token, user: data.data, isLoading: false });
-        localStorage.setItem('token', token);
-        localStorage.setItem('user_id', String(uid));
-        return uid;
+    guestPromise = (async () => {
+      try {
+        const response = await fetch('/api/v1/users/guest', { method: 'POST' });
+        const data = await response.json();
+        if (data.code === 0 && data.data) {
+          const uid = data.data.user_id;
+          const token = data.data.token;
+          set({ userId: uid, token, user: data.data, isLoading: false });
+          localStorage.setItem('token', token);
+          localStorage.setItem('user_id', String(uid));
+          return uid;
+        }
+        throw new Error(data.message ?? '创建游客用户失败');
+      } catch (error) {
+        set({ isLoading: false });
+        throw error;
+      } finally {
+        guestPromise = null;
       }
-      throw new Error(data.message ?? '创建游客用户失败');
-    } catch (error) {
-      set({ isLoading: false });
-      throw error;
-    }
+    })();
+    return guestPromise;
   },
 
   login: async (code: string, invite?: string) => {

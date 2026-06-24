@@ -21,7 +21,6 @@ function getPathDimension(pathname: string): string {
 async function rateLimit(key: string, config: RateLimitConfig): Promise<{ limited: boolean; remaining: number; resetIn: number }> {
   const count = (await cache.get<number>(key)) ?? 0;
   const limited = count >= config.max;
-  const ttl = count === 0 ? config.window : undefined;
   if (!limited) {
     await cache.set(key, count + 1, config.window);
   }

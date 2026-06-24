@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { Logo } from '@/components/common/Logo';
+import { ReportPageViewer } from '@/components/report/ReportPageViewer';
+import type { FullReport } from '@/lib/types';
 
 const ADMIN_TOKEN = '123456';
 
@@ -168,11 +170,12 @@ function renderReportHTML(report: Record<string, unknown>): string {
 export default function AdminPage() {
   const [token, setToken] = useState('');
   const [authenticated, setAuthenticated] = useState(false);
-  const [data, setData] = useState<{ pending: { id: number; user_id: number; user_nickname: string; created_at: string }[]; completed: { id: number; user_id: number; user_nickname: string; created_at: string; generated_at: string | null }[] } | null>(null);
+  const [data, setData] = useState<{ pending: { kind: string; id: number; user_id: number; user_nickname: string; created_at: string }[]; completed: { kind: string; id: number; user_id: number; user_nickname: string; created_at: string; generated_at: string | null }[] } | null>(null);
   const [generating, setGenerating] = useState<Set<number>>(new Set());
   const [log, setLog] = useState<string[]>([]);
-  const [selectedReport, setSelectedReport] = useState<{ id: number; content: string } | null>(null);
   const [exportingPDF, setExportingPDF] = useState<Set<number>>(new Set());
+  const [viewReport, setViewReport] = useState<{ id: number; data: FullReport } | null>(null);
+  const [viewComparison, setViewComparison] = useState<any | null>(null);
   const [tab, setTab] = useState<'pending' | 'completed' | 'log'>('pending');
 
   const addLog = useCallback((msg: string) => {
@@ -213,14 +216,14 @@ export default function AdminPage() {
     }
   };
 
-  const handleGenerate = async (reportId: number) => {
+  const handleGenerate = async (reportId: number, kind?: string) => {
     setGenerating((prev) => new Set(prev).add(reportId));
-    addLog(`开始生成报告 #${reportId}...`);
+    addLog(`开始生成 ${kind === 'comparison' ? '合盘报告' : '报告'} #${reportId}...`);
     try {
       const res = await fetch('/api/v1/admin/reports/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, report_id: reportId }),
+        body: JSON.stringify({ token, report_id: reportId, kind }),
       });
       const json = await res.json();
       if (json.code === 0) {
@@ -228,9 +231,11 @@ export default function AdminPage() {
         fetchReports();
       } else {
         addLog(`❌ 报告 #${reportId} 生成失败: ${json.message}`);
+        alert(`生成失败: ${json.message}`);
       }
-    } catch {
+    } catch (err) {
       addLog(`❌ 报告 #${reportId} 生成请求异常`);
+      alert(`生成请求异常: ${err instanceof Error ? err.message : '未知错误'}`);
     } finally {
       setGenerating((prev) => { const next = new Set(prev); next.delete(reportId); return next; });
     }
@@ -241,7 +246,7 @@ export default function AdminPage() {
       const res = await fetch(`/api/v1/reports/${reportId}`);
       const json = await res.json();
       if (json.code === 0 && json.data?.full_report) {
-        setSelectedReport({ id: reportId, content: JSON.stringify(json.data.full_report, null, 2) });
+        setViewReport({ id: reportId, data: json.data.full_report as FullReport });
       } else {
         addLog(`报告 #${reportId} 暂无完整内容`);
       }
@@ -315,12 +320,23 @@ export default function AdminPage() {
     }
   };
 
+  const handleViewComparison = async (id: number) => {
+    try {
+      const res = await fetch(`/api/v1/comparisons/${id}`);
+      const json = await res.json();
+      if (json.code === 0) {
+        setViewComparison(json.data);
+      }
+    } catch {
+      addLog('加载合盘报告失败');
+    }
+  };
+
   if (!authenticated) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-[#F5F4F7] p-4">
-        <div className="mb-6 flex items-center gap-2">
+        <div className="mb-6">
           <Logo />
-          <span className="text-[15px] font-semibold text-[#1F1D2B]" style={{ fontFamily: 'Noto Serif SC, serif' }}>星隅</span>
         </div>
         <div className="w-full max-w-sm rounded-[12px] bg-[#FFFFFF] p-6 shadow-lg">
           <h1 className="mb-5 text-center text-lg font-semibold text-[#1F1D2B]">管理员登录</h1>
@@ -386,11 +402,12 @@ export default function AdminPage() {
                   <div key={r.id} className="flex items-center justify-between rounded-[10px] bg-[#FFFFFF] px-4 py-3 shadow-sm">
                     <div className="min-w-0">
                       <span className="text-sm font-medium text-[#1F1D2B]">#{r.id}</span>
+                      {r.kind === 'comparison' && <span className="ml-1.5 rounded-[2px] bg-[#C9A88D]/15 px-1.5 py-0.5 text-[9px] text-[#C9A88D]">合盘</span>}
                       <span className="ml-2 text-xs text-[#8A8696]">{r.user_nickname}</span>
                       <span className="ml-2 text-xs text-[#B8B6C0]">{new Date(r.created_at).toLocaleDateString()}</span>
                     </div>
                     <button
-                      onClick={() => handleGenerate(r.id)}
+                      onClick={() => handleGenerate(r.id, r.kind)}
                       disabled={generating.has(r.id)}
                       className="shrink-0 rounded-[6px] bg-[#9B7FBB] px-3 py-1.5 text-xs font-medium text-[#FFFFFF] transition-colors hover:bg-[#8A6EAA] disabled:opacity-50"
                     >
@@ -423,19 +440,20 @@ export default function AdminPage() {
                   <div key={r.id} className="flex items-center justify-between rounded-[10px] bg-[#FFFFFF] px-4 py-3 shadow-sm">
                     <div className="min-w-0">
                       <span className="text-sm font-medium text-[#1F1D2B]">#{r.id}</span>
+                      {r.kind === 'comparison' && <span className="ml-1.5 rounded-[2px] bg-[#C9A88D]/15 px-1.5 py-0.5 text-[9px] text-[#C9A88D]">合盘</span>}
                       <span className="ml-2 text-xs text-[#8A8696]">{r.user_nickname}</span>
                       <span className="ml-1 text-xs text-[#7CB87C]">✓</span>
                     </div>
                     <div className="flex shrink-0 gap-1.5">
                       <button
-                        onClick={() => handleView(r.id)}
+                        onClick={() => r.kind === 'comparison' ? handleViewComparison(r.id) : handleView(r.id)}
                         className="rounded-[6px] border border-[rgba(0,0,0,0.1)] px-3 py-1.5 text-xs text-[#6B6778] hover:bg-[#FFFFFF]"
                       >
                         查看
                       </button>
                       <button
                         onClick={() => handleExportPDF(r.id)}
-                        disabled={exportingPDF.has(r.id)}
+                        disabled={exportingPDF.has(r.id) || r.kind === 'comparison'}
                         className="rounded-[6px] bg-[#C9A88D] px-3 py-1.5 text-xs font-medium text-[#FFFFFF] transition-colors hover:bg-[#B89A7D] disabled:opacity-50"
                       >
                         {exportingPDF.has(r.id) ? '导出中...' : '导出PDF'}
@@ -471,21 +489,125 @@ export default function AdminPage() {
         )}
       </div>
 
-      {selectedReport && (
+      {viewReport && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
-          <div className="max-h-[80vh] w-full max-w-2xl overflow-auto rounded-[12px] bg-[#FFFFFF] p-6 shadow-lg">
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-[#1F1D2B]">报告 #{selectedReport.id} 完整内容</h3>
-              <button
-                onClick={() => setSelectedReport(null)}
-                className="rounded-[4px] px-2 py-1 text-xs text-[#8A8696] hover:bg-[#F5F4F7]"
-              >
-                关闭
-              </button>
+          <div className="relative max-h-[90vh] w-full max-w-3xl overflow-auto rounded-[12px] bg-[#FFFFFF] shadow-lg">
+            <button
+              onClick={() => setViewReport(null)}
+              className="sticky top-2 float-right mr-2 mt-2 rounded-[6px] bg-[rgba(0,0,0,0.5)] px-3 py-1 text-xs text-[#FFFFFF] hover:bg-[rgba(0,0,0,0.6)] z-10"
+            >
+              关闭
+            </button>
+            <div className="clear-both px-4 pb-4">
+              <ReportPageViewer report={viewReport.data} />
             </div>
-            <pre className="overflow-auto rounded-[8px] bg-[#F8F8FA] p-4 text-xs leading-relaxed text-[#1F1D2B]/80">
-              {selectedReport.content}
-            </pre>
+          </div>
+        </div>
+      )}
+
+      {viewComparison && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4" onClick={() => setViewComparison(null)}>
+          <div
+            className="flex max-h-[85vh] w-full max-w-xl flex-col rounded-[12px] bg-[#FFFFFF] shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-[rgba(0,0,0,0.06)] px-5 py-3">
+              <h3 className="text-sm font-semibold text-[#1F1D2B]">合盘报告 #{viewComparison.id}</h3>
+              <button onClick={() => setViewComparison(null)} className="rounded-[4px] px-2 py-1 text-xs text-[#8A8696] hover:bg-[#F5F4F7]">关闭</button>
+            </div>
+            <div className="flex-1 space-y-5 overflow-y-auto p-5">
+              <div className="text-center">
+                <p className="text-xs text-[#8A8696]">匹配度</p>
+                <p className="text-3xl font-bold text-[#9B7FBB]">{viewComparison.match_score ?? '-'}%</p>
+                {viewComparison.summary_tag && (
+                  <span className="mt-1 inline-block rounded-[2px] bg-[#9B7FBB]/8 px-2 py-0.5 text-[11px] text-[#9B7FBB]">{viewComparison.summary_tag}</span>
+                )}
+              </div>
+
+              <div>
+                <p className="mb-2 text-[11px] font-semibold text-[#6B6778] tracking-[0.5px]">双方</p>
+                <div className="flex items-center justify-between rounded-[8px] bg-[#F8F8FA] px-4 py-2.5">
+                  <div className="text-center">
+                    <p className="text-xs text-[#1F1D2B]">{viewComparison.user_nickname}</p>
+                    <div className="mt-1 flex flex-wrap justify-center gap-1">
+                      {viewComparison.user_tags?.slice(0, 2).map((t: string, i: number) => (
+                        <span key={i} className="rounded-[2px] bg-[#9B7FBB]/8 px-1.5 py-0.5 text-[9px] text-[#9B7FBB]">{t}</span>
+                      ))}
+                    </div>
+                  </div>
+                  <span className="text-lg text-[#8A8696]">⟷</span>
+                  <div className="text-center">
+                    <p className="text-xs text-[#1F1D2B]">{viewComparison.target_nickname ?? '未知'}</p>
+                    <div className="mt-1 flex flex-wrap justify-center gap-1">
+                      {viewComparison.target_tags?.slice(0, 2).map((t: string, i: number) => (
+                        <span key={i} className="rounded-[2px] bg-[#9B7FBB]/8 px-1.5 py-0.5 text-[9px] text-[#9B7FBB]">{t}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {viewComparison.dimensions && typeof viewComparison.dimensions === 'object' && (
+                <div>
+                  <p className="mb-2 text-[11px] font-semibold text-[#6B6778] tracking-[0.5px]">维度分析</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {Object.entries(viewComparison.dimensions).map(([k, v]) => {
+                      const labels: Record<string, string> = { communication: '沟通', emotional: '情感', values: '价值观', growth: '成长' };
+                      return (
+                        <div key={k} className="rounded-[6px] bg-[#F8F8FA] px-3 py-2 text-center">
+                          <p className="text-[9px] text-[#8A8696]">{labels[k] ?? k}</p>
+                          <p className="text-base font-semibold text-[#9B7FBB]">{String(v)}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {viewComparison.complementarity && (
+                <div>
+                  <p className="mb-1 text-[11px] font-semibold text-[#6B6778] tracking-[0.5px]">五行互补</p>
+                  <p className="text-xs leading-relaxed text-[rgba(31,29,43,0.7)]">{viewComparison.complementarity}</p>
+                </div>
+              )}
+
+              {viewComparison.strengths?.length > 0 && (
+                <div>
+                  <p className="mb-2 text-[11px] font-semibold text-[#6B6778] tracking-[0.5px]">优势</p>
+                  <div className="space-y-1.5">
+                    {viewComparison.strengths.map((s: string, i: number) => (
+                      <div key={i} className="flex items-center gap-2 rounded-[6px] bg-[#F8F8FA] px-3 py-2">
+                        <span className="text-xs text-[#8FCFA0]">✓</span>
+                        <span className="text-xs text-[rgba(31,29,43,0.7)]">{s}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {viewComparison.potential_conflicts?.length > 0 && (
+                <div>
+                  <p className="mb-2 text-[11px] font-semibold text-[#6B6778] tracking-[0.5px]">潜在冲突</p>
+                  <div className="space-y-1.5">
+                    {viewComparison.potential_conflicts.map((s: string, i: number) => (
+                      <div key={i} className="flex items-center gap-2 rounded-[6px] bg-[#F8F8FA] px-3 py-2">
+                        <span className="text-xs text-[#E0978A]">⚠</span>
+                        <span className="text-xs text-[rgba(31,29,43,0.7)]">{s}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {viewComparison.advice && (
+                <div>
+                  <p className="mb-1 text-[11px] font-semibold text-[#6B6778] tracking-[0.5px]">相处建议</p>
+                  <div className="rounded-[6px] border-l-2 border-[#9B7FBB] bg-[rgba(155,127,187,0.05)] px-3 py-2">
+                    <p className="text-xs leading-relaxed text-[rgba(31,29,43,0.7)]">{viewComparison.advice}</p>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

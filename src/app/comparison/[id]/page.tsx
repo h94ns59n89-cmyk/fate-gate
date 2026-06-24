@@ -6,7 +6,7 @@ import { ComparisonCard } from '@/components/comparison/ComparisonCard';
 import { Button } from '@/components/common/Button';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { LeadGenWall } from '@/components/report/LeadGenWall';
-import { Heart, Zap, AlertTriangle, MessageCircle, Sparkles, Target } from 'lucide-react';
+import { Sparkles, Target } from 'lucide-react';
 
 class SafeBoundary extends Component<{ children: ReactNode; fallback?: ReactNode }, { hasError: boolean; error: Error | null }> {
   constructor(props: { children: ReactNode; fallback?: ReactNode }) {
@@ -36,6 +36,7 @@ class SafeBoundary extends Component<{ children: ReactNode; fallback?: ReactNode
 
 interface ComparisonData {
   id: number;
+  status: string;
   match_score: number;
   dimensions: string;
   advice: string;
@@ -98,6 +99,8 @@ export default function ComparisonResultPage() {
         ? (data.dimensions as Record<string, number>)
         : null;
 
+      const isCompleted = data.status === 'COMPLETED';
+
       return (
     <div className="px-4 pb-8">
       {/* Header with decorative line */}
@@ -121,98 +124,39 @@ export default function ComparisonResultPage() {
         onShare={() => {}}
       />
 
-      {dimsObj && (
-        <div className="vscode-card mt-4 space-y-4">
+      {/* Summary: score overview, always visible */}
+      {isCompleted && (
+        <div className="vscode-card mt-4 space-y-2">
           <h3 className="flex items-center gap-2 text-sm font-semibold text-[#1F1D2B]">
             <Target className="h-3.5 w-3.5 text-[#8A8696]" />
-            维度分析
+            匹配摘要
           </h3>
-          <div className="space-y-3">
-            {Object.entries(dimsObj).map(([label, score], _idx) => {
-              const labelZh: Record<string, string> = { communication: '沟通', emotional: '情感', values: '价值观', growth: '成长' };
-              const rounded = Math.round(score);
-              return (
-              <div key={label} className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-[#1F1D2B]/70">{labelZh[label.toLowerCase()] ?? label}</span>
-                  <span className="text-xs font-semibold text-[#9B7FBB]">{rounded}%</span>
-                </div>
-                <div className="relative h-2 overflow-hidden rounded-full bg-[#E8E8EC]">
-                  <div
-                    className="h-full rounded-full transition-all duration-1000 ease-out"
-                    style={{
-                      width: `${rounded}%`,
-                      background: 'linear-gradient(90deg, #9B7FBB 0%, #BBA3D5 100%)',
-                    }}
-                  />
-                  <div
-                    className="absolute right-0 top-0 h-full w-2 rounded-full bg-[#9B7FBB]/30 blur-sm"
-                    style={{ display: rounded > 80 ? 'block' : 'none' }}
-                  />
-                </div>
-              </div>
-            );
-            })}
-          </div>
+          <p className="text-sm leading-relaxed text-[#1F1D2B]/70">
+            {data.match_score >= 80
+              ? '双方契合度很高，在多个维度上表现出较强的互补与共鸣。'
+              : data.match_score >= 60
+              ? '双方有一定的契合基础，部分维度存在互补空间。'
+              : '双方差异较大，但差异本身也是成长的机会。'}
+          </p>
+          {dimsObj && (
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              {Object.entries(dimsObj).map(([label, score]) => {
+                const labelZh: Record<string, string> = { communication: '沟通', emotional: '情感', values: '价值观', growth: '成长' };
+                return (
+                  <div key={label} className="flex items-center justify-between rounded-[8px] bg-[#F8F8FA] px-3 py-2">
+                    <span className="text-xs text-[#6B6778]">{labelZh[label.toLowerCase()] ?? label}</span>
+                    <span className="text-xs font-semibold text-[#9B7FBB]">{Math.round(score)}%</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
-      {data.complementarity && (
-        <div className="vscode-card mt-4 border-l-2 border-l-[#9B7FBB]/30">
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-[#1F1D2B]">
-            <Heart className="h-3.5 w-3.5 text-[#9B7FBB]" />
-            互补性
-          </h3>
-          <p className="mt-2 text-sm leading-relaxed text-[#1F1D2B]/70">{String(data.complementarity)}</p>
-        </div>
-      )}
-
-      {(data.strengths?.length ?? 0) > 0 && (
-        <div className="vscode-card mt-4 space-y-3">
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-[#1F1D2B]">
-            <Zap className="h-3.5 w-3.5 text-[#8FCFA0]" />
-            优势
-          </h3>
-          <ul className="space-y-2">
-            {(data.strengths ?? []).map((s, i) => (
-              <li key={i} className="flex items-start gap-2.5 text-sm leading-relaxed text-[#1F1D2B]/70">
-                <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#8FCFA0]/15 text-[10px] text-[#8FCFA0]">+</span>
-                {typeof s === 'string' ? s : JSON.stringify(s)}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {(data.potential_conflicts?.length ?? 0) > 0 && (
-        <div className="vscode-card mt-4 space-y-3">
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-[#1F1D2B]">
-            <AlertTriangle className="h-3.5 w-3.5 text-[#E0978A]" />
-            潜在冲突
-          </h3>
-          <ul className="space-y-2">
-            {(data.potential_conflicts ?? []).map((c, i) => (
-              <li key={i} className="flex items-start gap-2.5 text-sm leading-relaxed text-[#1F1D2B]/70">
-                <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#E0978A]/15 text-[10px] text-[#E0978A]">~</span>
-                {typeof c === 'string' ? c : JSON.stringify(c)}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {data.advice && (
-        <div className="vscode-card mt-4 space-y-0">
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-[#1F1D2B]">
-            <MessageCircle className="h-3.5 w-3.5 text-[#8A8696]" />
-            相处建议
-          </h3>
-          <p className="mt-2 text-sm leading-relaxed text-[#1F1D2B]/70">{String(data.advice)}</p>
-        </div>
-      )}
-
+      {/* LeadGen: unlock full analysis */}
       <div className="my-8">
-        <LeadGenWall context="完整合盘分析" />
+        <LeadGenWall context="完整合盘分析报告" />
       </div>
 
       {/* Divider before disclaimer */}

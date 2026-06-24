@@ -1,13 +1,13 @@
 import { withMiddleware } from '@/lib/middleware';
 import { success, error } from '@/lib/api-response';
 import prisma from '@/lib/db/client';
-import { generateFullReport } from '@/lib/ai/completions';
+import { generateFullReport, generateComparison } from '@/lib/ai/completions';
 import { createTraceContext, getTraceFromHeaders } from '@/lib/trace';
 import { Logger } from '@/lib/logger';
 
 export const POST = withMiddleware(async (req) => {
   const body = await req.json();
-  const { token } = body;
+  const { token, kind } = body;
   const ADMIN_TOKEN = process.env.ADMIN_TOKEN ?? '123456';
   if (token !== ADMIN_TOKEN) {
     return error(401, '未授权访问', 401);
@@ -21,6 +21,63 @@ export const POST = withMiddleware(async (req) => {
   const trace = getTraceFromHeaders(req.headers) ?? createTraceContext();
   const log = Logger.for('admin:report:generate', trace);
 
+  if (kind === 'comparison') {
+    const comparison = await prisma.comparison.findUnique({
+      where: { id: Number(reportId) },
+    });
+
+    if (!comparison) {
+      return error(300102, '合盘报告不存在', 404);
+    }
+
+    const userBazi = comparison.userBaziJson as Record<string, unknown> | null;
+    const targetBazi = comparison.targetBaziJson as Record<string, unknown> | null;
+    if (!userBazi || !targetBazi) {
+      return error(400, '合盘报告缺少八字数据', 400);
+    }
+
+    log.info(`Generating comparison report for comparison ${reportId}`);
+
+    try {
+      const { data: result, provider, latencyMs } = await generateComparison(targetBazi, userBazi, { trace });
+
+      if (result) {
+        await prisma.comparison.update({
+          where: { id: Number(reportId) },
+          data: {
+            status: 'COMPLETED',
+            matchScore: result.overall_match,
+            dimensionsJson: result.dimensions as never,
+            adviceJson: {
+              complementarity: result.complementarity,
+              strengths: result.strengths,
+              potential_conflicts: result.potential_conflicts,
+              advice: result.advice,
+              target_tags: comparison.targetTags ?? [],
+              user_tags: comparison.userTags ?? [],
+              summary_tag: result.summary_tag,
+            } as never,
+          },
+        });
+
+        log.info(`Comparison ${reportId} generated successfully`, { provider, latency_ms: latencyMs });
+        return success({
+          report_id: reportId,
+          status: 'completed',
+          provider,
+          latency_ms: latencyMs,
+        });
+      } else {
+        return error(500, 'AI 生成返回空结果', 502);
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      log.error(`Failed to generate comparison ${reportId}`, { error: msg });
+      return error(500, `生成失败: ${msg}`, 500);
+    }
+  }
+
+  // Personality report generation
   const report = await prisma.personalityReport.findUnique({
     where: { id: Number(reportId) },
     include: { birthInfo: true },

@@ -72,7 +72,7 @@ export default function ReportPage() {
   if (fullReport) {
     return (
       <div className="px-4 pb-8">
-        <ReportPageViewer report={fullReport} onShare={() => trackEvent(EVENTS.SUMMARY_SHARED)} />
+        <ReportPageViewer report={fullReport} />
       </div>
     );
   }

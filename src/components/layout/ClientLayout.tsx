@@ -15,6 +15,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
         <div className="mx-auto max-w-md md:max-w-5xl md:pt-6">
           {children}
         </div>
+        <div className="h-12 md:h-8" />
       </main>
       <div className="md:hidden">
         <BottomTab />

@@ -107,23 +107,6 @@ export default function LandingPage() {
     }
   }, [runCalculate]);
 
-  const handleShare = useCallback(async () => {
-    trackEvent(EVENTS.SUMMARY_SHARED);
-    if (navigator.share) {
-      try {
-        await navigator.share({
-           title: '我的人格',
-           text: '测一测你的人格，和 MBTI 一样有趣！',
-          url: window.location.href,
-        });
-      } catch {
-        setShowShare(true);
-      }
-    } else {
-      setShowShare(true);
-    }
-  }, []);
-
   const handleUnlock = useCallback(() => {
     trackEvent(EVENTS.PAY_CLICKED);
     if (!result) return;
@@ -149,7 +132,7 @@ export default function LandingPage() {
     <div className="relative">
       <div className="star-field" />
 
-      <div className="relative z-10 px-4 pt-16">
+      <div className="relative z-10 px-4 pt-4 md:pt-0">
         {step === 'input' && (
           <>
             <div className="mb-10 text-center">
