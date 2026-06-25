@@ -16,11 +16,11 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!username || !password) { setError('请输入用户名和密码'); return; }
-    setLoading(true);
-    setError('');
     try {
+      e.preventDefault();
+      if (!username || !password) { setError('请输入用户名和密码'); return; }
+      setLoading(true);
+      setError('');
       const res = await fetch('/api/v1/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -34,15 +34,16 @@ export default function LoginPage() {
       } else {
         setError(json.message || '登录失败');
       }
-    } catch {
-      setError('网络错误');
+    } catch (err) {
+      console.error('Login error:', err);
+      setError('网络错误，请稍后再试');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden bg-[#FAF8F5]">
+    <div className="relative flex h-screen flex-col bg-[#FAF8F5]">
       {/* Soft nebula background light */}
       <div className="pointer-events-none absolute inset-0 select-none" aria-hidden="true">
         <div className="absolute left-[-5%] top-[-8%] h-[55%] w-[45%] rounded-full bg-gradient-to-br from-[#F7C8E0]/25 via-[#BFA8E8]/12 to-transparent blur-[120px]" />
@@ -254,7 +255,7 @@ export default function LoginPage() {
       </div>
 
       {/* Login form area */}
-      <div className="flex flex-1 flex-col items-center justify-center px-4">
+      <div className="flex flex-1 flex-col items-center justify-center px-4 pb-12">
         <div className="relative z-10 w-full max-w-sm">
           <div className="mb-6 text-center">
             <div className="inline-flex items-center gap-3">
