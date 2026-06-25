@@ -1,13 +1,11 @@
 import { withMiddleware } from '@/lib/middleware';
-import { success } from '@/lib/api-response';
+import { success, error } from '@/lib/api-response';
+import { extractAdminToken, checkAdminToken } from '@/lib/admin-auth';
 import prisma from '@/lib/db/client';
 
-const ADMIN_TOKEN = '123456';
-
 export const GET = withMiddleware(async (req) => {
-  const url = new URL(req.url);
-  const token = url.searchParams.get('token') ?? '';
-  if (token !== ADMIN_TOKEN) return success({ items: [], total: 0 });
+  const token = extractAdminToken(req);
+  if (!checkAdminToken(token)) return error(401, '未授权访问', 401);
 
   try {
     const comparisons = await prisma.comparison.findMany({

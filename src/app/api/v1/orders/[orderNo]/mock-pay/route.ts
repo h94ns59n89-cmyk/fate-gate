@@ -6,6 +6,9 @@ import { generateFullReport } from '@/lib/ai/completions';
 import { Logger } from '@/lib/logger';
 
 export const POST = withMiddleware(async (req, { params }) => {
+  if (process.env.NODE_ENV !== 'development') {
+    return error(403, '仅开发环境可用', 403);
+  }
   const { orderNo } = params;
   if (!orderNo) return error(400101, '订单号不能为空', 400);
 

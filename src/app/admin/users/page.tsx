@@ -3,8 +3,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Logo } from '@/components/common/Logo';
 
-const ADMIN_TOKEN = '123456';
-
 export default function AdminUsersPage() {
   const [token, setToken] = useState('');
   const [authenticated, setAuthenticated] = useState(false);
@@ -22,7 +20,7 @@ export default function AdminUsersPage() {
 
   const fetchUsers = useCallback(async () => {
     try {
-      const res = await fetch(`/api/v1/admin/users/list?token=${token}`);
+      const res = await fetch('/api/v1/admin/users/list', { headers: { 'Authorization': `Bearer ${token}` } });
       const json = await res.json();
       if (json.code === 0) {
         setUsers(json.data.users);
@@ -35,7 +33,7 @@ export default function AdminUsersPage() {
   useEffect(() => {
     try {
       const raw = localStorage.getItem('admin_auth');
-      if (raw) { setAuthenticated(true); setToken(ADMIN_TOKEN); }
+      if (raw) { const t = JSON.parse(raw).token; if (t) { setToken(t); setAuthenticated(true); } }
     } catch {}
   }, []);
 
@@ -43,12 +41,18 @@ export default function AdminUsersPage() {
     if (authenticated) fetchUsers();
   }, [authenticated, fetchUsers]);
 
-  const handleLogin = () => {
-    if (token === ADMIN_TOKEN) {
-      setAuthenticated(true);
-      try { localStorage.setItem('admin_auth', JSON.stringify({ name: '管理员', loggedIn: true })); } catch {}
-    } else {
-      addMsg('密码错误');
+  const handleLogin = async () => {
+    try {
+      const res = await fetch('/api/v1/admin/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token }) });
+      const json = await res.json();
+      if (json.code === 0) {
+        setAuthenticated(true);
+        try { localStorage.setItem('admin_auth', JSON.stringify({ name: '管理员', loggedIn: true, token })); } catch {}
+      } else {
+        addMsg('密码错误');
+      }
+    } catch {
+      addMsg('验证请求失败');
     }
   };
 

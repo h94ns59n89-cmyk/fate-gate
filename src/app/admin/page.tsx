@@ -7,8 +7,6 @@ import { Logo } from '@/components/common/Logo';
 import { ReportPageViewer } from '@/components/report/ReportPageViewer';
 import type { FullReport } from '@/lib/types';
 
-const ADMIN_TOKEN = '123456';
-
 function renderReportHTML(report: Record<string, unknown>): string {
   const sections = [
     { key: 'cover', label: '封面' },
@@ -184,7 +182,7 @@ export default function AdminPage() {
 
   const fetchReports = useCallback(async () => {
     try {
-      const res = await fetch(`/api/v1/admin/reports/list?token=${token}`);
+      const res = await fetch('/api/v1/admin/reports/list', { headers: { 'Authorization': `Bearer ${token}` } });
       const json = await res.json();
       if (json.code === 0) {
         setData(json.data);
@@ -198,7 +196,7 @@ export default function AdminPage() {
   useEffect(() => {
     try {
       const raw = localStorage.getItem('admin_auth');
-      if (raw) { setAuthenticated(true); setToken(ADMIN_TOKEN); }
+      if (raw) { const t = JSON.parse(raw).token; if (t) { setToken(t); setAuthenticated(true); } }
     } catch {}
   }, []);
 
@@ -206,13 +204,19 @@ export default function AdminPage() {
     if (authenticated) fetchReports();
   }, [authenticated, fetchReports]);
 
-  const handleLogin = () => {
-    if (token === ADMIN_TOKEN) {
-      setAuthenticated(true);
-      try { localStorage.setItem('admin_auth', JSON.stringify({ name: '管理员', loggedIn: true })); } catch {}
-      addLog('管理员登录成功');
-    } else {
-      addLog('密码错误');
+  const handleLogin = async () => {
+    try {
+      const res = await fetch('/api/v1/admin/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token }) });
+      const json = await res.json();
+      if (json.code === 0) {
+        setAuthenticated(true);
+        try { localStorage.setItem('admin_auth', JSON.stringify({ name: '管理员', loggedIn: true, token })); } catch {}
+        addLog('管理员登录成功');
+      } else {
+        addLog('密码错误');
+      }
+    } catch {
+      addLog('验证请求失败');
     }
   };
 

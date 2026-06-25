@@ -1,13 +1,13 @@
 import { withMiddleware } from '@/lib/middleware';
 import { success, error } from '@/lib/api-response';
+import { checkAdminToken } from '@/lib/admin-auth';
 import { hashPassword } from '@/lib/auth/password';
 import prisma from '@/lib/db/client';
 
 export const POST = withMiddleware(async (req) => {
   const body = await req.json();
   const { token, username, password, nickname } = body;
-  const ADMIN_TOKEN = process.env.ADMIN_TOKEN ?? '123456';
-  if (token !== ADMIN_TOKEN) {
+  if (!checkAdminToken(token ?? '')) {
     return error(401, '未授权访问', 401);
   }
   if (!username || !password) {

@@ -1,15 +1,24 @@
 import { withMiddleware } from '@/lib/middleware';
 import { success, error } from '@/lib/api-response';
+import { checkAdminToken } from '@/lib/admin-auth';
 import prisma from '@/lib/db/client';
 import { generateFullReport, generateComparison } from '@/lib/ai/completions';
 import { createTraceContext, getTraceFromHeaders } from '@/lib/trace';
 import { Logger } from '@/lib/logger';
 
+export const maxDuration = 120;
+
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => setTimeout(() => reject(new Error(`${label} 超时 (${ms}ms)`)), ms)),
+  ]);
+}
+
 export const POST = withMiddleware(async (req) => {
   const body = await req.json();
   const { token, kind } = body;
-  const ADMIN_TOKEN = process.env.ADMIN_TOKEN ?? '123456';
-  if (token !== ADMIN_TOKEN) {
+  if (!checkAdminToken(token ?? '')) {
     return error(401, '未授权访问', 401);
   }
 
@@ -39,7 +48,7 @@ export const POST = withMiddleware(async (req) => {
     log.info(`Generating comparison report for comparison ${reportId}`);
 
     try {
-      const { data: result, provider, latencyMs } = await generateComparison(targetBazi, userBazi, { trace });
+      const { data: result, provider, latencyMs } = await withTimeout(generateComparison(targetBazi, userBazi, { trace }), 90000, 'AI 合盘生成');
 
       if (result) {
         await prisma.comparison.update({
@@ -104,7 +113,7 @@ export const POST = withMiddleware(async (req) => {
   log.info(`Generating full report for report ${reportId}`);
 
   try {
-    const { data: reportData, provider, latencyMs } = await generateFullReport(baziData, { trace });
+    const { data: reportData, provider, latencyMs } = await withTimeout(generateFullReport(baziData, { trace }), 90000, 'AI 报告生成');
 
     if (reportData) {
       await prisma.personalityReport.update({
