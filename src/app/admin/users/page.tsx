@@ -112,12 +112,52 @@ export default function AdminUsersPage() {
           </div>
         )}
 
-        <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+        <div className="space-y-6">
+          <div className="rounded-[10px] bg-[#FFFFFF] p-4 shadow-sm">
+            <h3 className="mb-3 text-xs font-semibold text-[#6B6778]">创建新用户</h3>
+            <div className="flex flex-wrap gap-2">
+              <input
+                value={newUsername}
+                onChange={(e) => setNewUsername(e.target.value)}
+                placeholder="用户名"
+                className="min-w-[160px] flex-1 rounded-[6px] border border-[rgba(0,0,0,0.12)] px-3 py-2 text-xs outline-none focus:border-[#9B7FBB]"
+              />
+              <input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="密码"
+                className="min-w-[120px] flex-1 rounded-[6px] border border-[rgba(0,0,0,0.12)] px-3 py-2 text-xs outline-none focus:border-[#9B7FBB]"
+              />
+              <input
+                value={newNickname}
+                onChange={(e) => setNewNickname(e.target.value)}
+                placeholder="昵称 (选填)"
+                className="min-w-[120px] flex-1 rounded-[6px] border border-[rgba(0,0,0,0.12)] px-3 py-2 text-xs outline-none focus:border-[#9B7FBB]"
+              />
+              <button
+                onClick={handleCreateUser}
+                disabled={creatingUser}
+                className="rounded-[6px] bg-[#9B7FBB] px-5 py-2 text-xs font-medium text-[#FFFFFF] transition-colors hover:bg-[#8A6EAA] disabled:opacity-50"
+              >
+                {creatingUser ? '创建中...' : '创建用户'}
+              </button>
+            </div>
+          </div>
+
           <div>
-            <h2 className="mb-3 text-sm font-semibold text-[#1F1D2B]">
-              用户列表
-              <span className="ml-2 text-xs font-normal text-[#8A8696]">{users.length} 人</span>
-            </h2>
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-[#1F1D2B]">
+                用户列表
+                <span className="ml-2 text-xs font-normal text-[#8A8696]">{users.length} 人</span>
+              </h2>
+              <button
+                onClick={fetchUsers}
+                className="rounded-[6px] border border-[rgba(0,0,0,0.1)] bg-[#FFFFFF] px-3 py-1.5 text-xs font-medium text-[#6B6778] hover:bg-[#F8F8FA]"
+              >
+                刷新
+              </button>
+            </div>
             {users.length === 0 ? (
               <div className="rounded-[10px] bg-[#FFFFFF] px-4 py-12 text-center text-sm text-[#8A8696] shadow-sm">
                 暂无用户，请创建一个
@@ -135,44 +175,6 @@ export default function AdminUsersPage() {
                 ))}
               </div>
             )}
-          </div>
-
-          <div>
-            <div className="mb-4 rounded-[10px] bg-[#FFFFFF] p-4 shadow-sm">
-              <h3 className="mb-3 text-xs font-semibold text-[#6B6778]">创建新用户</h3>
-              <input
-                value={newUsername}
-                onChange={(e) => setNewUsername(e.target.value)}
-                placeholder="用户名"
-                className="mb-2 w-full rounded-[6px] border border-[rgba(0,0,0,0.12)] px-3 py-2 text-xs outline-none focus:border-[#9B7FBB]"
-              />
-              <input
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="密码"
-                className="mb-2 w-full rounded-[6px] border border-[rgba(0,0,0,0.12)] px-3 py-2 text-xs outline-none focus:border-[#9B7FBB]"
-              />
-              <input
-                value={newNickname}
-                onChange={(e) => setNewNickname(e.target.value)}
-                placeholder="昵称 (选填)"
-                className="mb-3 w-full rounded-[6px] border border-[rgba(0,0,0,0.12)] px-3 py-2 text-xs outline-none focus:border-[#9B7FBB]"
-              />
-              <button
-                onClick={handleCreateUser}
-                disabled={creatingUser}
-                className="w-full rounded-[6px] bg-[#9B7FBB] py-2 text-xs font-medium text-[#FFFFFF] transition-colors hover:bg-[#8A6EAA] disabled:opacity-50"
-              >
-                {creatingUser ? '创建中...' : '创建用户'}
-              </button>
-            </div>
-            <button
-              onClick={fetchUsers}
-              className="w-full rounded-[8px] border border-[rgba(0,0,0,0.1)] bg-[#FFFFFF] py-2 text-xs font-medium text-[#6B6778] hover:bg-[#F8F8FA]"
-            >
-              刷新用户列表
-            </button>
           </div>
         </div>
       </div>
