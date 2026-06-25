@@ -7,67 +7,41 @@ interface LogoProps {
 }
 
 const sizes = {
-  sm: { icon: 24, text: 'text-base' },
-  md: { icon: 32, text: 'text-lg' },
-  lg: { icon: 44, text: 'text-2xl' },
+  sm: { icon: 24, text: 'text-sm' },
+  md: { icon: 32, text: 'text-base' },
+  lg: { icon: 48, text: 'text-xl' },
 };
+
+const logoPath = {
+  star: 'M32 12 C38 12 42 16 44 22 C46 28 50 30 50 32 C50 34 46 36 44 42 C42 48 38 52 32 52 C26 52 22 48 20 42 C18 36 14 34 14 32 C14 30 18 28 20 22 C22 16 26 12 32 12Z',
+  arc: 'M46 14 C54 14 56 22 56 32 C56 42 54 50 46 50',
+  glow: 'M32 18 C36 18 39 21 40 25 C41 29 44 31 44 32 C44 33 41 35 40 39 C39 43 36 46 32 46 C28 46 25 43 24 39 C23 35 20 33 20 32 C20 31 23 29 24 25 C25 21 28 18 32 18Z',
+  thread1: 'M26 28 C30 24 34 30 38 26',
+  thread2: 'M26 32 C30 36 34 31 38 36',
+};
+
+function LogoSvg({ size }: { size: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" aria-label="星隅" role="img">
+      <path d={logoPath.arc} stroke="#C9A9E6" strokeWidth="1.8" fill="none" strokeLinecap="round" opacity="0.3" />
+      <path d={logoPath.star} fill="#C9A9E6" opacity="0.92" />
+      <path d={logoPath.glow} fill="#FFF8FC" opacity="0.15" />
+      <path d={logoPath.thread1} stroke="#FFF8FC" strokeWidth="1.2" fill="none" strokeLinecap="round" opacity="0.45" />
+      <path d={logoPath.thread2} stroke="#FFF8FC" strokeWidth="1" fill="none" strokeLinecap="round" opacity="0.35" />
+      {size >= 32 && <circle cx="28" cy="22" r="1.5" fill="#FFF8FC" opacity="0.4" />}
+      {size >= 32 && <circle cx="38" cy="40" r="1" fill="#FFF8FC" opacity="0.3" />}
+    </svg>
+  );
+}
 
 export function Logo({ size = 'md', showText = true, className = '' }: LogoProps) {
   const s = sizes[size];
 
   return (
     <Link href="/" className={`inline-flex items-center gap-2 ${className}`}>
-      <svg
-        width={s.icon}
-        height={s.icon}
-        viewBox="0 0 48 48"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        aria-label="星隅"
-        role="img"
-      >
-        <defs>
-          <linearGradient id="blob-a" x1="0" y1="0" x2="48" y2="48">
-            <stop offset="0%" stopColor="#FF9A9E" />
-            <stop offset="50%" stopColor="#FAD0C4" />
-            <stop offset="100%" stopColor="#FBC2EB" />
-          </linearGradient>
-          <linearGradient id="blob-b" x1="48" y1="0" x2="0" y2="48">
-            <stop offset="0%" stopColor="#A18CD1" />
-            <stop offset="50%" stopColor="#FBC2EB" />
-            <stop offset="100%" stopColor="#A18CD1" />
-          </linearGradient>
-          <linearGradient id="blob-c" x1="24" y1="0" x2="24" y2="48">
-            <stop offset="0%" stopColor="#FFD1FF" stopOpacity="0.6" />
-            <stop offset="100%" stopColor="#E0BBE4" stopOpacity="0.3" />
-          </linearGradient>
-        </defs>
-
-        {/* Back blob */}
-        <path
-          d="M36 10C40 10 44 14 44 20C44 26 42 32 38 36C34 40 28 42 22 42C16 42 10 40 6 36C2 32 4 24 6 18C8 12 12 8 18 6C24 4 32 10 36 10Z"
-          fill="url(#blob-b)"
-          opacity="0.35"
-        />
-        {/* Front blob */}
-        <path
-          d="M32 12C37 12 40 15 42 20C44 25 42 32 38 36C34 40 28 40 22 40C16 40 10 38 8 34C6 30 6 24 8 18C10 12 14 8 20 8C26 8 27 12 32 12Z"
-          fill="url(#blob-a)"
-          opacity="0.55"
-        />
-        {/* Highlight */}
-        <path
-          d="M26 14C30 14 34 17 36 22C38 27 36 32 32 35C28 38 22 38 18 35C14 32 12 27 14 22C16 17 22 14 26 14Z"
-          fill="url(#blob-c)"
-          opacity="0.5"
-        />
-        {/* Small accent dots */}
-        <circle cx="20" cy="18" r="2" fill="#FFFFFF" opacity="0.6" />
-        <circle cx="30" cy="28" r="1.5" fill="#FFFFFF" opacity="0.4" />
-        <circle cx="14" cy="28" r="1" fill="#FBC2EB" opacity="0.5" />
-      </svg>
+      <LogoSvg size={s.icon} />
       {showText && (
-        <span className="font-serif font-semibold tracking-wider text-[#A18CD1] drop-shadow-sm" style={{ fontSize: size === 'sm' ? '1rem' : size === 'md' ? '1.125rem' : '1.5rem' }}>
+        <span className="font-light tracking-wider text-[#BFA8E8]" style={{ fontSize: size === 'sm' ? '0.9rem' : size === 'md' ? '1rem' : '1.25rem' }}>
           星隅
         </span>
       )}

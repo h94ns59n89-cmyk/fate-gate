@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Logo } from '@/components/common/Logo';
+
 import { BirthForm } from '@/components/input/BirthForm';
 import { QuizModal } from '@/components/input/QuizModal';
 import { SummaryCard } from '@/components/report/SummaryCard';
@@ -157,9 +157,6 @@ export default function LandingPage() {
                 <div className="ml-2 mt-3 h-1 w-1 rounded-full bg-[#9B7FBB]/5" />
               </div>
 
-              <div className="mb-5 flex justify-center">
-                <Logo size="lg" showText={false} />
-              </div>
               <h1 className="font-serif text-3xl font-bold tracking-wider text-[#9B7FBB]">
                 星隅
               </h1>
@@ -188,7 +185,6 @@ export default function LandingPage() {
 
         {step === 'generating' && (
           <div className="flex flex-col items-center justify-center gap-6 py-24">
-            <Logo size="md" showText={false} />
             <LoadingSpinner size="lg" />
             <div className="text-center">
               <p className="text-sm text-[#1F1D2B]">正在排盘计算...</p>
