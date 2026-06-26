@@ -341,11 +341,10 @@ export default function AdminPage() {
 
   if (!authenticated) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[#F5F4F7] p-4">
-        <div className="mb-6">
+      <div className="flex min-h-screen items-center justify-center bg-[#F5F4F7] p-4">
+        <div className="flex flex-col items-center">
           <Logo />
-        </div>
-        <div className="w-full max-w-sm rounded-[12px] bg-[#FFFFFF] p-6 shadow-lg">
+          <div className="mt-6 w-full max-w-sm rounded-[12px] bg-[#FFFFFF] p-6 shadow-lg">
           <h1 className="mb-5 text-center text-lg font-semibold text-[#1F1D2B]">管理员登录</h1>
           {loginError && (
             <div className="mb-3 rounded-[8px] bg-[#FDE8E8] px-3 py-2 text-xs text-[#C0392B]">{loginError}</div>
@@ -364,6 +363,7 @@ export default function AdminPage() {
           >
             登录
           </button>
+        </div>
         </div>
       </div>
     );
