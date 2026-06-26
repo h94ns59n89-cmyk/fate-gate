@@ -329,7 +329,8 @@ export default function LoginPage() {
             </form>
 
             <p className="mt-4 text-center text-xs text-[#8A8696]">
-              没有账号？请联系管理员创建
+              没有账号？请联系管理员创建<br />
+              <Link href="/admin" className="text-[#9B7FBB] transition-colors hover:text-[#8A6EAA]">管理员登录 →</Link>
             </p>
 
             <div className="mt-4 text-center">

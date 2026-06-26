@@ -168,6 +168,7 @@ function renderReportHTML(report: Record<string, unknown>): string {
 export default function AdminPage() {
   const [token, setToken] = useState('');
   const [authenticated, setAuthenticated] = useState(false);
+  const [loginError, setLoginError] = useState('');
   const [data, setData] = useState<{ pending: { kind: string; id: number; user_id: number; user_nickname: string; created_at: string }[]; completed: { kind: string; id: number; user_id: number; user_nickname: string; created_at: string; generated_at: string | null }[] } | null>(null);
   const [generating, setGenerating] = useState<Set<number>>(new Set());
   const [log, setLog] = useState<string[]>([]);
@@ -205,6 +206,8 @@ export default function AdminPage() {
   }, [authenticated, fetchReports]);
 
   const handleLogin = async () => {
+    setLoginError('');
+    if (!token) { setLoginError('请输入管理密码'); return; }
     try {
       const res = await fetch('/api/v1/admin/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token }) });
       const json = await res.json();
@@ -213,10 +216,10 @@ export default function AdminPage() {
         try { localStorage.setItem('admin_auth', JSON.stringify({ name: '管理员', loggedIn: true, token })); } catch {}
         addLog('管理员登录成功');
       } else {
-        addLog('密码错误');
+        setLoginError(json.message || '密码错误');
       }
     } catch {
-      addLog('验证请求失败');
+      setLoginError('验证请求失败，请稍后再试');
     }
   };
 
@@ -344,10 +347,13 @@ export default function AdminPage() {
         </div>
         <div className="w-full max-w-sm rounded-[12px] bg-[#FFFFFF] p-6 shadow-lg">
           <h1 className="mb-5 text-center text-lg font-semibold text-[#1F1D2B]">管理员登录</h1>
+          {loginError && (
+            <div className="mb-3 rounded-[8px] bg-[#FDE8E8] px-3 py-2 text-xs text-[#C0392B]">{loginError}</div>
+          )}
           <input
             type="password"
             value={token}
-            onChange={(e) => setToken(e.target.value)}
+            onChange={(e) => { setToken(e.target.value); setLoginError(''); }}
             onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
             placeholder="输入管理密码"
             className="mb-3 w-full rounded-[8px] border border-[rgba(0,0,0,0.12)] px-3 py-2.5 text-sm outline-none focus:border-[#9B7FBB]"
