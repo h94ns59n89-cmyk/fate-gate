@@ -325,6 +325,16 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-[#F5F4F7]">
       <div className="mx-auto max-w-4xl px-4 py-6">
+        {/* Header bar */}
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-[#1F1D2B]">管理后台</h2>
+          <button
+            onClick={() => { localStorage.removeItem('admin_auth'); router.push('/admin/login'); }}
+            className="rounded-[6px] border border-[rgba(0,0,0,0.1)] bg-[#FFFFFF] px-3 py-1.5 text-xs text-[#6B6778] hover:bg-[#F8F8FA]"
+          >
+            退出登录
+          </button>
+        </div>
         {/* Tab bar */}
         <div className="mb-6 flex gap-1 rounded-[10px] bg-[#FFFFFF] p-1 shadow-sm">
           <button
