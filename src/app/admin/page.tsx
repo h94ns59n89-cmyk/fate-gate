@@ -165,6 +165,79 @@ function renderReportHTML(report: Record<string, unknown>): string {
   return html;
 }
 
+function renderComparisonHTML(data: Record<string, unknown>): string {
+  function esc(s: string): string {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function tag(text: string): string {
+    return `<span style="display:inline-block;border-radius:999px;background:rgba(155,127,187,0.08);padding:2px 10px;font-size:11px;color:#9B7FBB;">${esc(text)}</span>`;
+  }
+  const dimensions = data.dimensions as Record<string, number> | undefined;
+  const strengths = data.strengths as string[] | undefined;
+  const potentialConflicts = data.potential_conflicts as string[] | undefined;
+  const dimLabels: Record<string, string> = { communication: '沟通', emotional: '情感', values: '价值观', growth: '成长' };
+
+  let html = `<div style="font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;padding:0;background:#FFFFFF;color:rgba(31,29,43,0.85);max-width:800px;margin:0 auto;">`;
+
+  html += `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:600px;text-align:center;padding:20px 32px;page-break-inside:avoid;">`;
+  html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:24px;"><div style="width:40px;height:1px;background:linear-gradient(to right,transparent,rgba(155,127,187,0.3));"></div><div style="display:flex;gap:3px;"><div style="width:4px;height:4px;border-radius:999px;background:#9B7FBB;"></div><div style="width:4px;height:4px;border-radius:999px;background:rgba(155,127,187,0.5);"></div><div style="width:4px;height:4px;border-radius:999px;background:rgba(155,127,187,0.2);"></div></div><div style="width:40px;height:1px;background:linear-gradient(to left,transparent,rgba(155,127,187,0.3));"></div></div>`;
+  html += `<h1 style="font-size:28px;font-weight:700;margin:0 0 8px 0;color:#1F1D2B;font-family:serif;">合盘报告</h1>`;
+  if (data.summary_tag) html += `<span style="display:inline-block;border:1px solid rgba(155,127,187,0.25);background:rgba(155,127,187,0.08);border-radius:3px;padding:4px 14px;font-size:12px;color:#9B7FBB;font-weight:500;">${esc(data.summary_tag as string)}</span>`;
+  if (data.match_score !== undefined) html += `<div style="margin-top:20px;"><p style="font-size:11px;color:#8A8696;margin:0 0 4px 0;">匹配度</p><p style="font-size:48px;font-weight:700;color:#9B7FBB;margin:0;">${data.match_score}%</p></div>`;
+  if (data.generated_at) html += `<p style="margin-top:40px;font-size:10px;color:#8A8696;">生成于 ${new Date(data.generated_at as string).toLocaleDateString('zh-CN')}</p>`;
+  html += `</div>`;
+
+  html += `<div style="padding:20px 32px;page-break-inside:avoid;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;border-bottom:1px solid rgba(0,0,0,0.06);padding-bottom:10px;"><span style="color:#6B6778;font-size:12px;font-weight:500;">双方信息</span></div>`;
+  html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#F8F8FA;border-radius:4px;">`;
+  html += `<div style="text-align:center;"><p style="font-size:14px;font-weight:600;color:#1F1D2B;margin:0 0 6px 0;">${esc(data.user_nickname as string || '用户')}</p>`;
+  const userTags = data.user_tags as string[] | undefined;
+  if (userTags?.length) html += `<div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;">${userTags.slice(0, 3).map(t => tag(t)).join('')}</div>`;
+  html += `</div><span style="font-size:24px;color:#8A8696;">⟷</span>`;
+  html += `<div style="text-align:center;"><p style="font-size:14px;font-weight:600;color:#1F1D2B;margin:0 0 6px 0;">${esc(data.target_nickname as string || '对方')}</p>`;
+  const targetTags = data.target_tags as string[] | undefined;
+  if (targetTags?.length) html += `<div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;">${targetTags.slice(0, 3).map(t => tag(t)).join('')}</div>`;
+  html += `</div></div></div>`;
+
+  if (dimensions) {
+    const entries = Object.entries(dimensions);
+    if (entries.length > 0) {
+      html += `<div style="padding:20px 32px;page-break-inside:avoid;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;border-bottom:1px solid rgba(0,0,0,0.06);padding-bottom:10px;"><span style="color:#6B6778;font-size:12px;font-weight:500;">维度分析</span></div>`;
+      html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">`;
+      for (const [k, v] of entries) {
+        html += `<div style="border:1px solid rgba(0,0,0,0.06);border-radius:4px;background:#F8F8FA;padding:12px;text-align:center;"><p style="font-size:10px;font-weight:600;color:#6B6778;margin:0 0 6px 0;letter-spacing:1px;">${dimLabels[k] ?? k}</p><p style="font-size:20px;font-weight:700;color:#9B7FBB;margin:0;">${v}</p></div>`;
+      }
+      html += `</div></div>`;
+    }
+  }
+
+  if (data.complementarity) {
+    html += `<div style="padding:20px 32px;page-break-inside:avoid;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;border-bottom:1px solid rgba(0,0,0,0.06);padding-bottom:10px;"><span style="color:#6B6778;font-size:12px;font-weight:500;">五行互补</span></div><p style="font-size:12px;line-height:1.7;color:rgba(31,29,43,0.7);margin:0;">${esc(data.complementarity as string)}</p></div>`;
+  }
+
+  if (strengths?.length) {
+    html += `<div style="padding:20px 32px;page-break-inside:avoid;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;border-bottom:1px solid rgba(0,0,0,0.06);padding-bottom:10px;"><span style="color:#6B6778;font-size:12px;font-weight:500;">优势</span></div>`;
+    for (const s of strengths) {
+      html += `<div style="display:flex;align-items:center;gap:8px;border:1px solid rgba(0,0,0,0.06);border-radius:4px;background:#F8F8FA;padding:8px 12px;margin-bottom:6px;"><span style="flex-shrink:0;width:18px;height:18px;border-radius:999px;background:rgba(143,207,160,0.15);display:flex;align-items:center;justify-content:center;"><span style="font-size:9px;color:#8FCFA0;">✓</span></span><span style="font-size:12px;color:rgba(31,29,43,0.7);">${esc(s)}</span></div>`;
+    }
+    html += `</div>`;
+  }
+
+  if (potentialConflicts?.length) {
+    html += `<div style="padding:20px 32px;page-break-inside:avoid;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;border-bottom:1px solid rgba(0,0,0,0.06);padding-bottom:10px;"><span style="color:#6B6778;font-size:12px;font-weight:500;">潜在冲突</span></div>`;
+    for (const s of potentialConflicts) {
+      html += `<div style="display:flex;align-items:center;gap:8px;border:1px solid rgba(0,0,0,0.06);border-radius:4px;background:#F8F8FA;padding:8px 12px;margin-bottom:6px;"><span style="font-size:12px;color:#E0978A;flex-shrink:0;">⚠</span><span style="font-size:12px;color:rgba(31,29,43,0.7);">${esc(s)}</span></div>`;
+    }
+    html += `</div>`;
+  }
+
+  if (data.advice) {
+    html += `<div style="padding:20px 32px;page-break-inside:avoid;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;border-bottom:1px solid rgba(0,0,0,0.06);padding-bottom:10px;"><span style="color:#6B6778;font-size:12px;font-weight:500;">相处建议</span></div><div style="border-left:2px solid #9B7FBB;border-radius:4px;background:rgba(155,127,187,0.05);padding:10px 16px;"><p style="font-size:12px;line-height:1.7;color:rgba(31,29,43,0.7);margin:0;">${esc(data.advice as string)}</p></div></div>`;
+  }
+
+  html += `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;padding:20px 32px;"><div style="width:48px;border-top:1px solid rgba(0,0,0,0.06);"></div><p style="margin-top:14px;font-size:11px;color:#8A8696;">本内容由 AI 生成，仅供娱乐参考</p></div></div>`;
+  return html;
+}
+
 export default function AdminPage() {
   const router = useRouter();
   const [token, setToken] = useState('');
@@ -245,19 +318,33 @@ export default function AdminPage() {
     }
   };
 
-  const handleExportPDF = async (reportId: number) => {
+  const handleExportPDF = async (reportId: number, kind?: string) => {
     setExportingPDF((prev) => new Set(prev).add(reportId));
     addLog(`开始导出 PDF #${reportId}...`);
     try {
-      const res = await fetch(`/api/v1/reports/${reportId}`);
-      const json = await res.json();
-      if (json.code !== 0 || !json.data?.full_report) {
-        addLog(`报告 #${reportId} 无完整内容，无法导出`);
-        return;
-      }
+      const isComparison = kind === 'comparison';
+      let html: string;
+      let filename: string;
 
-      const reportData = json.data.full_report as Record<string, unknown>;
-      const html = renderReportHTML(reportData);
+      if (isComparison) {
+        const res = await fetch(`/api/v1/comparisons/${reportId}`);
+        const json = await res.json();
+        if (json.code !== 0 || !json.data) {
+          addLog(`合盘报告 #${reportId} 无完整内容，无法导出`);
+          return;
+        }
+        html = renderComparisonHTML(json.data);
+        filename = `星隅合盘报告_#${reportId}.pdf`;
+      } else {
+        const res = await fetch(`/api/v1/reports/${reportId}`);
+        const json = await res.json();
+        if (json.code !== 0 || !json.data?.full_report) {
+          addLog(`报告 #${reportId} 无完整内容，无法导出`);
+          return;
+        }
+        html = renderReportHTML(json.data.full_report as Record<string, unknown>);
+        filename = `星隅完整报告_#${reportId}.pdf`;
+      }
 
       const container = document.createElement('div');
       container.style.position = 'absolute';
@@ -301,7 +388,7 @@ export default function AdminPage() {
         page++;
       }
 
-      pdf.save(`星隅完整报告_#${reportId}.pdf`);
+      pdf.save(filename);
       addLog(`✅ PDF #${reportId} 导出成功 (${page} 页)`);
     } catch (err) {
       addLog(`❌ PDF #${reportId} 导出失败: ${err instanceof Error ? err.message : '未知错误'}`);
@@ -415,8 +502,8 @@ export default function AdminPage() {
                         查看
                       </button>
                       <button
-                        onClick={() => handleExportPDF(r.id)}
-                        disabled={exportingPDF.has(r.id) || r.kind === 'comparison'}
+                        onClick={() => handleExportPDF(r.id, r.kind)}
+                        disabled={exportingPDF.has(r.id)}
                         className="rounded-[6px] bg-[#C9A88D] px-3 py-1.5 text-xs font-medium text-[#FFFFFF] transition-colors hover:bg-[#B89A7D] disabled:opacity-50"
                       >
                         {exportingPDF.has(r.id) ? '导出中...' : '导出PDF'}
