@@ -9,7 +9,7 @@ import { ToastProvider } from '@/components/common/Toast';
 
 export function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isLoginPage = pathname === '/login' || pathname === '/admin' || pathname.startsWith('/admin/');
+  const isLoginPage = pathname === '/login' || pathname === '/admin/login';
 
   if (isLoginPage) {
     return (

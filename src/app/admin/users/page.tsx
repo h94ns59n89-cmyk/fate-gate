@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Logo } from '@/components/common/Logo';
+import { useRouter } from 'next/navigation';
 
 export default function AdminUsersPage() {
   const [token, setToken] = useState('');
@@ -30,31 +30,19 @@ export default function AdminUsersPage() {
     }
   }, [token, addMsg]);
 
+  const router = useRouter();
+
   useEffect(() => {
     try {
       const raw = localStorage.getItem('admin_auth');
-      if (raw) { const t = JSON.parse(raw).token; if (t) { setToken(t); setAuthenticated(true); } }
+      if (raw) { const t = JSON.parse(raw).token; if (t) { setToken(t); setAuthenticated(true); return; } }
     } catch {}
-  }, []);
+    router.push('/admin/login');
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (authenticated) fetchUsers();
   }, [authenticated, fetchUsers]);
-
-  const handleLogin = async () => {
-    try {
-      const res = await fetch('/api/v1/admin/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token }) });
-      const json = await res.json();
-      if (json.code === 0) {
-        setAuthenticated(true);
-        try { localStorage.setItem('admin_auth', JSON.stringify({ name: '管理员', loggedIn: true, token })); } catch {}
-      } else {
-        addMsg('密码错误');
-      }
-    } catch {
-      addMsg('验证请求失败');
-    }
-  };
 
   const handleCreateUser = async () => {
     if (!newUsername || !newPassword) { addMsg('请输入用户名和密码'); return; }
@@ -79,33 +67,6 @@ export default function AdminUsersPage() {
       setCreatingUser(false);
     }
   };
-
-  if (!authenticated) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#F5F4F7] p-4">
-        <div className="flex flex-col items-center">
-          <Logo />
-          <div className="mt-6 w-full max-w-sm rounded-[12px] bg-[#FFFFFF] p-6 shadow-lg">
-          <h1 className="mb-5 text-center text-lg font-semibold text-[#1F1D2B]">管理员登录</h1>
-          <input
-            type="password"
-            value={token}
-            onChange={(e) => setToken(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-            placeholder="输入管理密码"
-            className="mb-3 w-full rounded-[8px] border border-[rgba(0,0,0,0.12)] px-3 py-2.5 text-sm outline-none focus:border-[#9B7FBB]"
-          />
-          <button
-            onClick={handleLogin}
-            className="w-full rounded-[8px] bg-[#9B7FBB] py-2.5 text-sm font-medium text-[#FFFFFF] hover:bg-[#8A6EAA]"
-          >
-            登录
-          </button>
-        </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[#F5F4F7]">
