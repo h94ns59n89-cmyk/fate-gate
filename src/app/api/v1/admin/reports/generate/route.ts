@@ -17,7 +17,7 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
 
 export const POST = withMiddleware(async (req) => {
   const body = await req.json();
-  const { token, kind } = body;
+  const { token, kind, model } = body;
   if (!checkAdminToken(token ?? '')) {
     return error(401, '未授权访问', 401);
   }
@@ -48,7 +48,7 @@ export const POST = withMiddleware(async (req) => {
     log.info(`Generating comparison report for comparison ${reportId}`);
 
     try {
-      const { data: result, provider, latencyMs } = await withTimeout(generateComparison(targetBazi, userBazi, { trace }), 90000, 'AI 合盘生成');
+      const { data: result, provider, latencyMs } = await withTimeout(generateComparison(targetBazi, userBazi, { ...(model ? { model } : {}), trace }), 90000, 'AI 合盘生成');
 
       if (result) {
         await prisma.comparison.update({
@@ -113,7 +113,7 @@ export const POST = withMiddleware(async (req) => {
   log.info(`Generating full report for report ${reportId}`);
 
   try {
-    const { data: reportData, provider, latencyMs } = await withTimeout(generateFullReport(baziData, { trace }), 90000, 'AI 报告生成');
+    const { data: reportData, provider, latencyMs } = await withTimeout(generateFullReport(baziData, { ...(model ? { model } : {}), trace }), 90000, 'AI 报告生成');
 
     if (reportData) {
       await prisma.personalityReport.update({

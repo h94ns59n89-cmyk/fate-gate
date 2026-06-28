@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import type { AIModel } from '@/lib/ai/client';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { ReportPageViewer } from '@/components/report/ReportPageViewer';
@@ -249,6 +250,7 @@ export default function AdminPage() {
   const [viewReport, setViewReport] = useState<{ id: number; data: FullReport } | null>(null);
   const [viewComparison, setViewComparison] = useState<any | null>(null);
   const [tab, setTab] = useState<'pending' | 'completed' | 'log'>('pending');
+  const [aiModel, setAiModel] = useState<AIModel>('gpt-4o-mini');
 
   const addLog = useCallback((msg: string) => {
     setLog((prev) => [`[${new Date().toLocaleTimeString()}] ${msg}`, ...prev.slice(0, 99)]);
@@ -286,7 +288,7 @@ export default function AdminPage() {
       const res = await fetch('/api/v1/admin/reports/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, report_id: reportId, kind }),
+        body: JSON.stringify({ token, report_id: reportId, kind, model: aiModel }),
       });
       const json = await res.json();
       if (json.code === 0) {
@@ -438,6 +440,21 @@ export default function AdminPage() {
           >
             操作日志
           </button>
+        </div>
+
+        {/* Model selector */}
+        <div className="mb-4 flex items-center justify-end gap-2">
+          <span className="text-xs text-[#8A8696]">AI 模型</span>
+          <select
+            value={aiModel}
+            onChange={(e) => setAiModel(e.target.value as AIModel)}
+            className="rounded-[6px] border border-[rgba(0,0,0,0.12)] bg-[#FFFFFF] px-2.5 py-1.5 text-xs text-[#1F1D2B] outline-none focus:border-[#9B7FBB]"
+          >
+            <option value="gpt-4o-mini">gpt-4o-mini</option>
+            <option value="gpt-4o">gpt-4o</option>
+            <option value="deepseek-chat">deepseek-chat</option>
+            <option value="deepseek-reasoner">deepseek-reasoner</option>
+          </select>
         </div>
 
         {tab === 'pending' && (
