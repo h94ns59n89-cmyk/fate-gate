@@ -441,23 +441,21 @@ export default function AdminPage() {
           </button>
         </div>
 
-        {/* Model selector */}
-        <div className="mb-4 flex items-center justify-end gap-2">
-          <span className="text-xs text-[#8A8696]">AI 模型</span>
-          <select
-            value={aiModel}
-            onChange={(e) => setAiModel(e.target.value as typeof aiModel)}
-            className="rounded-[6px] border border-[rgba(0,0,0,0.12)] bg-[#FFFFFF] px-2.5 py-1.5 text-xs text-[#1F1D2B] outline-none focus:border-[#9B7FBB]"
-          >
-            <option value="gpt-4o-mini">gpt-4o-mini</option>
-            <option value="gpt-4o">gpt-4o</option>
-            <option value="deepseek-chat">deepseek-chat</option>
-            <option value="deepseek-reasoner">deepseek-reasoner</option>
-          </select>
-        </div>
-
         {tab === 'pending' && (
           <div>
+            <div className="mb-3 flex items-center justify-end gap-2">
+              <span className="text-xs text-[#8A8696]">AI 模型</span>
+              <select
+                value={aiModel}
+                onChange={(e) => setAiModel(e.target.value as typeof aiModel)}
+                className="rounded-[6px] border border-[rgba(0,0,0,0.12)] bg-[#FFFFFF] px-2.5 py-1.5 text-xs text-[#1F1D2B] outline-none focus:border-[#9B7FBB]"
+              >
+                <option value="gpt-4o-mini">gpt-4o-mini</option>
+                <option value="gpt-4o">gpt-4o</option>
+                <option value="deepseek-chat">deepseek-chat</option>
+                <option value="deepseek-reasoner">deepseek-reasoner</option>
+              </select>
+            </div>
             {data?.pending.length === 0 ? (
               <div className="rounded-[10px] bg-[#FFFFFF] px-4 py-12 text-center text-sm text-[#8A8696] shadow-sm">
                 暂无待生成报告
