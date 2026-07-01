@@ -175,14 +175,8 @@ export default function LandingPage() {
                 <p className="text-[#6B6778]">1990年5月15日 · 辰时 · 北京</p>
                 <p className="mt-0.5 text-[10px] text-[#8A8696]/50">支持公历/农历 · 城市级地址即可</p>
               </div>
-              <button
-                onClick={() => setShowQuiz(true)}
-                className="mb-5 block w-full text-center text-[11px] text-[#8A8696] hover:text-[#9B7FBB] transition-colors"
-              >
-                不知出生时辰？<span className="text-[#9B7FBB]">5题性格问答推测 →</span>
-              </button>
               <div className="vscode-card">
-                <BirthForm onSubmit={handleSubmit} loading={loading} />
+                <BirthForm onSubmit={handleSubmit} loading={loading} onQuizClick={() => setShowQuiz(true)} />
               </div>
             </div>
 

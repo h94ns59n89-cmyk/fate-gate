@@ -15,9 +15,10 @@ interface BirthFormData {
 interface BirthFormProps {
   onSubmit: (data: BirthFormData) => void;
   loading?: boolean;
+  onQuizClick?: () => void;
 }
 
-export function BirthForm({ onSubmit, loading = false }: BirthFormProps) {
+export function BirthForm({ onSubmit, loading = false, onQuizClick }: BirthFormProps) {
   const [formData, setFormData] = useState<BirthFormData>({
     birthDate: '',
     birthHour: '',
@@ -102,6 +103,15 @@ export function BirthForm({ onSubmit, loading = false }: BirthFormProps) {
           </select>
         </div>
       </div>
+      {onQuizClick && (
+        <button
+          type="button"
+          onClick={onQuizClick}
+          className="block w-full text-center text-[11px] text-[#8A8696] hover:text-[#9B7FBB] transition-colors -mt-2"
+        >
+          不知出生时辰？<span className="text-[#9B7FBB]">5题性格问答推测 →</span>
+        </button>
+      )}
 
       <div>
         <label htmlFor="birth-place" className="vscode-label">
