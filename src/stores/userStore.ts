@@ -25,6 +25,16 @@ function loadUserId(): number | null {
   }
 }
 
+function loadUserProfile(): UserProfile | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem('user_profile');
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
 function loadIsGuest(): boolean {
   if (typeof window === 'undefined') return true;
   try {
@@ -52,7 +62,7 @@ let guestPromise: Promise<number> | null = null;
 
 export const useUserStore = create<UserState>((set, get) => ({
   token: loadToken(),
-  user: null,
+  user: loadUserProfile(),
   userId: loadUserId(),
   isGuest: loadIsGuest(),
   isLoading: false,
@@ -74,10 +84,12 @@ export const useUserStore = create<UserState>((set, get) => ({
         if (data.code === 0 && data.data) {
           const uid = data.data.user_id;
           const token = data.data.token;
-          set({ userId: uid, token, user: data.data, isGuest: true, isLoading: false });
+          const profile: UserProfile = data.data;
+          set({ userId: uid, token, user: profile, isGuest: true, isLoading: false });
           localStorage.setItem('token', token);
           localStorage.setItem('user_id', String(uid));
           localStorage.setItem('is_guest', 'true');
+          localStorage.setItem('user_profile', JSON.stringify(profile));
           return uid;
         }
         throw new Error(data.message ?? '创建游客用户失败');
@@ -102,9 +114,11 @@ export const useUserStore = create<UserState>((set, get) => ({
       const data = await response.json();
       if (data.code === 0 && data.data) {
         const uid = data.data.user.id;
-        set({ token: data.data.token, user: data.data.user, userId: uid, isGuest: false, isLoading: false });
+        const profile: UserProfile = data.data.user;
+        set({ token: data.data.token, user: profile, userId: uid, isGuest: false, isLoading: false });
         localStorage.setItem('token', data.data.token);
         localStorage.setItem('user_id', String(uid));
+        localStorage.setItem('user_profile', JSON.stringify(profile));
         localStorage.removeItem('is_guest');
       }
     } catch (error) {
@@ -117,6 +131,7 @@ export const useUserStore = create<UserState>((set, get) => ({
     set({ token, userId, user, isGuest: false, isLoading: false });
     localStorage.setItem('token', token);
     localStorage.setItem('user_id', String(userId));
+    localStorage.setItem('user_profile', JSON.stringify(user));
     localStorage.removeItem('is_guest');
   },
 
@@ -124,6 +139,7 @@ export const useUserStore = create<UserState>((set, get) => ({
     set({ token: null, user: null, userId: null, isGuest: false });
     localStorage.removeItem('token');
     localStorage.removeItem('user_id');
+    localStorage.removeItem('user_profile');
     localStorage.removeItem('is_guest');
   },
 

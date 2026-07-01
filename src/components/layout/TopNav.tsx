@@ -43,7 +43,7 @@ export function TopNav() {
   }, []);
 
   const userId = useUserStore((s) => s.userId);
-  const isGuest = user && (user.nickname === '游客' || user.nickname == null);
+  const isGuest = useUserStore((s) => s.isGuest);
   const isAdminPage = pathname.startsWith('/admin');
 
   const handleLogout = useUserStore((s) => s.logout);
