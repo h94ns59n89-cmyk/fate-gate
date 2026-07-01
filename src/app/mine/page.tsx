@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { Button } from '@/components/common/Button';
 import { SummaryCard } from '@/components/report/SummaryCard';
@@ -39,9 +40,8 @@ export default function MinePage() {
   const [error, setError] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const userId = useUserStore((s) => s.userId);
-  const initGuest = useUserStore((s) => s.initGuest);
+  const isGuest = useUserStore((s) => s.isGuest);
   const userLoading = useUserStore((s) => s.isLoading);
-  const [loggingIn, setLoggingIn] = useState(false);
 
   const fetchReports = useCallback(async () => {
     try {
@@ -69,22 +69,14 @@ export default function MinePage() {
   useEffect(() => {
     trackEvent(EVENTS.USER_RETURN);
     if (userLoading) return;
-    if (userId && useUserStore.getState().token) {
-      fetchReports();
+    if (isGuest) {
+      setLoading(false);
       return;
     }
-    setLoggingIn(true);
-    initGuest().then(() => {
-      setLoggingIn(false);
-      fetchReports();
-    }).catch(() => {
-      setLoggingIn(false);
-      setLoading(false);
-      setError('登录状态恢复失败，请重新进入首页');
-    });
-  }, [userLoading, userId, initGuest, fetchReports]);
+    fetchReports();
+  }, [userLoading, isGuest, fetchReports]);
 
-  if (loading || loggingIn) {
+  if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <LoadingSpinner size="lg" />
@@ -111,7 +103,7 @@ export default function MinePage() {
         <div />
       </div>
 
-      {userId && (
+      {!isGuest && userId && (
         <div className="mb-6 flex items-center justify-between rounded-[10px] border border-[rgba(0,0,0,0.06)] bg-[#F8F8FA] px-5 py-3.5">
           <div>
             <p className="text-[11px] tracking-[0.03em] text-[#6B6778]">邀请码</p>
@@ -133,7 +125,38 @@ export default function MinePage() {
         </div>
       )}
 
-      {reports.length === 0 ? (
+      {isGuest ? (
+        <div className="flex flex-col items-center justify-center py-16">
+          <div className="mb-6 text-center">
+            <p className="text-base font-medium text-[#1F1D2B]">您还未登录</p>
+            <p className="mt-1 text-xs text-[#6B6778]">登录后可查看您的专属报告</p>
+          </div>
+          <Link href="/login">
+            <Button>前往登录</Button>
+          </Link>
+          <div className="mt-8 w-full max-w-xs">
+            <div className="mb-3 flex items-center gap-3">
+              <span className="h-px flex-1 bg-gradient-to-r from-transparent to-[#9B7FBB]/20" />
+              <span className="text-[10px] tracking-[0.06em] text-[#8A8696]">没有账号？</span>
+              <span className="h-px flex-1 bg-gradient-to-r from-[#9B7FBB]/20 to-transparent" />
+            </div>
+            <div className="rounded-[10px] border border-[rgba(0,0,0,0.06)] bg-[#F8F8FA] px-5 py-4">
+              <p className="text-xs text-[#6B6778]">
+                添加助理微信 <span className="font-mono font-semibold text-[#9B7FBB]">janeai01</span> 获取账号
+              </p>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText('janeai01');
+                  toast.success('微信号已复制');
+                }}
+                className="mt-2 w-full rounded-md border border-[#9B7FBB]/25 bg-[#FFFFFF] py-2 text-xs font-medium text-[#9B7FBB] transition-colors hover:bg-[#9B7FBB]/8 active:scale-[0.97]"
+              >
+                复制微信号
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : reports.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-4 py-20">
           <p className="text-sm text-[#8A8696]">还没有生成过报告</p>
           <Link href="/">

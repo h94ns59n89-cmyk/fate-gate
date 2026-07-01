@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 import { useUserStore } from '@/stores/userStore';
 
 
@@ -335,10 +336,31 @@ export default function LoginPage() {
               </button>
             </form>
 
-            <p className="mt-4 text-center text-xs text-[#8A8696]">
-              没有账号？请联系管理员创建<br />
-              <Link href="/admin" className="text-[#9B7FBB] transition-colors hover:text-[#8A6EAA]">管理员登录 →</Link>
-            </p>
+            <div className="mt-5 rounded-[10px] border border-[rgba(0,0,0,0.06)] bg-[#F8F8FA] px-4 py-3.5">
+              <p className="text-xs text-[#6B6778]">
+                没有账号？添加助理微信 <span className="font-mono font-semibold text-[#9B7FBB]">janeai01</span> 获取账号
+              </p>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText('janeai01');
+                  toast.success('微信号已复制');
+                }}
+                className="mt-2 w-full rounded-md border border-[#9B7FBB]/25 bg-[#FFFFFF] py-2 text-xs font-medium text-[#9B7FBB] transition-colors hover:bg-[#9B7FBB]/8 active:scale-[0.97]"
+              >
+                复制微信号
+              </button>
+              <div className="mt-3 flex items-center gap-2 text-[11px] text-[#8A8696]">
+                <span className="h-px flex-1 bg-[rgba(0,0,0,0.06)]" />
+                <span>或</span>
+                <span className="h-px flex-1 bg-[rgba(0,0,0,0.06)]" />
+              </div>
+              <Link
+                href="/admin"
+                className="mt-2 block w-full text-center text-xs text-[#9B7FBB] transition-colors hover:text-[#8A6EAA]"
+              >
+                管理员登录 →
+              </Link>
+            </div>
 
             <div className="mt-4 text-center">
               <Link

@@ -29,6 +29,7 @@ export default function LandingPage() {
   } | null>(null);
   const { calculate, loading, error } = useBaziCalculator();
   const userId = useUserStore((s) => s.userId);
+  const isGuest = useUserStore((s) => s.isGuest);
   const initGuest = useUserStore((s) => s.initGuest);
 
   useEffect(() => {
@@ -110,6 +111,10 @@ export default function LandingPage() {
   const handleUnlock = useCallback(() => {
     trackEvent(EVENTS.PAY_CLICKED);
     if (!result) return;
+    if (isGuest) {
+      router.push('/login');
+      return;
+    }
     if (result.reportId > 0) {
       router.push(`/report/${result.reportId}`);
     } else {
@@ -126,7 +131,7 @@ export default function LandingPage() {
       };
       router.push(`/report/0?data=${encodeURIComponent(JSON.stringify(payload))}`);
     }
-  }, [result, router]);
+  }, [result, router, isGuest]);
 
   return (
     <div className="relative">
