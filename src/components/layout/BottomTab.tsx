@@ -18,6 +18,7 @@ function useAdmin() {
 const baseTabs = [
   { href: '/', label: '首页', icon: Home },
   { href: '/mine', label: '我的报告', icon: BarChart3 },
+  { href: '/comparison', label: '合盘', icon: GitCompare },
 ];
 
 const adminTabs = [

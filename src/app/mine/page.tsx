@@ -116,6 +116,11 @@ export default function MinePage() {
             >
               复制
             </button>
+            <Link href="/comparison">
+              <button className="rounded-md border border-[#9B7FBB]/25 bg-[#9B7FBB]/8 px-3 py-1 text-xs font-medium text-[#9B7FBB] transition-colors hover:bg-[#9B7FBB]/15 active:scale-[0.97]">
+                合盘
+              </button>
+            </Link>
           </div>
         </div>
       )}
