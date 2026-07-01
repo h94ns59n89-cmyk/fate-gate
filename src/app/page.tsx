@@ -34,20 +34,6 @@ export default function LandingPage() {
   useEffect(() => {
     trackEvent(EVENTS.LANDING_VIEW);
     initGuest();
-    // Restore result from sessionStorage on page refresh only
-    const nav = performance.getEntriesByType?.('navigation')?.[0] as { type?: string } | undefined;
-    if (nav?.type === 'reload') {
-      try {
-        const saved = sessionStorage.getItem('last_bazi_result');
-        if (saved) {
-          const parsed = JSON.parse(saved) as BaziResult;
-          setResult(parsed);
-          setStep('result');
-        }
-      } catch { /* ignore */ }
-    } else {
-      sessionStorage.removeItem('last_bazi_result');
-    }
   }, [initGuest]);
 
   const runCalculate = useCallback(async (params: {
@@ -72,11 +58,9 @@ export default function LandingPage() {
 
     if (data) {
       setResult(data);
-      try { sessionStorage.setItem('last_bazi_result', JSON.stringify(data)); } catch { /* ignore */ }
       trackEvent(EVENTS.SUMMARY_GENERATED);
       setStep('result');
     } else {
-      try { sessionStorage.removeItem('last_bazi_result'); } catch { /* ignore */ }
       setStep('input');
     }
   }, [calculate, initGuest, userId]);
