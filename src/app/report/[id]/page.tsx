@@ -107,7 +107,7 @@ export default function ReportPage() {
         </button>
       </div>
       <p className="mt-2 text-[11px] leading-relaxed text-[#8A8696]">
-        对方在「人格对比」页面输入你的邀请码即可把你们的八字放在一起比较
+        对方在「人格对比」页面输入你的邀请码即可把你们的人格放在一起比较
       </p>
     </div>
   ) : null;
