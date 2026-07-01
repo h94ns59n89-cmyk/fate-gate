@@ -172,6 +172,22 @@ export default function LandingPage() {
             </div>
 
             <div className="mx-auto max-w-md">
+              <div className="mb-4 text-center">
+                <p className="text-sm font-medium text-[#9B7FBB]">星隅 · 古典人格认知工具</p>
+                <p className="mt-1 text-xs text-[#6B6778]">输入出生信息，30 秒获取你的五行人格报告</p>
+              </div>
+              <div className="mb-4 rounded-[8px] bg-[#F8F8FA] px-4 py-3 text-xs text-[#6B6778]">
+                <span className="font-medium text-[#8A8696]">使用示例 </span>
+                1990年5月15日 · 辰时 · 北京
+                <span className="mx-2 text-[#B8B6C0]">|</span>
+                支持公历/农历 · 城市级地址即可
+              </div>
+              <button
+                onClick={() => setShowQuiz(true)}
+                className="mb-5 block w-full text-center text-[11px] text-[#8A8696] hover:text-[#9B7FBB] transition-colors"
+              >
+                不知出生时辰？<span className="text-[#9B7FBB]">5题性格问答推测 →</span>
+              </button>
               <div className="vscode-card">
                 <BirthForm onSubmit={handleSubmit} loading={loading} />
               </div>
@@ -241,6 +257,25 @@ export default function LandingPage() {
                 </p>
               </div>
             )}
+            <div className="mt-6 rounded-[10px] bg-[#FFFFFF] p-5 shadow-sm">
+              <div className="flex items-center gap-2">
+                <span className="text-base text-[#9B7FBB]">⟷</span>
+                <p className="text-sm font-semibold text-[#1F1D2B]">想知道你和TA的匹配度？</p>
+              </div>
+              <p className="mt-2 text-xs leading-relaxed text-[#6B6778]">
+                输入对方出生信息，生成双人人格对比报告，包含：
+              </p>
+              <ul className="mt-2 space-y-1 text-[11px] text-[#8A8696]">
+                <li>匹配度百分比 · 四维度分析（沟通/情感/价值观/成长）</li>
+                <li>相处建议</li>
+              </ul>
+              <button
+                onClick={() => router.push('/comparison')}
+                className="mt-4 w-full rounded-[10px] bg-[#9B7FBB] py-2.5 text-sm font-medium text-[#FFFFFF] transition-colors hover:bg-[#8A6EAA] active:scale-[0.98]"
+              >
+                开始对比 →
+              </button>
+            </div>
           </div>
         )}
       </div>

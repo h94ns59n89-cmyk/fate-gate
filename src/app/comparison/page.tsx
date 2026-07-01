@@ -238,6 +238,9 @@ export default function ComparisonPage() {
             人格对比
           </h1>
           <p className="mt-2 text-sm text-[#6B6778]">输入对方的邀请码，合盘分析你们的匹配度</p>
+          <p className="mt-3 text-xs leading-relaxed text-[#8A8696] max-w-sm mx-auto">
+            获取人格对比卡片、匹配度百分比、四维度分析（沟通/情感/价值观/成长）及相处建议
+          </p>
         </div>
 
         {showDirectMode && step === 'invite' && !targetUser && (

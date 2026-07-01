@@ -293,6 +293,14 @@ export default function LoginPage() {
             世间人人皆是独一无二的星辰<br />30秒照见独一无二的你
           </p>
 
+          <div className="mb-6 flex items-center justify-center gap-2 text-xs text-[#8A8696]">
+            <span className="h-px w-8 bg-gradient-to-r from-transparent to-[#9B7FBB]/20" />
+            <span className="tracking-[0.08em]">个人人格报告</span>
+            <span className="text-[#B8B6C0]">·</span>
+            <span className="tracking-[0.08em]">双人对比报告</span>
+            <span className="h-px w-8 bg-gradient-to-r from-[#9B7FBB]/20 to-transparent" />
+          </div>
+
           <div className="rounded-[16px] bg-[#FFFFFF] p-6 shadow-[0_2px_20px_rgba(155,127,187,0.08)]">
             <h2 className="mb-1 text-center text-base font-medium text-[#1F1D2B]">欢迎回来</h2>
             <p className="mb-5 text-center text-xs leading-relaxed text-[#6B6778]">
