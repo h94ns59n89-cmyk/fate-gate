@@ -142,17 +142,19 @@ export default function MinePage() {
             </div>
             <div className="rounded-[10px] border border-[rgba(0,0,0,0.06)] bg-[#F8F8FA] px-5 py-4">
               <p className="text-xs text-[#6B6778]">
-                添加助理微信 <span className="font-mono font-semibold text-[#9B7FBB]">janeai01</span> 获取账号
+                添加助理微信
+                <span className="ml-1 font-mono font-semibold text-[#9B7FBB]">janeai01</span>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText('janeai01');
+                    toast.success('微信号已复制');
+                  }}
+                  className="ml-1.5 inline-block rounded border border-[#9B7FBB]/25 px-1.5 py-[1px] text-[10px] font-medium text-[#9B7FBB] transition-colors hover:bg-[#9B7FBB]/8 active:scale-[0.97]"
+                >
+                  复制
+                </button>
+                获取账号
               </p>
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText('janeai01');
-                  toast.success('微信号已复制');
-                }}
-                className="mt-2 w-full rounded-md border border-[#9B7FBB]/25 bg-[#FFFFFF] py-2 text-xs font-medium text-[#9B7FBB] transition-colors hover:bg-[#9B7FBB]/8 active:scale-[0.97]"
-              >
-                复制微信号
-              </button>
             </div>
           </div>
         </div>

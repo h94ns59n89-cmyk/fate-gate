@@ -29,8 +29,11 @@ function loadIsGuest(): boolean {
   if (typeof window === 'undefined') return true;
   try {
     const v = localStorage.getItem('is_guest');
-    if (v === null) return false; // no mark → logged-in (legacy)
-    return v === 'true';
+    if (v !== null) return v === 'true';
+    // No is_guest flag → migration from old code
+    // With token → pre-migration user (guest or logged-in, can't tell, assume logged-in)
+    // Without token → fresh visitor
+    return !localStorage.getItem('token');
   } catch {
     return true;
   }
