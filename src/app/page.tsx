@@ -233,30 +233,8 @@ export default function LandingPage() {
                     复制
                   </button>
                 </div>
-                <p className="mt-2 text-[11px] leading-relaxed text-[#8A8696]">
-                  对方在「人格对比」页面输入你的邀请码即可把你们的人格放在一起比较
-                </p>
               </div>
             )}
-            <div className="mt-6 rounded-[10px] bg-[#FFFFFF] p-5 shadow-sm">
-              <div className="flex items-center gap-2">
-                <span className="text-base text-[#9B7FBB]">⟷</span>
-                <p className="text-sm font-semibold text-[#1F1D2B]">想知道你和TA的匹配度？</p>
-              </div>
-              <p className="mt-2 text-xs leading-relaxed text-[#6B6778]">
-                输入对方出生信息，生成双人人格对比报告，包含：
-              </p>
-              <ul className="mt-2 space-y-1 text-[11px] text-[#8A8696]">
-                <li>匹配度百分比 · 四维度分析（沟通/情感/价值观/成长）</li>
-                <li>相处建议</li>
-              </ul>
-              <button
-                onClick={() => router.push('/comparison')}
-                className="mt-4 w-full rounded-[10px] bg-[#9B7FBB] py-2.5 text-sm font-medium text-[#FFFFFF] transition-colors hover:bg-[#8A6EAA] active:scale-[0.98]"
-              >
-                开始对比 →
-              </button>
-            </div>
           </div>
         )}
       </div>

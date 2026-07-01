@@ -10,7 +10,6 @@ import { cn } from '@/lib/utils';
 const navLinks = [
   { href: '/', label: '首页' },
   { href: '/mine', label: '我的报告' },
-  { href: '/comparison', label: '合盘' },
   { href: '/admin', label: '报告管理' },
   { href: '/admin/users', label: '用户管理' },
 ];
