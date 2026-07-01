@@ -172,7 +172,7 @@ export default function LandingPage() {
             <div className="mx-auto max-w-md">
               <div className="mb-4 rounded-[8px] bg-[#F8F8FA] px-4 py-3 text-xs">
                 <p className="mb-1 text-[10px] text-[#8A8696]/60">使用示例</p>
-                <p className="text-[#6B6778]">1990年5月15日 · 辰时 · 北京</p>
+                <p className="text-[#6B6778]">1990年5月15日 · 辰时 · 0分 · 北京</p>
                 <p className="mt-0.5 text-[10px] text-[#8A8696]/50">支持公历/农历 · 城市级地址即可</p>
               </div>
               <div className="vscode-card">
