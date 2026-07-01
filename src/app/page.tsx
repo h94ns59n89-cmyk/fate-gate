@@ -161,9 +161,7 @@ export default function LandingPage() {
                 星隅
               </h1>
               <p className="mt-2 text-sm leading-relaxed text-[#6B6778]">
-                输入出生信息，AI 基于八字命理
-                <br />
-                分析你独一无二的人格
+                古典人格认知工具 · 30 秒获取你的五行人格报告
               </p>
               <div className="mt-4 flex items-center justify-center gap-2 text-xs text-[#8A8696]">
                 <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#9B7FBB]/10 text-[10px] text-[#9B7FBB]">✦</span>
@@ -172,15 +170,10 @@ export default function LandingPage() {
             </div>
 
             <div className="mx-auto max-w-md">
-              <div className="mb-4 text-center">
-                <p className="text-sm font-medium text-[#9B7FBB]">星隅 · 古典人格认知工具</p>
-                <p className="mt-1 text-xs text-[#6B6778]">输入出生信息，30 秒获取你的五行人格报告</p>
-              </div>
-              <div className="mb-4 rounded-[8px] bg-[#F8F8FA] px-4 py-3 text-xs text-[#6B6778]">
-                <span className="font-medium text-[#8A8696]">使用示例 </span>
-                1990年5月15日 · 辰时 · 北京
-                <span className="mx-2 text-[#B8B6C0]">|</span>
-                支持公历/农历 · 城市级地址即可
+              <div className="mb-4 rounded-[8px] bg-[#F8F8FA] px-4 py-3 text-xs">
+                <p className="mb-1 text-[10px] text-[#8A8696]/60">使用示例</p>
+                <p className="text-[#6B6778]">1990年5月15日 · 辰时 · 北京</p>
+                <p className="mt-0.5 text-[10px] text-[#8A8696]/50">支持公历/农历 · 城市级地址即可</p>
               </div>
               <button
                 onClick={() => setShowQuiz(true)}
