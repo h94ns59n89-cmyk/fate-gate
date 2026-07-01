@@ -9,7 +9,7 @@ interface ShareCardProps {
   onShare?: () => void;
 }
 
-export function ShareCard({ imageUrl, onDownload, onShare }: ShareCardProps) {
+export function ShareCard({ imageUrl, onDownload }: ShareCardProps) {
   return (
     <div className="space-y-4">
       {imageUrl ? (
@@ -32,11 +32,11 @@ export function ShareCard({ imageUrl, onDownload, onShare }: ShareCardProps) {
             保存到相册
           </Button>
         )}
-        {onShare && (
+        {/* {onShare && (
           <Button size="md" className="flex-1" onClick={onShare}>
             分享给好友
           </Button>
-        )}
+        )} */}
       </div>
     </div>
   );

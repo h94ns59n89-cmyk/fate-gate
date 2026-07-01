@@ -6,7 +6,6 @@ interface ComparisonCardProps {
   userTag?: string;
   targetTag?: string;
   matchScore?: number;
-  onShare?: () => void;
   onCompare?: () => void;
 }
 
@@ -38,7 +37,6 @@ export function ComparisonCard({
   userTag,
   targetTag,
   matchScore,
-  onShare,
   onCompare,
 }: ComparisonCardProps) {
   return (
@@ -67,11 +65,11 @@ export function ComparisonCard({
             创建对比
           </Button>
         )}
-        {onShare && (
+        {/* {onShare && (
           <Button size="md" className="flex-1" onClick={onShare}>
             分享对比
           </Button>
-        )}
+        )} */}
       </div>
     </div>
   );

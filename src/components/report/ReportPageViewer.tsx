@@ -514,13 +514,13 @@ export function ReportPageViewer({ report, onShare }: ReportPageViewerProps) {
         <DotProgress total={PAGES.length} current={currentPage} onJump={jumpTo} />
       </div>
 
-      {onShare && (
+      {/* {onShare && (
         <div className="sticky bottom-0 bg-gradient-to-t from-[#FFFFFF] via-[#FFFFFF]/90 to-transparent p-4 pt-8">
           <Button variant="outline" size="md" className="w-full" onClick={onShare}>
             分享报告
           </Button>
         </div>
-      )}
+      )} */}
     </div>
   );
 }
