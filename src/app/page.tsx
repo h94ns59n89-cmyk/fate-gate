@@ -34,15 +34,20 @@ export default function LandingPage() {
   useEffect(() => {
     trackEvent(EVENTS.LANDING_VIEW);
     initGuest();
-    // Restore result from sessionStorage (survives refresh)
-    try {
-      const saved = sessionStorage.getItem('last_bazi_result');
-      if (saved) {
-        const parsed = JSON.parse(saved) as BaziResult;
-        setResult(parsed);
-        setStep('result');
-      }
-    } catch { /* ignore */ }
+    // Restore result from sessionStorage on page refresh only
+    const nav = performance.getEntriesByType?.('navigation')?.[0] as { type?: string } | undefined;
+    if (nav?.type === 'reload') {
+      try {
+        const saved = sessionStorage.getItem('last_bazi_result');
+        if (saved) {
+          const parsed = JSON.parse(saved) as BaziResult;
+          setResult(parsed);
+          setStep('result');
+        }
+      } catch { /* ignore */ }
+    } else {
+      sessionStorage.removeItem('last_bazi_result');
+    }
   }, [initGuest]);
 
   const runCalculate = useCallback(async (params: {
