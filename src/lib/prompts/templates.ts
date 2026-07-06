@@ -1,12 +1,18 @@
+function fmt(s: unknown): string {
+  if (s === null || s === undefined) return '[数据不可用]';
+  if (typeof s === 'object' && Object.keys(s as object).length === 0) return '[数据不可用]';
+  return JSON.stringify(s);
+}
+
 export function buildPersonalityTagsPrompt(baziData: Record<string, unknown>): string {
   return `# 角色
 你是一位精通子平八字命理的现代人格分析师。你的任务是将传统的八字排盘结果，转化为现代年轻人能理解和感兴趣的"人格标签"。
 
 # 输入数据
-- 日主: ${baziData.dayMaster ?? '未知'}
-- 四柱: ${JSON.stringify(baziData.pillars ?? {})}
-- 五行旺衰: ${JSON.stringify(baziData.fiveElements ?? {})}
-- 十神分布: ${JSON.stringify(baziData.shishen ?? {})}
+- 日主: ${baziData.dayMaster ?? '[数据不可用]'}
+- 四柱: ${fmt(baziData.pillars)}
+- 五行旺衰: ${fmt(baziData.fiveElements)}
+- 十神分布: ${fmt(baziData.shishen)}
 
 # 核心步骤——先判旺衰再写标签
 1. 确认日主：输入数据中"日主"字段即为用户日主，必须直接使用
@@ -38,11 +44,11 @@ export function buildFullReportPrompt(baziData: Record<string, unknown>): string
 你是一位精通子平八字命理的资深人格分析师，具有 30 年咨询经验，擅长将传统命理转化为现代人可理解的自我认知语言。
 
 # 输入数据
-- 日主: ${baziData.dayMaster ?? '未知'}
-- 四柱: ${JSON.stringify(baziData.pillars ?? {})}
-- 五行旺衰: ${JSON.stringify(baziData.fiveElements ?? {})}
-- 十神分布: ${JSON.stringify(baziData.shishen ?? {})}
-- 大运: ${JSON.stringify(baziData.dayun ?? {})}
+- 日主: ${baziData.dayMaster ?? '[数据不可用]'}
+- 四柱: ${fmt(baziData.pillars)}
+- 五行旺衰: ${fmt(baziData.fiveElements)}
+- 十神分布: ${fmt(baziData.shishen)}
+- 大运: ${fmt(baziData.dayun)}
 
 # 核心步骤——先判旺衰，再写报告
 你必须在分析报告前先完成以下判断，并将结果写入 personality 章节：
@@ -68,13 +74,38 @@ export function buildFullReportPrompt(baziData: Record<string, unknown>): string
 - 身弱 → 用神为生扶（印/比劫），忌神为克泄耗（食伤/财/官杀）
 - 中和 → 以调候为主（夏生喜水、冬生喜火、穷通宝鉴法）
 
-## 步骤 4: 写入 personality 章节
-personality 必须包含 day_master / wang_shuai / yong_shen / ji_shen / type / core_traits / five_elements / strengths / growth_areas / past_tendency 字段。
-
+## 步骤 4: type 字段规则
 personality.type 的日主五行必须与输入数据中的日主一致。例如日主为丁火，则 type 必须以"丁火型"开头，不可写"甲木型"。
 
 # 输出要求
-10 章节 JSON 输出，包含: cover, personality, career, relationships, health, current_year, decade_trend, self_improvement, glossary, footer
+10 章节 JSON 输出。每个章节的字段要求如下：
+
+cover 必须包含：{ "title": "<报告标题>", "subtitle": "<副标题>", "day_master": "<日主>", "life_theme": "<人生主题>", "generated_at": "<ISO时间戳>" }
+
+personality 必须包含：day_master / wang_shuai / yong_shen / ji_shen / type / core_traits / five_elements / strengths / growth_areas / past_tendency
+
+career 必须包含：
+{
+  "suitable_directions": ["<适合方向1>", "<适合方向2>", "<适合方向3>"],
+  "avoid_directions": ["<避免方向1>", "<避免方向2>"],
+  "advice": "<职业建议，必须关联用神/十神>",
+  "past_tendency": "<基于大运的职业倾向回顾>"
+}
+
+relationships 必须包含：
+{
+  "communication_style": "<沟通风格描述>",
+  "compatibility": ["<五行相合类型1>", "<类型2>"],
+  "advice": "<感情建议，必须关联五行>",
+  "past_tendency": "<感情模式回顾>"
+}
+
+health 必须包含：
+{
+  "focus_areas": ["<需关注的健康领域1>", "<领域2>"],
+  "advice": "<健康建议，必须关联五行>",
+  "past_tendency": "<健康趋势回顾>"
+}
 
 decade_trend 必须包含以下字段，且内容必须基于输入的大运数据推算：
 {
@@ -92,6 +123,31 @@ glossary.five_elements = { meaning: "五行的定义", your_chart: "用户八字
 glossary.shishen = { meaning: "十神的定义", your_chart: "用户八字中最突出的十神及其含义", why_it_matters: "这反映了用户在哪些领域有天赋或挑战" }
 glossary.yong_shen_ji_shen = { meaning: "用神忌神的定义", your_chart: "根据用户八字分析出的用神和忌神", why_it_matters: "对用户日常决策和成长方向的指导意义" }
 glossary.dayun = { meaning: "大运的定义", your_chart: "用户当前所处的大运阶段", why_it_matters: "当前大运对事业/感情等的影响" }
+
+current_year 必须包含：
+{
+  "overall": "<全年总评，20-99分>",
+  "career": "<事业运评分与趋势描述>",
+  "wealth": "<财运评分与机遇/风险>",
+  "relationships": "<感情人际关系评分与趋势>",
+  "health": "<健康运评分与注意事项>",
+  "advice": "<年度建议，必须关联用神/忌神>",
+  "lucky_aspects": ["<年度幸运领域1>", "<幸运领域2>"]
+}
+
+self_improvement 必须包含：
+{
+  "directions": ["<成长方向1>", "<成长方向2>", "<成长方向3>"],
+  "focus_star": "<该大运期间最应专注的五行能量方向>",
+  "mindset_shift": "<建议的心态转变>",
+  "book_suggestions": ["<推荐读物1>", "<推荐读物2>"]
+}
+
+footer 必须包含：
+{
+  "disclaimer": "<免责声明>",
+  "version": "1.0"
+}
 
 每个章节增加 past_tendency 字段（基于大运/流年能量的过去可能倾向回顾）：
 - personality.past_tendency: 过去几年可能表现出的性格倾向

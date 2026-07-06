@@ -308,7 +308,9 @@ function CurrentYearPage({ data }: { data: Record<string, unknown> }) {
     { label: '事业', key: 'career' },
     { label: '财富', key: 'wealth' },
     { label: '感情', key: 'relationships' },
+    { label: '健康', key: 'health' },
   ];
+  const lucky = data.lucky_aspects as string[];
   return (
     <div className="space-y-4">
       <h3 className="text-center text-xs font-semibold tracking-wide text-[#6B6778]">
@@ -330,6 +332,17 @@ function CurrentYearPage({ data }: { data: Record<string, unknown> }) {
           );
         })}
       </div>
+      {(data.advice as string) && <AdviceBlock>{data.advice as string}</AdviceBlock>}
+      {lucky && lucky.length > 0 && (
+        <div>
+          <p className="mb-2 text-[10px] font-semibold tracking-wide text-[#6B6778]">幸运领域</p>
+          <div className="flex flex-wrap gap-2">
+            {lucky.map((a, i) => (
+              <span key={i} className="rounded-full border border-[#9B7FBB]/20 bg-[#9B7FBB]/5 px-2.5 py-1 text-[11px] text-[#9B7FBB]">{a}</span>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -357,6 +370,8 @@ function DecadeTrendPage({ data }: { data: Record<string, unknown> }) {
 function SelfImprovementPage({ data }: { data: Record<string, unknown> }) {
   const directions = data.directions as string[];
   const books = data.book_suggestions as string[];
+  const focusStar = data.focus_star as string;
+  const mindset = data.mindset_shift as string;
   return (
     <div className="space-y-5">
       {directions && directions.length > 0 && (
@@ -372,6 +387,18 @@ function SelfImprovementPage({ data }: { data: Record<string, unknown> }) {
               </li>
             ))}
           </ul>
+        </div>
+      )}
+      {focusStar && (
+        <div className="rounded-[4px] border border-[#9B7FBB]/12 bg-[#9B7FBB]/4 p-3.5">
+          <h3 className="mb-1 text-xs font-semibold tracking-wide text-[#6B6778]">能量聚焦</h3>
+          <p className="text-sm leading-relaxed text-[#1F1D2B]/70">{focusStar}</p>
+        </div>
+      )}
+      {mindset && (
+        <div className="rounded-[4px] border border-[#9B7FBB]/12 bg-[#9B7FBB]/4 p-3.5">
+          <h3 className="mb-1 text-xs font-semibold tracking-wide text-[#6B6778]">心态转变</h3>
+          <p className="text-sm leading-relaxed text-[#1F1D2B]/70">{mindset}</p>
         </div>
       )}
       {books && books.length > 0 && (

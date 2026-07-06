@@ -20,6 +20,7 @@ export async function generatePersonalityTags(
   const dayMaster = (baziData.dayMaster as string) ?? '';
 
   if (features.enableMock) {
+    if (!dayMaster) return { data: null, provider: 'mock', latencyMs: 0 };
     const data = mockPersonalityTags(dayMaster);
     return { data, provider: 'mock', latencyMs: 0 };
   }
@@ -44,6 +45,7 @@ export async function generateFullReport(
   const dayMaster = (baziData.dayMaster as string) ?? '';
 
   if (features.enableMock) {
+    if (!dayMaster) return { data: null, provider: 'mock', latencyMs: 0 };
     const data = mockFullReport(dayMaster);
     return { data, provider: 'mock', latencyMs: 0 };
   }

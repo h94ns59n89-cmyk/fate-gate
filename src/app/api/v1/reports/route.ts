@@ -61,12 +61,20 @@ export const POST = withMiddleware(async (req) => {
       });
 
       const prevBazi = (previousReports?.baziJson as Record<string, unknown>) ?? {};
+      const pillars = {
+        year: prevBazi?.year_pillar,
+        month: prevBazi?.month_pillar,
+        day: prevBazi?.day_pillar,
+        hour: prevBazi?.hour_pillar,
+      };
       const baziData = {
         dayMaster: (prevBazi?.dayMaster as string) || (prevBazi?.day_master as string) || '',
-        pillars: prevBazi,
+        dayMasterElement: (prevBazi?.day_master_element as string) || '',
+        pillars,
         fiveElements: (previousReports?.fiveElementsJson as Record<string, unknown>) ?? {},
         shishen: (previousReports?.shishenJson as Record<string, unknown>) ?? {},
         dayun: (previousReports?.dayunJson as Record<string, unknown>) ?? {},
+        calculationMeta: prevBazi?.calculation_meta,
       };
 
       const { data: reportData, provider, latencyMs } = await generateFullReport(baziData, { trace });
@@ -81,7 +89,7 @@ export const POST = withMiddleware(async (req) => {
           data: {
             status: 'COMPLETED',
             fullReportJson: reportData as never,
-            summaryJson: { life_theme: reportData.cover?.life_theme ?? '' },
+            summaryJson: { life_theme: reportData.cover?.life_theme ?? null },
             aiModel: provider,
             generatedAt: new Date(),
           },

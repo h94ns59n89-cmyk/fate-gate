@@ -20,8 +20,8 @@ function validateAIOutput(type: GenerationType, data: unknown): string[] {
   const d = data as Record<string, unknown>;
   switch (type) {
     case 'personality_tags': {
-      if (!Array.isArray(d.personality_tags)) errors.push('personality_tags 必须是数组');
-      if (!Array.isArray(d.core_traits)) errors.push('core_traits 必须是数组');
+      if (!Array.isArray(d.personality_tags) || d.personality_tags.length === 0) errors.push('personality_tags 必须是非空数组');
+      if (!Array.isArray(d.core_traits) || d.core_traits.length === 0) errors.push('core_traits 必须是非空数组');
       if (typeof d.life_theme !== 'string' || !d.life_theme) errors.push('life_theme 必须是非空字符串');
       if (typeof d.five_elements_summary !== 'string' || !d.five_elements_summary) errors.push('five_elements_summary 必须是非空字符串');
       break;

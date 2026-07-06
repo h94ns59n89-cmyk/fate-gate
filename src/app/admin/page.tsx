@@ -125,6 +125,7 @@ function renderReportHTML(report: Record<string, unknown>): string {
           { label: '事业', key: 'career' },
           { label: '财富', key: 'wealth' },
           { label: '感情', key: 'relationships' },
+          { label: '健康', key: 'health' },
         ];
         html += `<p style="font-size:10px;font-weight:600;color:#6B6778;text-align:center;margin:0 0 12px 0;">${new Date().getFullYear()} 年运势</p>`;
         html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">`;
@@ -132,7 +133,9 @@ function renderReportHTML(report: Record<string, unknown>): string {
           const v = data[key] as string | undefined;
           html += `<div style="border:1px solid rgba(0,0,0,0.06);border-radius:4px;background:#F8F8FA;padding:10px;text-align:center;"><p style="font-size:9px;color:#8A8696;margin:0 0 6px 0;">${label}</p><span style="display:inline-block;border-radius:999px;border:1px solid rgba(0,0,0,0.08);padding:2px 10px;font-size:10px;color:#6B6778;background:#F8F8FA;">${v ?? '-'}</span></div>`;
         }
-        html += `</div>`;
+        html += adviceBlock(data.advice as string);
+        const lucky = data.lucky_aspects as string[] | undefined;
+        if (lucky?.length) html += `<div style="margin-top:8px;"><p style="font-size:9px;color:#8A8696;margin:0 0 4px 0;">幸运领域</p><div style="display:flex;gap:6px;flex-wrap:wrap;">${lucky.map(a => `<span style="border-radius:999px;border:1px solid rgba(155,127,187,0.2);padding:2px 8px;font-size:9px;color:#9B7FBB;background:rgba(155,127,187,0.05);">${esc(a)}</span>`).join('')}</div></div>`;
       }
 
       if (section.key === 'decade_trend') {
@@ -146,7 +149,11 @@ function renderReportHTML(report: Record<string, unknown>): string {
       if (section.key === 'self_improvement') {
         const dirs = data.directions as string[] | undefined;
         const books = data.book_suggestions as string[] | undefined;
+        const focusStar = data.focus_star as string | undefined;
+        const mindset = data.mindset_shift as string | undefined;
         if (dirs?.length) html += `<div style="margin-bottom:12px;"><p style="font-size:10px;font-weight:600;color:#6B6778;margin:0 0 8px 0;letter-spacing:1px;">成长方向</p><ul style="margin:0;padding-left:0;list-style:none;">${dirs.map(d => `<li style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="display:flex;width:18px;height:18px;border-radius:999px;background:rgba(143,207,160,0.15);align-items:center;justify-content:center;font-size:9px;color:#8FCFA0;flex-shrink:0;">✓</span><span style="font-size:12px;color:rgba(31,29,43,0.7);">${esc(d)}</span></li>`).join('')}</ul></div>`;
+        if (focusStar) html += `<div style="margin-bottom:8px;border:1px solid rgba(155,127,187,0.12);border-radius:4px;background:rgba(155,127,187,0.04);padding:10px;"><p style="font-size:9px;color:#6B6778;margin:0 0 4px 0;">能量聚焦</p><p style="font-size:11px;line-height:1.5;color:rgba(31,29,43,0.7);margin:0;">${esc(focusStar)}</p></div>`;
+        if (mindset) html += `<div style="margin-bottom:8px;border:1px solid rgba(155,127,187,0.12);border-radius:4px;background:rgba(155,127,187,0.04);padding:10px;"><p style="font-size:9px;color:#6B6778;margin:0 0 4px 0;">心态转变</p><p style="font-size:11px;line-height:1.5;color:rgba(31,29,43,0.7);margin:0;">${esc(mindset)}</p></div>`;
         if (books?.length) html += `<div style="margin-bottom:12px;"><p style="font-size:10px;font-weight:600;color:#6B6778;margin:0 0 8px 0;letter-spacing:1px;">推荐阅读</p>${card(books)}</div>`;
       }
 
