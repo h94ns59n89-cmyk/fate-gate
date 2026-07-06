@@ -42,13 +42,21 @@ export function buildFullReportPrompt(baziData: Record<string, unknown>): string
 # 输出要求
 10 章节 JSON 输出，包含: cover, personality, career, relationships, health, current_year, decade_trend, self_improvement, glossary, footer
 
+glossary 章节的详细结构要求——每个术语包含三个子字段（meaning / your_chart / why_it_matters），选题范围根据用户八字数据动态决定，只包含本报告中实际出现的术语，至少包含 5 个术语，最多 10 个：
+
+glossary.day_master = { meaning: "日主的定义（1-2句八字命理中的含义）", your_chart: "结合用户八字数据的具体说明（日主五行、旺衰等，2-3句）", why_it_matters: "这对用户意味着什么（实际生活/性格层面的影响，1-2句）" }
+glossary.five_elements = { meaning: "五行的定义", your_chart: "用户八字的五行格局和旺衰分析", why_it_matters: "五行平衡对用户性格/运势的实际影响" }
+glossary.shishen = { meaning: "十神的定义", your_chart: "用户八字中最突出的十神及其含义", why_it_matters: "这反映了用户在哪些领域有天赋或挑战" }
+glossary.yong_shen_ji_shen = { meaning: "用神忌神的定义", your_chart: "根据用户八字分析出的用神和忌神", why_it_matters: "对用户日常决策和成长方向的指导意义" }
+glossary.dayun = { meaning: "大运的定义", your_chart: "用户当前所处的大运阶段", why_it_matters: "当前大运对事业/感情等的影响" }
+
 每个章节增加 past_tendency 字段（基于大运/流年能量的过去可能倾向回顾）：
 - personality.past_tendency: 过去几年可能表现出的性格倾向
 - career.past_tendency: 过去职场中可能经历的能量周期
 - relationships.past_tendency: 过去感情/人际关系中的可能模式
 - health.past_tendency: 过去健康状况的可能能量影响
 
-personality.type 末尾须追加对应的 MBTI 人格类型代码（如 "甲木型·领导者人格 (ENTJ)"）
+personality.type 末尾须追加对应的 MBTI 人格类型代码（如 "甲木型·领导者人格 (ENTJ)")
 
 # 约束
 1. 禁止: 大凶/必败/克夫/短命/血光

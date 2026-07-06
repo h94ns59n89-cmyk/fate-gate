@@ -405,18 +405,42 @@ const GLOSSARY_ZH: Record<string, string> = {
   yong_shen: '用神',
   xi_shen: '喜神',
   ji_shen: '忌神',
+  yong_shen_ji_shen: '用神忌神',
 };
+
+function isThreePartEntry(v: unknown): v is { meaning: string; your_chart: string; why_it_matters: string } {
+  return (
+    typeof v === 'object' &&
+    v !== null &&
+    'meaning' in v &&
+    'your_chart' in v &&
+    'why_it_matters' in v
+  );
+}
 
 function GlossaryPage({ data }: { data: Record<string, unknown> }) {
   const entries = Object.entries(data).filter(([key]) => key !== 'id');
   return (
     <div className="space-y-3">
-      {entries.map(([term, desc]) => (
-        <div key={term} className="rounded-[4px] border border-[rgba(0,0,0,0.06)] bg-[#F8F8FA] px-4 py-3">
-          <p className="text-xs font-semibold text-[#9B7FBB]">{GLOSSARY_ZH[term] ?? term}</p>
-          <p className="mt-1 text-sm leading-relaxed text-[#1F1D2B]/65">{desc as string}</p>
-        </div>
-      ))}
+      {entries.map(([term, desc]) => {
+        const label = GLOSSARY_ZH[term] ?? term;
+        if (isThreePartEntry(desc)) {
+          return (
+            <div key={term} className="rounded-[4px] border border-[rgba(0,0,0,0.06)] bg-[#F8F8FA] px-4 py-3 space-y-2">
+              <p className="text-xs font-semibold text-[#9B7FBB]">{label}</p>
+              <p className="text-sm leading-relaxed text-[#1F1D2B]/65"><span className="font-medium text-[#1F1D2B]/80">定义</span> {desc.meaning}</p>
+              <p className="text-sm leading-relaxed text-[#1F1D2B]/65"><span className="font-medium text-[#1F1D2B]/80">你的命盘</span> {desc.your_chart}</p>
+              <p className="text-sm leading-relaxed text-[#9B7FBB]/80"><span className="font-medium text-[#9B7FBB]">对你意味着</span> {desc.why_it_matters}</p>
+            </div>
+          );
+        }
+        return (
+          <div key={term} className="rounded-[4px] border border-[rgba(0,0,0,0.06)] bg-[#F8F8FA] px-4 py-3">
+            <p className="text-xs font-semibold text-[#9B7FBB]">{label}</p>
+            <p className="mt-1 text-sm leading-relaxed text-[#1F1D2B]/65">{desc as string}</p>
+          </div>
+        );
+      })}
     </div>
   );
 }

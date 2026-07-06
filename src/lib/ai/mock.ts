@@ -131,9 +131,21 @@ export function mockFullReport(dayMaster: string): FullReport {
       book_suggestions: ['《人性的弱点》', '《思考，快与慢》'],
     },
     glossary: {
-      day_master: '代表你自己的五行属性',
-      five_elements: '金木水火土的平衡状态',
-      shishen: '十神关系，反映性格特质',
+      day_master: {
+        meaning: '日主是八字四柱中出生日的天干，代表命主自身的五行属性和核心特质',
+        your_chart: '你的日主为丙火，属太阳之火，在八字中处于旺相状态，代表你天生热情开朗、感染力强',
+        why_it_matters: '丙火日主的人适合从事需要感染力和创造力的工作，在团队中通常是天然的中心人物',
+      },
+      five_elements: {
+        meaning: '五行指金木水火土五种基本能量的运行规律和相生相克关系',
+        your_chart: '你的八字火旺木相，缺金水，属于"火炎土燥"格局，需要补水来平衡',
+        why_it_matters: '你天生火性偏强，做事有冲劲但容易急躁，补水可以帮你提升耐心和决策的冷静度',
+      },
+      shishen: {
+        meaning: '十神是日主与其他天干地支之间的关系分类，反映一个人的性格特质和社会角色',
+        your_chart: '你的八字中偏印最旺，代表你思维独特、善于深度思考，但也容易钻牛角尖',
+        why_it_matters: '偏印旺的人适合研究型、分析型工作，但在人际关系中需要警惕过于孤僻的倾向',
+      },
     },
     footer: { disclaimer: '本报告由 AI 生成，仅供娱乐参考。', version: '1.0' },
   };
