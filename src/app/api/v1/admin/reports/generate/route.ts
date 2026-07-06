@@ -101,13 +101,14 @@ export const POST = withMiddleware(async (req) => {
     return error(400, '报告缺少八字数据', 400);
   }
 
+  const bj = baziJson as Record<string, unknown>;
   const baziData = {
-    dayMaster: (baziJson as Record<string, unknown>)?.dayMaster as string ?? '',
-    pillars: baziJson as Record<string, unknown>,
+    dayMaster: (bj?.dayMaster as string) || (bj?.day_master as string) || '',
+    pillars: bj,
     fiveElements: (report.fiveElementsJson as Record<string, unknown>) ?? {},
     shishen: (report.shishenJson as Record<string, unknown>) ?? {},
     dayun: (report.dayunJson as Record<string, unknown>) ?? {},
-    calculationMeta: (baziJson as Record<string, unknown>)?.calculation_meta,
+    calculationMeta: bj?.calculation_meta,
   };
 
   log.info(`Generating full report for report ${reportId}`);

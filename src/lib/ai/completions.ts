@@ -17,7 +17,7 @@ export async function generatePersonalityTags(
   options: AICompletionOptions = {},
 ): Promise<{ data: PersonalityTags | null; provider: string; latencyMs: number }> {
   const { features } = getEnv();
-  const dayMaster = (baziData.dayMaster as string) ?? '甲木';
+  const dayMaster = (baziData.dayMaster as string) ?? '';
 
   if (features.enableMock) {
     const data = mockPersonalityTags(dayMaster);
@@ -41,7 +41,7 @@ export async function generateFullReport(
   options: AICompletionOptions = {},
 ): Promise<{ data: FullReport | null; provider: string; latencyMs: number }> {
   const { features } = getEnv();
-  const dayMaster = (baziData.dayMaster as string) ?? '甲木';
+  const dayMaster = (baziData.dayMaster as string) ?? '';
 
   if (features.enableMock) {
     const data = mockFullReport(dayMaster);

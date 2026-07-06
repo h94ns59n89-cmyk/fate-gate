@@ -60,9 +60,10 @@ export const POST = withMiddleware(async (req) => {
         orderBy: { createdAt: 'desc' },
       });
 
+      const prevBazi = (previousReports?.baziJson as Record<string, unknown>) ?? {};
       const baziData = {
-        dayMaster: '甲木',
-        pillars: (previousReports?.baziJson as Record<string, unknown>) ?? {},
+        dayMaster: (prevBazi?.dayMaster as string) || (prevBazi?.day_master as string) || '',
+        pillars: prevBazi,
         fiveElements: (previousReports?.fiveElementsJson as Record<string, unknown>) ?? {},
         shishen: (previousReports?.shishenJson as Record<string, unknown>) ?? {},
         dayun: (previousReports?.dayunJson as Record<string, unknown>) ?? {},

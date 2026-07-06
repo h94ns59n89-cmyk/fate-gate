@@ -128,6 +128,8 @@ export const POST = withMiddleware(async (req) => {
             month_pillar: bazi.month_pillar,
             day_pillar: bazi.day_pillar,
             hour_pillar: bazi.hour_pillar,
+            day_master: bazi.day_master,
+            day_master_element: bazi.day_master_element,
             calculation_meta: bazi.calculation_meta,
             location,
           } as never,
