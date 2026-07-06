@@ -76,6 +76,15 @@ personality.type 的日主五行必须与输入数据中的日主一致。例如
 # 输出要求
 10 章节 JSON 输出，包含: cover, personality, career, relationships, health, current_year, decade_trend, self_improvement, glossary, footer
 
+decade_trend 必须包含以下字段，且内容必须基于输入的大运数据推算：
+{
+  "age_range": "<当前大运的年龄区间，直接使用输入大运数据的 decades 中最近的一条>",
+  "gan_zhi": "<当前大运的干支，直接使用对应 decades 的 gan_zhi 字段>",
+  "element": "<当前大运干支对应的五行属性>",
+  "focus": "<该大运期间的能量主题（根据十神和五行旺衰定方向，如正官运→事业责任期，偏财运→财富机遇期）>",
+  "advice": "<针对该大运的具体建议，必须关联用神/忌神>"
+}
+
 glossary 章节的详细结构要求——每个术语包含三个子字段（meaning / your_chart / why_it_matters），选题范围根据用户八字数据动态决定，只包含本报告中实际出现的术语，至少包含 5 个术语，最多 10 个：
 
 glossary.day_master = { meaning: "日主的定义（1-2句八字命理中的含义）", your_chart: "结合用户八字数据的具体说明（日主五行、旺衰等，2-3句）", why_it_matters: "这对用户意味着什么（实际生活/性格层面的影响，1-2句）" }

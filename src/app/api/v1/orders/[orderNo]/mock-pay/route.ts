@@ -47,16 +47,16 @@ export const POST = withMiddleware(async (req, { params }) => {
     if (report) {
       const bazi = report.baziJson as Record<string, unknown> | null;
       const pillars = bazi ?? {};
-      const dayPillar = pillars['day_pillar'] as Record<string, string> | undefined;
-      const dayMaster = dayPillar?.heavenly ?? '甲';
+      const dayMaster = (bazi?.day_master as string) || (bazi?.dayMaster as string) || '';
+      const dayMasterElement = (bazi?.day_master_element as string) || '';
 
       const baziData: Record<string, unknown> = {
-        dayMaster: dayMaster + '木',
-        dayMasterElement: '木',
+        dayMaster,
+        dayMasterElement,
         pillars,
         fiveElements: report.fiveElementsJson ?? {},
-        shishen: {},
-        dayun: {},
+        shishen: report.shishenJson ?? {},
+        dayun: report.dayunJson ?? {},
         calculationMeta: pillars['calculation_meta'] ?? {},
       };
 

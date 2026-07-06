@@ -138,6 +138,7 @@ function renderReportHTML(report: Record<string, unknown>): string {
       if (section.key === 'decade_trend') {
         html += `<div style="border:1px solid rgba(155,127,187,0.15);border-radius:4px;background:linear-gradient(to bottom,rgba(155,127,187,0.05),transparent);padding:16px;text-align:center;margin-bottom:12px;"><div style="width:24px;height:3px;background:#9B7FBB;border-radius:2px;margin:0 auto 8px auto;"></div><p style="font-size:9px;font-weight:600;color:#6B6778;margin:0 0 8px 0;letter-spacing:1px;">当前大运</p>`;
         if (data.age_range) html += `<p style="font-size:16px;font-weight:700;color:#9B7FBB;margin:0 0 4px 0;">${esc(data.age_range as string)} 岁</p>`;
+        if (data.gan_zhi) html += `<p style="font-size:10px;color:#6B6778;margin:0 0 4px 0;">大运干支：<strong>${esc(data.gan_zhi as string)}</strong>${data.element ? '（' + esc(data.element as string) + '）' : ''}</p>`;
         if (data.focus) html += `<p style="font-size:12px;color:rgba(31,29,43,0.6);margin:0;">${esc(data.focus as string)}</p></div>`;
         html += adviceBlock(data.advice as string);
       }

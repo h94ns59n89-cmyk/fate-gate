@@ -341,7 +341,13 @@ function DecadeTrendPage({ data }: { data: Record<string, unknown> }) {
         <div className="absolute left-1/2 top-0 h-1 w-8 -translate-x-1/2 rounded-b-[2px] bg-[#9B7FBB]" />
         <p className="text-[10px] font-semibold tracking-wide text-[#6B6778]">当前大运</p>
         <p className="mt-2 text-lg font-bold text-[#9B7FBB]">{data.age_range as string} 岁</p>
-        <p className="mt-1 text-sm text-[#1F1D2B]/70">{data.focus as string}</p>
+        {(data.gan_zhi as string) && (
+          <p className="mt-1 text-xs text-[#6B6778]">
+            大运干支：<span className="font-semibold text-[#9B7FBB]">{data.gan_zhi as string}</span>
+            {data.element as string && <span className="ml-1">（{data.element as string}）</span>}
+          </p>
+        )}
+        <p className="mt-2 text-sm text-[#1F1D2B]/70">{data.focus as string}</p>
       </div>
       {(data.advice as string) && <AdviceBlock>{data.advice as string}</AdviceBlock>}
     </div>

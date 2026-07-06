@@ -125,7 +125,7 @@ export function mockFullReport(dayMaster: string): FullReport {
     },
     health: { focus_areas: ['注意脾胃保养', '适度运动'], advice: '保持规律作息，避免过度思虑。', past_tendency: '前几年压力大的那段时间，你可能有过"身体被掏空"的感觉——失眠、胃胀、偏头痛轮番上阵，当时没当回事，现在回头看其实是身体在报警了。' },
     current_year: { overall: '稳中有进', career: '机会增多', wealth: '稳步增长', relationships: '桃花旺盛' },
-    decade_trend: { age_range: '25-34', focus: '事业上升期', advice: '把握当下十年黄金发展期。' },
+    decade_trend: { age_range: '25-34', gan_zhi: '戊午', element: '火', focus: '正官运·事业责任期', advice: '当前戊午大运火土旺盛，你是丁火日主得印星生扶，宜稳扎稳打积累职场资本。' },
     self_improvement: {
       directions: ['培养副业技能', '拓展社交圈', '加强身体锻炼'],
       book_suggestions: ['《人性的弱点》', '《思考，快与慢》'],
