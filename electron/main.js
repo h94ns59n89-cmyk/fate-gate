@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const path = require('path');
-const { fork } = require('child_process');
+const { fork, execSync } = require('child_process');
 const fs = require('fs');
 
 const isDev = !app.isPackaged;
@@ -10,8 +10,11 @@ let mainWindow = null;
 let serverProcess = null;
 
 function getConfigPath() {
-  const userDataPath = app.getPath('userData');
-  return path.join(userDataPath, 'ai-config.json');
+  return path.join(app.getPath('userData'), 'ai-config.json');
+}
+
+function getDbPath() {
+  return path.join(app.getPath('userData'), 'fate-gate.db');
 }
 
 function readConfig() {
@@ -36,31 +39,78 @@ function writeConfig(config) {
   }
 }
 
+function getServerDir() {
+  if (isDev) return path.join(__dirname, '..');
+  return path.join(process.resourcesPath, '.next', 'standalone');
+}
+
+function getPrismaDir() {
+  if (isDev) return path.join(__dirname, '..', 'prisma');
+  return path.join(process.resourcesPath, 'prisma');
+}
+
+function setupDatabase() {
+  const serverDir = getServerDir();
+  const prismaDir = getPrismaDir();
+  const dbPath = getDbPath();
+  const dbDir = path.dirname(dbPath);
+  if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir, { recursive: true });
+
+  // Create an empty DB file if it doesn't exist so Prisma can work with it
+  if (!fs.existsSync(dbPath)) {
+    fs.writeFileSync(dbPath, '');
+  }
+
+  // Try to run prisma migrate or push to ensure schema is up to date
+  try {
+    const prismaCli = path.join(serverDir, 'node_modules', 'prisma', 'build', 'index.js');
+    const schemaPath = path.join(prismaDir, 'schema.prisma');
+    if (fs.existsSync(schemaPath)) {
+      execSync(
+        `node "${prismaCli}" db push --schema="${schemaPath}" --skip-generate`,
+        {
+          cwd: serverDir,
+          env: { ...process.env, DATABASE_URL: `file:${dbPath}` },
+          stdio: 'pipe',
+          timeout: 30000,
+        },
+      );
+    }
+  } catch (err) {
+    console.warn('[db] Migration failed, will try to continue:', err.message);
+  }
+}
+
 function startServer() {
   return new Promise((resolve, reject) => {
-    const serverDir = isDev
-      ? path.join(__dirname, '..')
-      : path.join(process.resourcesPath, '.next', 'standalone');
+    const serverDir = getServerDir();
+    const dbPath = getDbPath();
+
+    const env = {
+      ...process.env,
+      PORT: String(PORT),
+      DATABASE_URL: `file:${dbPath}`,
+      NODE_ENV: isDev ? 'development' : 'production',
+    };
 
     if (isDev) {
       serverProcess = fork(
         path.join(serverDir, 'node_modules', 'next', 'dist', 'bin', 'next'),
         ['dev', '-p', String(PORT)],
-        { cwd: serverDir, stdio: 'pipe' },
+        { cwd: serverDir, stdio: 'pipe', env },
       );
     } else {
-      process.env.PORT = String(PORT);
       serverProcess = fork(
         path.join(serverDir, 'server.js'),
         [],
-        { cwd: serverDir, stdio: 'pipe', env: { ...process.env, PORT: String(PORT) } },
+        { cwd: serverDir, stdio: 'pipe', env },
       );
     }
 
     const onData = (data) => {
       const text = data.toString();
       console.log('[server]', text);
-      if (text.includes('http://localhost:' + PORT) || text.includes('ready started server')) {
+      if (text.includes('http://localhost:' + PORT) || text.includes('ready started server') || text.includes('started server')) {
         cleanup();
         resolve();
       }
@@ -91,7 +141,7 @@ function startServer() {
     setTimeout(() => {
       cleanup();
       reject(new Error('Server start timeout'));
-    }, 30000);
+    }, 60000);
   });
 }
 
@@ -127,6 +177,7 @@ app.whenReady().then(async () => {
   ipcMain.handle('write-config', (_event, config) => writeConfig(config));
 
   try {
+    setupDatabase();
     await startServer();
     createWindow();
   } catch (err) {
