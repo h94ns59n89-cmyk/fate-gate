@@ -110,7 +110,7 @@ function startServer() {
       serverProcess.on('exit', (code) => {
         if (code !== 0) reject(new Error(`Dev server exited with code ${code}`));
       });
-      serverProcess.on('error', (err) => reject(new Error(`Dev server spawn: ${err.message}`));
+      serverProcess.on('error', (err) => reject(new Error(`Dev server spawn: ${err.message}`)));
       return;
     }
 
