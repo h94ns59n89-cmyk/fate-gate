@@ -43,6 +43,7 @@ export default function SettingsPage() {
   const [testMsg, setTestMsg] = useState('');
   const [saved, setSaved] = useState(false);
   const [isElectron, setIsElectron] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     setIsElectron(typeof window !== 'undefined' && 'electronAPI' in window);
@@ -50,7 +51,15 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-      const api = window.electronAPI;
+    try {
+      const raw = localStorage.getItem('admin_auth');
+      setIsAdmin(!!raw);
+    } catch { setIsAdmin(false); }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const api = window.electronAPI;
     if (api?.readConfig) {
       api.readConfig().then((cfg: Config | null) => {
         if (cfg) setConfig(cfg);
@@ -141,7 +150,7 @@ export default function SettingsPage() {
 
   const handleSave = useCallback(async () => {
     try {
-    const api = window.electronAPI;
+      const api = window.electronAPI;
       if (api?.writeConfig) {
         await api.writeConfig(config);
       } else {
@@ -289,8 +298,9 @@ export default function SettingsPage() {
               <Monitor className="h-5 w-5 text-[#9B7FBB]" />
             </div>
             <p className="text-[13px] leading-relaxed text-[#6B6778]">
-              模型配置仅在桌面版可用<br />
-              请下载桌面版进行设置
+              {isAdmin
+                ? '配置将应用于管理后台的报告生成'
+                : '模型配置仅在桌面版可用，请下载桌面版进行设置'}
             </p>
           </div>
         )}
