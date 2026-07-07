@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain, shell, nativeImage } = require('electron');
 const path = require('path');
-const { fork } = require('child_process');
+const { spawn } = require('child_process');
 const fs = require('fs');
 
 const isDev = !app.isPackaged;
@@ -61,23 +61,24 @@ function setupDatabase() {
     fs.writeFileSync(dbPath, '');
   }
 
-  // Try to run prisma migrate or push to ensure schema is up to date
+  // Try to run prisma db push to ensure schema is up to date
+  const prismaCli = path.join(serverDir, 'node_modules', 'prisma', 'build', 'index.js');
+  const schemaPath = path.join(prismaDir, 'schema.prisma');
+  if (!fs.existsSync(prismaCli) || !fs.existsSync(schemaPath)) {
+    console.warn('[db] Prisma CLI or schema not found, skipping migration');
+    return;
+  }
   try {
-    const prismaCli = path.join(serverDir, 'node_modules', 'prisma', 'build', 'index.js');
-    const schemaPath = path.join(prismaDir, 'schema.prisma');
-    if (fs.existsSync(schemaPath)) {
-      const child = require('child_process');
-      child.execFileSync(
-        process.execPath,
-        [prismaCli, 'db', 'push', `--schema="${schemaPath}"`, '--skip-generate'],
-        {
-          cwd: serverDir,
-          env: { ...process.env, DATABASE_URL: `file:${dbPath}` },
-          stdio: 'pipe',
-          timeout: 30000,
-        },
-      );
-    }
+    require('child_process').execFileSync(
+      process.execPath,
+      [prismaCli, 'db', 'push', `--schema="${schemaPath}"`, '--skip-generate'],
+      {
+        cwd: serverDir,
+        env: { ...process.env, DATABASE_URL: `file:${dbPath}` },
+        stdio: 'pipe',
+        timeout: 30000,
+      },
+    );
   } catch (err) {
     console.warn('[db] Migration failed, will try to continue:', err.message);
   }
@@ -95,19 +96,17 @@ function startServer() {
       NODE_ENV: isDev ? 'development' : 'production',
     };
 
-    if (isDev) {
-      serverProcess = fork(
-        path.join(serverDir, 'node_modules', 'next', 'dist', 'bin', 'next'),
-        ['dev', '-p', String(PORT)],
-        { cwd: serverDir, stdio: 'pipe', env },
-      );
-    } else {
-      serverProcess = fork(
-        path.join(serverDir, 'server.js'),
-        [],
-        { cwd: serverDir, stdio: 'pipe', env },
-      );
-    }
+    const serverScript = isDev
+      ? path.join(serverDir, 'node_modules', 'next', 'dist', 'bin', 'next')
+      : path.join(serverDir, 'server.js');
+
+    const serverArgs = isDev ? ['dev', '-p', String(PORT)] : [];
+
+    serverProcess = spawn(process.execPath, [serverScript, ...serverArgs], {
+      cwd: serverDir,
+      stdio: 'pipe',
+      env,
+    });
 
     const onData = (data) => {
       const text = data.toString();
@@ -128,17 +127,24 @@ function startServer() {
       if (code !== 0) reject(new Error(`Server exited with code ${code}`));
     };
 
+    const onSpawnError = (err) => {
+      cleanup();
+      reject(new Error(`Server spawn failed: ${err.message}`));
+    };
+
     const cleanup = () => {
       if (serverProcess) {
         serverProcess.stdout?.removeListener('data', onData);
         serverProcess.stderr?.removeListener('data', onError);
         serverProcess.removeListener('exit', onExit);
+        serverProcess.removeListener('error', onSpawnError);
       }
     };
 
     serverProcess.stdout?.on('data', onData);
     serverProcess.stderr?.on('data', onError);
     serverProcess.on('exit', onExit);
+    serverProcess.on('error', onSpawnError);
 
     setTimeout(() => {
       cleanup();
