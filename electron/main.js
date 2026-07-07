@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain, shell, nativeImage } = require('electron');
 const path = require('path');
-const { spawn } = require('child_process');
 const fs = require('fs');
+const http = require('http');
 
 const isDev = !app.isPackaged;
 const PORT = 3456;
@@ -89,67 +89,56 @@ function startServer() {
     const serverDir = getServerDir();
     const dbPath = getDbPath();
 
-    const env = {
-      ...process.env,
-      PORT: String(PORT),
-      DATABASE_URL: `file:${dbPath}`,
-      NODE_ENV: isDev ? 'development' : 'production',
-    };
+    process.env.PORT = String(PORT);
+    process.env.DATABASE_URL = `file:${dbPath}`;
+    process.env.NODE_ENV = 'production';
+    process.chdir(serverDir);
 
-    const serverScript = isDev
-      ? path.join(serverDir, 'node_modules', 'next', 'dist', 'bin', 'next')
-      : path.join(serverDir, 'server.js');
+    if (isDev) {
+      const nextBin = path.join(serverDir, 'node_modules', 'next', 'dist', 'bin', 'next');
+      const { fork } = require('child_process');
+      serverProcess = fork(nextBin, ['dev', '-p', String(PORT)], {
+        cwd: serverDir,
+        stdio: 'pipe',
+        env: process.env,
+      });
+      serverProcess.stdout?.on('data', (data) => {
+        const text = data.toString();
+        if (text.includes('http://localhost:' + PORT)) resolve();
+      });
+      serverProcess.stderr?.on('data', (d) => process.stderr.write(d));
+      serverProcess.on('exit', (code) => {
+        if (code !== 0) reject(new Error(`Dev server exited with code ${code}`));
+      });
+      serverProcess.on('error', (err) => reject(new Error(`Dev server spawn: ${err.message}`));
+      return;
+    }
 
-    const serverArgs = isDev ? ['dev', '-p', String(PORT)] : [];
+    // Production: load Next.js standalone server in-process
+    try {
+      require(path.join(serverDir, 'server.js'));
+    } catch (err) {
+      reject(new Error(`Failed to load server: ${err.message}`));
+      return;
+    }
 
-    serverProcess = spawn(process.execPath, [serverScript, ...serverArgs], {
-      cwd: serverDir,
-      stdio: 'pipe',
-      env,
-    });
-
-    const onData = (data) => {
-      const text = data.toString();
-      console.log('[server]', text);
-      if (text.includes('http://localhost:' + PORT) || text.includes('ready started server') || text.includes('started server')) {
-        cleanup();
+    // Poll until the server is reachable
+    const poll = (attempts) => {
+      if (attempts <= 0) {
+        reject(new Error('Server start timeout'));
+        return;
+      }
+      const req = http.get(`http://localhost:${PORT}`, (res) => {
+        res.resume();
         resolve();
-      }
+      });
+      req.on('error', () => {
+        req.destroy();
+        setTimeout(() => poll(attempts - 1), 1000);
+      });
+      req.setTimeout(5000, () => { req.destroy(); setTimeout(() => poll(attempts - 1), 1000); });
     };
-
-    const onError = (data) => {
-      const text = data.toString();
-      console.error('[server error]', text);
-    };
-
-    const onExit = (code) => {
-      cleanup();
-      if (code !== 0) reject(new Error(`Server exited with code ${code}`));
-    };
-
-    const onSpawnError = (err) => {
-      cleanup();
-      reject(new Error(`Server spawn failed: ${err.message}`));
-    };
-
-    const cleanup = () => {
-      if (serverProcess) {
-        serverProcess.stdout?.removeListener('data', onData);
-        serverProcess.stderr?.removeListener('data', onError);
-        serverProcess.removeListener('exit', onExit);
-        serverProcess.removeListener('error', onSpawnError);
-      }
-    };
-
-    serverProcess.stdout?.on('data', onData);
-    serverProcess.stderr?.on('data', onError);
-    serverProcess.on('exit', onExit);
-    serverProcess.on('error', onSpawnError);
-
-    setTimeout(() => {
-      cleanup();
-      reject(new Error('Server start timeout'));
-    }, 60000);
+    poll(30);
   });
 }
 
