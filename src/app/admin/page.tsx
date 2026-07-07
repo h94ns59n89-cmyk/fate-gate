@@ -257,7 +257,9 @@ export default function AdminPage() {
   const [viewReport, setViewReport] = useState<{ id: number; data: FullReport } | null>(null);
   const [viewComparison, setViewComparison] = useState<any | null>(null);
   const [tab, setTab] = useState<'pending' | 'completed' | 'log'>('pending');
-  const [aiModel, setAiModel] = useState<'gpt-4o' | 'gpt-4o-mini' | 'deepseek-chat' | 'deepseek-reasoner'>('deepseek-chat');
+  const [aiModel, setAiModel] = useState('deepseek-chat');
+  const [availableModels, setAvailableModels] = useState<string[]>([]);
+  const [modelsLoading, setModelsLoading] = useState(false);
 
   const addLog = useCallback((msg: string) => {
     setLog((prev) => [`[${new Date().toLocaleTimeString()}] ${msg}`, ...prev.slice(0, 99)]);
@@ -287,6 +289,20 @@ export default function AdminPage() {
   useEffect(() => {
     if (authenticated) fetchReports();
   }, [authenticated, fetchReports]);
+
+  useEffect(() => {
+    if (!authenticated) return;
+    setModelsLoading(true);
+    fetch('/api/v1/ai/models', { method: 'POST' })
+      .then((r) => r.json())
+      .then((json) => {
+        if (json.code === 0 && json.data?.models?.length > 0) {
+          setAvailableModels(json.data.models);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setModelsLoading(false));
+  }, [authenticated]);
 
   const handleGenerate = async (reportId: number, kind?: string) => {
     setGenerating((prev) => new Set(prev).add(reportId));
@@ -452,16 +468,27 @@ export default function AdminPage() {
         {tab === 'pending' && (
           <div>
             <div className="mb-3 flex items-center justify-end gap-2">
-              <span className="text-xs text-[#8A8696]">AI 模型</span>
+              <span className="text-xs text-[#8A8696]">模型</span>
               <select
-                value={aiModel}
-                onChange={(e) => setAiModel(e.target.value as typeof aiModel)}
+                value={modelsLoading ? '' : aiModel}
+                onChange={(e) => setAiModel(e.target.value)}
                 className="rounded-[6px] border border-[rgba(0,0,0,0.12)] bg-[#FFFFFF] px-2.5 py-1.5 text-xs text-[#1F1D2B] outline-none focus:border-[#9B7FBB]"
+                disabled={modelsLoading}
               >
-                <option value="gpt-4o-mini">gpt-4o-mini</option>
-                <option value="gpt-4o">gpt-4o</option>
-                <option value="deepseek-chat">deepseek-chat</option>
-                <option value="deepseek-reasoner">deepseek-reasoner</option>
+                {modelsLoading ? (
+                  <option value="">加载中...</option>
+                ) : availableModels.length > 0 ? (
+                  availableModels.map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))
+                ) : (
+                  <>
+                    <option value="gpt-4o-mini">gpt-4o-mini</option>
+                    <option value="gpt-4o">gpt-4o</option>
+                    <option value="deepseek-chat">deepseek-chat</option>
+                    <option value="deepseek-reasoner">deepseek-reasoner</option>
+                  </>
+                )}
               </select>
             </div>
             {data?.pending.length === 0 ? (

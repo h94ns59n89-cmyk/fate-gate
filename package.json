@@ -2,6 +2,7 @@
   "name": "fate-gate",
   "version": "1.0.0",
   "private": true,
+  "main": "electron/main.js",
   "description": "AI命理人格系统 - 将传统八字命理转化为现代人格认知工具",
   "scripts": {
     "dev": "next dev",
@@ -10,6 +11,8 @@
     "vercel-build": "prisma generate --schema=prisma/schema.postgres.prisma && prisma db push --schema=prisma/schema.postgres.prisma && next build",
     "postinstall": "prisma generate",
     "start": "next start",
+    "electron:dev": "next build && electron .",
+    "electron:build": "next build && electron-builder",
     "lint": "next lint && prettier --check .",
     "lint:fix": "next lint --fix && prettier --write .",
     "typecheck": "tsc --noEmit -p tsconfig.typecheck.json",
@@ -27,6 +30,36 @@
     "db:backfill-mbti": "tsx scripts/backfill-mbti.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
+  },
+  "build": {
+    "appId": "com.xingyu.app",
+    "productName": "星隅",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      ".next/standalone/**/*",
+      ".next/static/**/*",
+      "public/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": ["nsis"],
+      "icon": "public/favicon.ico"
+    },
+    "mac": {
+      "target": ["dmg"],
+      "icon": "public/favicon.ico"
+    },
+    "linux": {
+      "target": ["AppImage"],
+      "icon": "public/favicon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
   },
   "dependencies": {
     "@prisma/client": "^6.0.0",
