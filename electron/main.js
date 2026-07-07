@@ -1,6 +1,6 @@
-const { app, BrowserWindow, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, nativeImage } = require('electron');
 const path = require('path');
-const { fork, execSync } = require('child_process');
+const { fork } = require('child_process');
 const fs = require('fs');
 
 const isDev = !app.isPackaged;
@@ -66,8 +66,10 @@ function setupDatabase() {
     const prismaCli = path.join(serverDir, 'node_modules', 'prisma', 'build', 'index.js');
     const schemaPath = path.join(prismaDir, 'schema.prisma');
     if (fs.existsSync(schemaPath)) {
-      execSync(
-        `node "${prismaCli}" db push --schema="${schemaPath}" --skip-generate`,
+      const child = require('child_process');
+      child.execFileSync(
+        process.execPath,
+        [prismaCli, 'db', 'push', `--schema="${schemaPath}"`, '--skip-generate'],
         {
           cwd: serverDir,
           env: { ...process.env, DATABASE_URL: `file:${dbPath}` },
@@ -145,14 +147,25 @@ function startServer() {
   });
 }
 
+function getIconPath() {
+  const icoPath = path.join(__dirname, '..', 'public', 'favicon.ico');
+  if (fs.existsSync(icoPath)) return icoPath;
+  // Fallback: try resources directory (packaged mode)
+  const resIco = path.join(process.resourcesPath, 'app.asar.unpacked', 'public', 'favicon.ico');
+  if (fs.existsSync(resIco)) return resIco;
+  return null;
+}
+
 function createWindow() {
+  const icon = getIconPath();
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     minWidth: 375,
     minHeight: 600,
     title: '星隅',
-    icon: path.join(__dirname, '..', 'public', 'favicon.ico'),
+    icon: icon,
+    ...(icon ? {} : { icon: undefined }),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
