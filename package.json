@@ -66,12 +66,19 @@
       ],
       "icon": "public/favicon.ico"
     },
+    "electronDownload": {
+      "mirror": "https://npmmirror.com/mirrors/electron/"
+    },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "星隅"
+      "shortcutName": "星隅",
+      "installerIcon": "public/favicon.ico",
+      "uninstallerIcon": "public/favicon.ico",
+      "installerHeaderIcon": "public/favicon.ico",
+      "installerHeader": "public/installer-header.bmp"
     }
   },
   "dependencies": {
