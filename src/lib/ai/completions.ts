@@ -2,6 +2,7 @@ import { getEnv } from '@/lib/env';
 import { buildPersonalityTagsPrompt, buildFullReportPrompt, buildComparisonPrompt } from '@/lib/prompts/templates';
 import { generateJsonWithFallback } from './provider';
 import { mockPersonalityTags, mockFullReport, mockComparison } from './mock';
+import { computeAnalysis } from './bazi-logic';
 import type { PersonalityTags, FullReport, ComparisonResult } from '@/lib/types';
 import type { AICompletionOptions } from './client';
 import { sha256 } from '@/lib/utils';
@@ -25,10 +26,11 @@ export async function generatePersonalityTags(
     return { data, provider: 'mock', latencyMs: 0 };
   }
 
+  const analysis = computeAnalysis(baziData);
   const result = await generateJsonWithFallback<PersonalityTags>(
     () => [
       { role: 'system', content: '你是一位精通子平八字命理的现代人格分析师。请严格按照要求的 JSON 格式输出。' },
-      { role: 'user', content: buildPersonalityTagsPrompt(baziData) },
+      { role: 'user', content: buildPersonalityTagsPrompt(baziData, analysis) },
     ],
     'personality_tags',
     { ...options, seed: computeSeed(baziData) },
@@ -50,10 +52,11 @@ export async function generateFullReport(
     return { data, provider: 'mock', latencyMs: 0 };
   }
 
+  const analysis = computeAnalysis(baziData);
   const result = await generateJsonWithFallback<FullReport>(
     () => [
-      { role: 'system', content: '你是资深命理人格分析师，30 年咨询经验。请严格按照要求的 10 章节 JSON 格式输出。' },
-      { role: 'user', content: buildFullReportPrompt(baziData) },
+      { role: 'system', content: '你是资深命理分析师，30 年咨询经验。请严格按照要求的 10 章节 JSON 格式输出。' },
+      { role: 'user', content: buildFullReportPrompt(baziData, analysis) },
     ],
     'full_report',
     { ...options, seed: computeSeed(baziData) },

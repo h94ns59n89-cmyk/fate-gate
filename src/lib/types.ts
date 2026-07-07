@@ -65,17 +65,94 @@ export interface PersonalityTags {
   past_tendencies?: string[];
 }
 
+export interface CoverSection {
+  title: string;
+  subtitle: string;
+  day_master: string;
+  life_theme: string;
+  generated_at: string;
+}
+
+export interface PersonalitySection {
+  day_master: string;
+  wang_shuai: string;
+  yong_shen: string;
+  ji_shen: string;
+  type: string;
+  core_traits: string[];
+  five_elements: string;
+  strengths: string[];
+  growth_areas: string[];
+  past_tendency: string;
+}
+
+export interface CareerSection {
+  suitable_directions: string[];
+  avoid_directions: string[];
+  advice: string;
+  past_tendency: string;
+}
+
+export interface RelationshipsSection {
+  communication_style: string;
+  compatibility: string[];
+  advice: string;
+  past_tendency: string;
+}
+
+export interface HealthSection {
+  focus_areas: string[];
+  advice: string;
+  past_tendency: string;
+}
+
+export interface CurrentYearSection {
+  overall: string;
+  career: string;
+  wealth: string;
+  relationships: string;
+  health: string;
+  advice: string;
+  lucky_aspects: string[];
+}
+
+export interface DecadeTrendSection {
+  age_range: string;
+  gan_zhi: string;
+  element: string;
+  focus: string;
+  advice: string;
+}
+
+export interface SelfImprovementSection {
+  directions: string[];
+  focus_star: string;
+  mindset_shift: string;
+  book_suggestions: string[];
+}
+
+export interface GlossaryEntry {
+  meaning: string;
+  your_chart: string;
+  why_it_matters: string;
+}
+
+export interface FooterSection {
+  disclaimer: string;
+  version: string;
+}
+
 export interface FullReport {
-  cover: Record<string, unknown>;
-  personality: Record<string, unknown>;
-  career: Record<string, unknown>;
-  relationships: Record<string, unknown>;
-  health: Record<string, unknown>;
-  current_year: Record<string, unknown>;
-  decade_trend: Record<string, unknown>;
-  self_improvement: Record<string, unknown>;
-  glossary: Record<string, unknown>;
-  footer: Record<string, unknown>;
+  cover: CoverSection;
+  personality: PersonalitySection;
+  career: CareerSection;
+  relationships: RelationshipsSection;
+  health: HealthSection;
+  current_year: CurrentYearSection;
+  decade_trend: DecadeTrendSection;
+  self_improvement: SelfImprovementSection;
+  glossary: Record<string, GlossaryEntry>;
+  footer: FooterSection;
 }
 
 export interface ComparisonResult {

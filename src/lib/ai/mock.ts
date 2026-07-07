@@ -104,7 +104,11 @@ export function mockFullReport(dayMaster: string): FullReport {
       generated_at: new Date().toISOString(),
     },
     personality: {
-      type: tags.personality_tags[0],
+      day_master: dayMaster,
+      wang_shuai: '身强',
+      yong_shen: '官杀',
+      ji_shen: '印比',
+      type: tags.personality_tags[0] ?? '独立型',
       core_traits: tags.core_traits,
       five_elements: '五行中和，气势均衡',
       strengths: ['思维缜密', '执行力强', '善于沟通'],
