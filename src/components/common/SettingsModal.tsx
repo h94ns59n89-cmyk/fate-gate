@@ -1,13 +1,17 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 
 interface SettingsModalProps {
   open: boolean;
   onClose: () => void;
+  downloadUrl?: string;
 }
 
-export function SettingsModal({ open, onClose }: SettingsModalProps) {
+export function SettingsModal({ open, onClose, downloadUrl }: SettingsModalProps) {
+  const [downloading, setDownloading] = useState(false);
+
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => {
@@ -16,6 +20,32 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
   }, [open, onClose]);
+
+  useEffect(() => {
+    if (!open) setDownloading(false);
+  }, [open]);
+
+  const handleDownload = async () => {
+    setDownloading(true);
+    try {
+      if (downloadUrl) {
+        const res = await fetch(downloadUrl, { method: 'HEAD' });
+        if (res.ok) {
+          const a = document.createElement('a');
+          a.href = downloadUrl;
+          a.download = '';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          toast.success('正在下载桌面版');
+          setDownloading(false);
+          return;
+        }
+      }
+    } catch {}
+    toast('桌面版安装包正在准备中，敬请期待', { icon: '📦' });
+    setDownloading(false);
+  };
 
   if (!open) return null;
 
@@ -39,12 +69,14 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
         </p>
         <div className="flex flex-col gap-2">
           <button
-            className="inline-flex h-10 w-full items-center justify-center rounded-[8px] bg-[#9B7FBB] text-[13px] font-medium text-[#FFFFFF] transition-colors hover:bg-[#8A6EAA]"
-            onClick={() => {
-              // TODO: trigger download
-            }}
+            disabled={downloading}
+            className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-[8px] bg-[#9B7FBB] text-[13px] font-medium text-[#FFFFFF] transition-colors hover:bg-[#8A6EAA] disabled:cursor-not-allowed disabled:opacity-60"
+            onClick={handleDownload}
           >
-            下载桌面版
+            {downloading && (
+              <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-[rgba(255,255,255,0.3)] border-t-[#FFFFFF]" />
+            )}
+            {downloading ? '准备中...' : '下载桌面版'}
           </button>
           <button
             className="inline-flex h-10 w-full items-center justify-center rounded-[8px] bg-transparent text-[12px] text-[#8A8696] transition-colors hover:text-[#1F1D2B]"
