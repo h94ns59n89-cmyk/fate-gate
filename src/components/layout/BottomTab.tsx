@@ -35,7 +35,7 @@ const legalLinks = [
 export function BottomTab() {
   const pathname = usePathname();
   const admin = useAdmin();
-  const tabs = [...baseTabs, ...(admin ? adminTabs : [])];
+  const tabs = admin ? adminTabs : baseTabs;
 
   return (
     <nav className="w-full max-w-md bg-[rgba(255,255,255,0.82)] backdrop-blur-lg md:hidden">

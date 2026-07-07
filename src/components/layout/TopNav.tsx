@@ -48,9 +48,9 @@ export function TopNav() {
 
   const handleLogout = useUserStore((s) => s.logout);
 
-  const visibleLinks = navLinks.filter(
-    (link) => !link.href.startsWith('/admin') || admin,
-  );
+  const visibleLinks = admin
+    ? navLinks.filter((link) => link.href.startsWith('/admin'))
+    : navLinks.filter((link) => !link.href.startsWith('/admin'));
 
   const handleAdminLogout = () => {
     try { localStorage.removeItem('admin_auth'); } catch {}

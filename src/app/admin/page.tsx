@@ -257,7 +257,7 @@ export default function AdminPage() {
   const [viewReport, setViewReport] = useState<{ id: number; data: FullReport } | null>(null);
   const [viewComparison, setViewComparison] = useState<any | null>(null);
   const [tab, setTab] = useState<'pending' | 'completed' | 'log'>('pending');
-  const [aiModel, setAiModel] = useState<'gpt-4o' | 'gpt-4o-mini' | 'deepseek-chat' | 'deepseek-reasoner'>('gpt-4o-mini');
+  const [aiModel, setAiModel] = useState<'gpt-4o' | 'gpt-4o-mini' | 'deepseek-chat' | 'deepseek-reasoner'>('deepseek-chat');
 
   const addLog = useCallback((msg: string) => {
     setLog((prev) => [`[${new Date().toLocaleTimeString()}] ${msg}`, ...prev.slice(0, 99)]);

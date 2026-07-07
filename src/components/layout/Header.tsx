@@ -29,9 +29,11 @@ export function Header() {
       <div className="flex items-center justify-between px-4 py-2.5">
         <Logo size="sm" />
         <nav className="flex items-center gap-3">
-          <Link href="/mine" className={cn('text-xs transition-colors', pathname === '/mine' ? 'text-[#9B7FBB] font-medium' : 'text-[#6B6778] hover:text-[#1F1D2B]')}>
-            我的
-          </Link>
+          {!admin && (
+            <Link href="/mine" className={cn('text-xs transition-colors', pathname === '/mine' ? 'text-[#9B7FBB] font-medium' : 'text-[#6B6778] hover:text-[#1F1D2B]')}>
+              我的
+            </Link>
+          )}
           {admin && adminLinks.map((link) => (
             <Link
               key={link.href}
