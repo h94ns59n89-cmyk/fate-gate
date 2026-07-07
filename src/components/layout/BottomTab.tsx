@@ -63,7 +63,15 @@ export function BottomTab() {
               </Link>
             );
           })}
-          {!admin && (
+          {admin ? (
+            <Link
+              href="/settings"
+              className="relative flex flex-1 flex-col items-center gap-0.5 py-2 text-xs text-[#8A8696] transition-colors hover:text-[#1F1D2B]"
+            >
+              <Settings className="h-4 w-4" />
+              <span>设置</span>
+            </Link>
+          ) : (
             <button
               onClick={() => setSettingsOpen(true)}
               className="relative flex flex-1 flex-col items-center gap-0.5 py-2 text-xs text-[#8A8696] transition-colors hover:text-[#1F1D2B]"
