@@ -56,13 +56,15 @@ export async function generateJsonWithFallback<T>(
   const { ai } = getEnv();
   const start = Date.now();
 
-  if (options.model?.startsWith('deepseek')) {
-    if (!ai.deepseekApiKey && ai.openaiApiKey) {
-      options = { ...options, model: ai.openaiModel as never };
-    }
-  } else if (options.model?.startsWith('gpt')) {
-    if (!ai.openaiApiKey && ai.deepseekApiKey) {
-      options = { ...options, model: ai.deepseekModel as never };
+  if (!options.apiKey) {
+    if (options.model?.startsWith('deepseek')) {
+      if (!ai.deepseekApiKey && ai.openaiApiKey) {
+        options = { ...options, model: ai.openaiModel as never };
+      }
+    } else if (options.model?.startsWith('gpt')) {
+      if (!ai.openaiApiKey && ai.deepseekApiKey) {
+        options = { ...options, model: ai.deepseekModel as never };
+      }
     }
   }
 
@@ -83,7 +85,7 @@ export async function generateJsonWithFallback<T>(
   }
 
   const provider = data !== null
-    ? (options.model?.startsWith('deepseek') ? 'deepseek' : 'openai')
+    ? (options.apiKey ? 'custom' : options.model?.startsWith('deepseek') ? 'deepseek' : 'openai')
     : 'none';
 
   return {

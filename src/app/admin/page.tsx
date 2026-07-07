@@ -260,6 +260,7 @@ export default function AdminPage() {
   const [aiModel, setAiModel] = useState('deepseek-chat');
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [modelsLoading, setModelsLoading] = useState(false);
+  const [customConfig, setCustomConfig] = useState<{ apiKey: string; baseUrl: string } | null>(null);
 
   const addLog = useCallback((msg: string) => {
     setLog((prev) => [`[${new Date().toLocaleTimeString()}] ${msg}`, ...prev.slice(0, 99)]);
@@ -292,17 +293,32 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!authenticated) return;
+    try {
+      const raw = localStorage.getItem('ai_config');
+      if (raw) {
+        const cfg = JSON.parse(raw);
+        if (cfg.apiKey) setCustomConfig({ apiKey: cfg.apiKey, baseUrl: cfg.baseUrl || '' });
+      }
+    } catch {}
+  }, [authenticated]);
+
+  useEffect(() => {
+    if (!authenticated) return;
     setModelsLoading(true);
-    fetch('/api/v1/ai/models', { method: 'POST' })
+    const body = customConfig?.apiKey
+      ? JSON.stringify({ apiKey: customConfig.apiKey, baseUrl: customConfig.baseUrl })
+      : '{}';
+    fetch('/api/v1/ai/models', { method: 'POST', body, headers: { 'Content-Type': 'application/json' } })
       .then((r) => r.json())
       .then((json) => {
         if (json.code === 0 && json.data?.models?.length > 0) {
           setAvailableModels(json.data.models);
+          setAiModel((prev) => json.data.models.includes(prev) ? prev : json.data.models[0]);
         }
       })
       .catch(() => {})
       .finally(() => setModelsLoading(false));
-  }, [authenticated]);
+  }, [authenticated, customConfig]);
 
   const handleGenerate = async (reportId: number, kind?: string) => {
     setGenerating((prev) => new Set(prev).add(reportId));
@@ -311,7 +327,10 @@ export default function AdminPage() {
       const res = await fetch('/api/v1/admin/reports/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, report_id: reportId, kind, model: aiModel }),
+        body: JSON.stringify({
+          token, report_id: reportId, kind, model: aiModel,
+          ...(customConfig?.apiKey ? { apiKey: customConfig.apiKey, baseUrl: customConfig.baseUrl } : {}),
+        }),
       });
       const json = await res.json();
       if (json.code === 0) {

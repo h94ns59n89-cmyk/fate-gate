@@ -14,6 +14,8 @@ export interface AICompletionOptions {
   timeout?: number;
   trace?: TraceContext;
   seed?: number;
+  apiKey?: string;
+  baseUrl?: string;
 }
 
 export interface AIProvider {
@@ -68,22 +70,54 @@ export async function chatCompletion(
   messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[],
   options: AICompletionOptions = {},
 ): Promise<string | null> {
+  const trace = options.trace ?? createTraceContext();
+  const model = options.model;
+
+  // Custom user-provided key/URL (from admin settings page)
+  if (options.apiKey && options.baseUrl) {
+    const customClient = new OpenAI({
+      apiKey: options.apiKey,
+      baseURL: options.baseUrl,
+      timeout: options.timeout ?? 30000,
+      maxRetries: 0,
+    });
+    const childTrace = createChildSpan(trace);
+    try {
+      const result = await traceAsync(childTrace, 'ai.chat.custom', async () => {
+        const response = await customClient.chat.completions.create({
+          model: model ?? 'deepseek-chat',
+          messages,
+          temperature: options.temperature ?? 0,
+          max_tokens: options.maxTokens ?? 4096,
+          ...(options.seed !== undefined ? { seed: options.seed } : {}),
+        });
+        const content = response.choices[0]?.message?.content;
+        if (!content) throw new Error('Empty AI response');
+        return content;
+      });
+      return result;
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      const aiLog = Logger.for('ai', trace);
+      aiLog.error('custom provider failed', { error: errorMsg });
+      return null;
+    }
+  }
+
   const providers = getActiveProviders();
   if (providers.length === 0) return null;
-
-  const trace = options.trace ?? createTraceContext();
 
   for (const provider of providers) {
     const circuitKey = provider.name === 'openai' ? 'gpt-api' : 'deepseek-api';
     if (!checkCircuit(circuitKey)) continue;
 
-    const model = options.model ?? provider.defaultModel;
+    const m = model ?? provider.defaultModel;
     const childTrace = createChildSpan(trace);
 
     try {
       const result = await traceAsync(childTrace, `ai.chat.${provider.name}`, async () => {
         const response = await provider.client.chat.completions.create({
-          model,
+          model: m,
           messages,
           temperature: options.temperature ?? 0,
           max_tokens: options.maxTokens ?? 4096,
