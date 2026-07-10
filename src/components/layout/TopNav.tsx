@@ -31,6 +31,7 @@ export function TopNav() {
   const user = useUserStore((s) => s.user);
   const admin = useAdmin();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const isElectron = typeof window !== 'undefined' && 'electronAPI' in window;
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -82,7 +83,7 @@ export function TopNav() {
           ))}
         </nav>
         <div className="flex items-center gap-2">
-          {admin ? (
+          {admin || isElectron ? (
             <Link
               href="/settings"
               className="flex h-7 w-7 items-center justify-center rounded-[6px] text-[#8A8696] transition-colors hover:bg-[#F5F0FA] hover:text-[#1F1D2B]"

@@ -52,6 +52,14 @@ next-env.d.ts
 # local database
 prisma/dev.db
 prisma/dev.db-journal
+prisma/init.db
+prisma/schema.sql
+
+# electron
+main.js
+scripts/prep-standalone.mjs
+scripts/init-db.cjs
+scripts/test-*.cjs
 
 # temp & scratch files
 _query*.js

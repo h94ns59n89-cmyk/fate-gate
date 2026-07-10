@@ -29,7 +29,7 @@ export default function TermsPage() {
 
         <section className="space-y-2">
           <h2 className="font-semibold text-[#1F1D2B]">3. 高级报告解锁</h2>
-          <p>3.1 部分高级报告为解锁内容，添加助理微信（janeai01）并确认后即可获取完整报告。</p>
+          <p>3.1 部分高级报告为解锁内容，添加助理微信（Willa106）并确认后即可获取完整报告。</p>
           <p>3.2 解锁后永久可查，无需额外付费。</p>
         </section>
 

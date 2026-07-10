@@ -24,6 +24,18 @@ export interface AIProvider {
   defaultModel: AIModel;
 }
 
+const MODEL_BASE_URLS: Record<string, string> = {
+  'gpt-4o': 'https://api.openai.com/v1',
+  'gpt-4o-mini': 'https://api.openai.com/v1',
+  'deepseek-chat': 'https://api.deepseek.com/v1',
+  'deepseek-reasoner': 'https://api.deepseek.com/v1',
+};
+
+function getBaseUrlForModel(model?: string): string {
+  if (model && MODEL_BASE_URLS[model]) return MODEL_BASE_URLS[model];
+  return 'https://api.deepseek.com/v1';
+}
+
 let openaiClient: OpenAI | null = null;
 let deepseekClient: OpenAI | null = null;
 
@@ -74,15 +86,15 @@ export async function chatCompletion(
   const model = options.model;
 
   // Custom user-provided key/URL (from admin settings page)
-  if (options.apiKey && options.baseUrl) {
+  const customBaseUrl = options.baseUrl || getBaseUrlForModel(options.model);
+  if (options.apiKey && customBaseUrl) {
     const customClient = new OpenAI({
       apiKey: options.apiKey,
-      baseURL: options.baseUrl,
+      baseURL: customBaseUrl,
       timeout: options.timeout ?? 30000,
       maxRetries: 0,
     });
-    const childTrace = createChildSpan(trace);
-    try {
+      const childTrace = createChildSpan(trace);
       const result = await traceAsync(childTrace, 'ai.chat.custom', async () => {
         const response = await customClient.chat.completions.create({
           model: model ?? 'deepseek-chat',
@@ -96,16 +108,10 @@ export async function chatCompletion(
         return content;
       });
       return result;
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : String(err);
-      const aiLog = Logger.for('ai', trace);
-      aiLog.error('custom provider failed', { error: errorMsg });
-      return null;
-    }
   }
 
   const providers = getActiveProviders();
-  if (providers.length === 0) return null;
+  if (providers.length === 0) throw new Error('未配置 API Key，请在设置页配置 AI 模型');
 
   for (const provider of providers) {
     const circuitKey = provider.name === 'openai' ? 'gpt-api' : 'deepseek-api';

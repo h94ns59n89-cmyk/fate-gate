@@ -1,180 +1,15 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { ReportPageViewer } from '@/components/report/ReportPageViewer';
 import type { FullReport } from '@/lib/types';
 
-function renderReportHTML(report: Record<string, unknown>): string {
-  const sections = [
-    { key: 'cover', label: '封面' },
-    { key: 'personality', label: '人格分析' },
-    { key: 'career', label: '事业发展' },
-    { key: 'relationships', label: '感情模式' },
-    { key: 'health', label: '健康提示' },
-    { key: 'current_year', label: '流年运势' },
-    { key: 'decade_trend', label: '大运趋势' },
-    { key: 'self_improvement', label: '成长建议' },
-    { key: 'glossary', label: '术语解释' },
-    { key: 'footer', label: '声明' },
-  ];
-  const d = (key: string) => report[key] as Record<string, unknown> | undefined;
-
-  function esc(s: string): string {
-    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
-
-  function tag(text: string): string {
-    return `<span style="display:inline-block;border-radius:999px;background:rgba(155,127,187,0.08);padding:2px 10px;font-size:11px;color:#9B7FBB;">${esc(text)}</span>`;
-  }
-
-  function pastTendency(text?: string): string {
-    if (!text) return '';
-    return `<div style="border:1px dashed rgba(138,134,150,0.3);border-radius:4px;background:#F8F8FA;padding:10px 14px;margin-top:12px;"><p style="font-size:9px;color:#8A8696;margin:0 0 4px 0;letter-spacing:1px;">过去可能倾向</p><p style="font-size:12px;line-height:1.6;color:rgba(31,29,43,0.55);margin:0;font-style:italic;">${esc(text)}</p></div>`;
-  }
-
-  function adviceBlock(text?: string): string {
-    if (!text) return '';
-    return `<div style="border-left:2px solid #9B7FBB;border-radius:4px;background:rgba(155,127,187,0.05);padding:8px 14px;margin-top:12px;"><p style="font-size:9px;color:rgba(155,127,187,0.6);margin:0 0 4px 0;letter-spacing:1px;">建议</p><p style="font-size:12px;line-height:1.6;color:rgba(31,29,43,0.7);margin:0;">${esc(text)}</p></div>`;
-  }
-
-  function numberedList(items: string[]): string {
-    return items.map((item, i) =>
-      `<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;"><span style="display:flex;width:18px;height:18px;border-radius:999px;background:rgba(155,127,187,0.1);align-items:center;justify-content:center;font-size:9px;font-weight:600;color:#9B7FBB;flex-shrink:0;">${i + 1}</span><span style="font-size:12px;line-height:1.5;color:rgba(31,29,43,0.7);">${esc(item)}</span></div>`
-    ).join('');
-  }
-
-  function card(items: string[]): string {
-    return items.map((item) =>
-      `<div style="display:flex;align-items:center;gap:10px;border:1px solid rgba(0,0,0,0.06);border-radius:4px;background:#F8F8FA;padding:8px 12px;margin-bottom:6px;"><span style="display:flex;width:24px;height:24px;border-radius:3px;background:rgba(155,127,187,0.1);align-items:center;justify-content:center;font-size:12px;color:#9B7FBB;flex-shrink:0;">✦</span><span style="font-size:12px;color:rgba(31,29,43,0.7);">${esc(item)}</span></div>`
-    ).join('');
-  }
-
-  function sideCard(items: string[], title: string, color: string): string {
-    return `<div style="border-left:2px solid ${color};border-radius:4px;background:rgba(${color === '#8FCFA0' ? '143,207,160' : '224,151,138'},0.05);padding:8px 12px;"><p style="font-size:9px;font-weight:600;color:${color};margin:0 0 6px 0;letter-spacing:1px;">${esc(title)}</p><ul style="margin:0;padding-left:14px;">${items.map(s => `<li style="font-size:11px;line-height:1.5;color:rgba(31,29,43,0.6);margin-bottom:2px;">${esc(s)}</li>`).join('')}</ul></div>`;
-  }
-
-  let html = `<div style="font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;padding:0;background:#FFFFFF;color:rgba(31,29,43,0.85);max-width:800px;margin:0 auto;">`;
-
-  for (const section of sections) {
-    const data = d(section.key);
-    if (!data) continue;
-
-    html += `<div style="padding:20px 32px;page-break-inside:avoid;">`;
-
-    if (section.key === 'cover') {
-      html += `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:600px;text-align:center;">`;
-      html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:24px;"><div style="width:40px;height:1px;background:linear-gradient(to right,transparent,rgba(155,127,187,0.3));"></div><div style="display:flex;gap:3px;"><div style="width:4px;height:4px;border-radius:999px;background:#9B7FBB;"></div><div style="width:4px;height:4px;border-radius:999px;background:rgba(155,127,187,0.5);"></div><div style="width:4px;height:4px;border-radius:999px;background:rgba(155,127,187,0.2);"></div></div><div style="width:40px;height:1px;background:linear-gradient(to left,transparent,rgba(155,127,187,0.3));"></div></div>`;
-      if (data.day_master) html += `<span style="display:inline-block;border:1px solid rgba(155,127,187,0.25);background:rgba(155,127,187,0.08);border-radius:3px;padding:4px 14px;font-size:11px;color:#9B7FBB;font-weight:500;">日主 ${esc(data.day_master as string)}</span>`;
-      if (data.title) html += `<h1 style="font-size:28px;font-size:28px;font-weight:700;margin:20px 0 8px 0;color:#1F1D2B;font-family:serif;">${esc(data.title as string)}</h1>`;
-      if (data.subtitle) html += `<p style="font-size:13px;color:#6B6778;margin:0 0 20px 0;">${esc(data.subtitle as string)}</p>`;
-      html += `<div style="width:60px;height:1px;background:linear-gradient(to right,transparent,rgba(155,127,187,0.25),transparent);margin-bottom:20px;"></div>`;
-      if (data.life_theme) html += `<div style="border-left:2px solid rgba(155,127,187,0.3);padding-left:14px;max-width:320px;"><p style="font-size:14px;font-style:italic;font-family:serif;color:#9B7FBB;margin:0;">「${esc(data.life_theme as string)}」</p></div>`;
-      if (data.generated_at) html += `<p style="margin-top:40px;font-size:10px;color:#8A8696;">生成于 ${new Date(data.generated_at as string).toLocaleDateString('zh-CN')}</p>`;
-      html += `</div>`;
-    } else if (section.key === 'footer') {
-      html += `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;"><div style="width:48px;border-top:1px solid rgba(0,0,0,0.06);"></div><p style="margin-top:14px;font-size:11px;color:#8A8696;">本内容由 AI 生成，仅供娱乐参考</p></div>`;
-    } else {
-      html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;border-bottom:1px solid rgba(0,0,0,0.06);padding-bottom:10px;"><span style="color:#6B6778;font-size:12px;font-weight:500;">${section.label}</span></div>`;
-
-      if (section.key === 'personality') {
-        if (data.type) html += `<div style="text-align:center;margin-bottom:12px;">${tag(data.type as string)}</div>`;
-        if (data.five_elements) html += `<p style="text-align:center;font-size:12px;color:#6B6778;margin:0 0 12px 0;">${esc(data.five_elements as string)}</p>`;
-        const traits = data.core_traits as string[] | undefined;
-        if (traits?.length) html += `<div style="margin-bottom:12px;"><p style="font-size:10px;font-weight:600;color:#6B6778;margin:0 0 8px 0;letter-spacing:1px;">✦ 核心特质</p>${numberedList(traits)}</div>`;
-        const strengths = data.strengths as string[] | undefined;
-        const growth = data.growth_areas as string[] | undefined;
-        if (strengths?.length || growth?.length) {
-          html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">`;
-          if (strengths?.length) html += sideCard(strengths, '优势', '#8FCFA0');
-          if (growth?.length) html += sideCard(growth, '成长', '#E0978A');
-          html += `</div>`;
-        }
-        html += pastTendency(data.past_tendency as string);
-      }
-
-      if (section.key === 'career') {
-        const suitable = data.suitable_directions as string[] | undefined;
-        const avoid = data.avoid_directions as string[] | undefined;
-        if (suitable?.length) html += `<div style="margin-bottom:12px;"><p style="font-size:10px;font-weight:600;color:#6B6778;margin:0 0 8px 0;letter-spacing:1px;">适合方向</p>${card(suitable)}</div>`;
-        if (avoid?.length) html += `<div style="margin-bottom:12px;"><p style="font-size:10px;font-weight:600;color:#8A8696;margin:0 0 8px 0;letter-spacing:1px;">建议规避</p><div style="display:flex;flex-wrap:wrap;gap:6px;">${avoid.map(s => `<span style="font-size:11px;color:#8A8696;text-decoration:line-through;">${esc(s)}</span>`).join('')}</div></div>`;
-        html += adviceBlock(data.advice as string);
-        html += pastTendency(data.past_tendency as string);
-      }
-
-      if (section.key === 'relationships') {
-        if (data.communication_style) html += `<div style="border:1px solid rgba(0,0,0,0.06);border-radius:4px;background:#F8F8FA;padding:12px;text-align:center;margin-bottom:12px;"><p style="font-size:9px;font-weight:600;color:#6B6778;margin:0 0 4px 0;letter-spacing:1px;">沟通风格</p><p style="font-size:12px;font-weight:500;color:#1F1D2B;margin:0;">${esc(data.communication_style as string)}</p></div>`;
-        const compat = data.compatibility as string[] | undefined;
-        if (compat?.length) html += `<div style="margin-bottom:12px;"><p style="font-size:10px;font-weight:600;color:#6B6778;margin:0 0 8px 0;letter-spacing:1px;">兼容类型</p><div style="display:flex;flex-wrap:wrap;gap:4px;">${compat.map(s => tag(s)).join('')}</div></div>`;
-        html += adviceBlock(data.advice as string);
-        html += pastTendency(data.past_tendency as string);
-      }
-
-      if (section.key === 'health') {
-        const areas = data.focus_areas as string[] | undefined;
-        if (areas?.length) html += `<div style="margin-bottom:12px;"><p style="font-size:10px;font-weight:600;color:#6B6778;margin:0 0 8px 0;letter-spacing:1px;">关注领域</p>${card(areas)}</div>`;
-        html += adviceBlock(data.advice as string);
-        html += pastTendency(data.past_tendency as string);
-      }
-
-      if (section.key === 'current_year') {
-        const items = [
-          { label: '整体运势', key: 'overall' },
-          { label: '事业', key: 'career' },
-          { label: '财富', key: 'wealth' },
-          { label: '感情', key: 'relationships' },
-          { label: '健康', key: 'health' },
-        ];
-        html += `<p style="font-size:10px;font-weight:600;color:#6B6778;text-align:center;margin:0 0 12px 0;">${new Date().getFullYear()} 年运势</p>`;
-        html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">`;
-        for (const { label, key } of items) {
-          const v = data[key] as string | undefined;
-          html += `<div style="border:1px solid rgba(0,0,0,0.06);border-radius:4px;background:#F8F8FA;padding:10px;text-align:center;"><p style="font-size:9px;color:#8A8696;margin:0 0 6px 0;">${label}</p><span style="display:inline-block;border-radius:999px;border:1px solid rgba(0,0,0,0.08);padding:2px 10px;font-size:10px;color:#6B6778;background:#F8F8FA;">${v ?? '-'}</span></div>`;
-        }
-        html += adviceBlock(data.advice as string);
-        const lucky = data.lucky_aspects as string[] | undefined;
-        if (lucky?.length) html += `<div style="margin-top:8px;"><p style="font-size:9px;color:#8A8696;margin:0 0 4px 0;">幸运领域</p><div style="display:flex;gap:6px;flex-wrap:wrap;">${lucky.map(a => `<span style="border-radius:999px;border:1px solid rgba(155,127,187,0.2);padding:2px 8px;font-size:9px;color:#9B7FBB;background:rgba(155,127,187,0.05);">${esc(a)}</span>`).join('')}</div></div>`;
-      }
-
-      if (section.key === 'decade_trend') {
-        html += `<div style="border:1px solid rgba(155,127,187,0.15);border-radius:4px;background:linear-gradient(to bottom,rgba(155,127,187,0.05),transparent);padding:16px;text-align:center;margin-bottom:12px;"><div style="width:24px;height:3px;background:#9B7FBB;border-radius:2px;margin:0 auto 8px auto;"></div><p style="font-size:9px;font-weight:600;color:#6B6778;margin:0 0 8px 0;letter-spacing:1px;">当前大运</p>`;
-        if (data.age_range) html += `<p style="font-size:16px;font-weight:700;color:#9B7FBB;margin:0 0 4px 0;">${esc(data.age_range as string)} 岁</p>`;
-        if (data.gan_zhi) html += `<p style="font-size:10px;color:#6B6778;margin:0 0 4px 0;">大运干支：<strong>${esc(data.gan_zhi as string)}</strong>${data.element ? '（' + esc(data.element as string) + '）' : ''}</p>`;
-        if (data.focus) html += `<p style="font-size:12px;color:rgba(31,29,43,0.6);margin:0;">${esc(data.focus as string)}</p></div>`;
-        html += adviceBlock(data.advice as string);
-      }
-
-      if (section.key === 'self_improvement') {
-        const dirs = data.directions as string[] | undefined;
-        const books = data.book_suggestions as string[] | undefined;
-        const focusStar = data.focus_star as string | undefined;
-        const mindset = data.mindset_shift as string | undefined;
-        if (dirs?.length) html += `<div style="margin-bottom:12px;"><p style="font-size:10px;font-weight:600;color:#6B6778;margin:0 0 8px 0;letter-spacing:1px;">成长方向</p><ul style="margin:0;padding-left:0;list-style:none;">${dirs.map(d => `<li style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="display:flex;width:18px;height:18px;border-radius:999px;background:rgba(143,207,160,0.15);align-items:center;justify-content:center;font-size:9px;color:#8FCFA0;flex-shrink:0;">✓</span><span style="font-size:12px;color:rgba(31,29,43,0.7);">${esc(d)}</span></li>`).join('')}</ul></div>`;
-        if (focusStar) html += `<div style="margin-bottom:8px;border:1px solid rgba(155,127,187,0.12);border-radius:4px;background:rgba(155,127,187,0.04);padding:10px;"><p style="font-size:9px;color:#6B6778;margin:0 0 4px 0;">能量聚焦</p><p style="font-size:11px;line-height:1.5;color:rgba(31,29,43,0.7);margin:0;">${esc(focusStar)}</p></div>`;
-        if (mindset) html += `<div style="margin-bottom:8px;border:1px solid rgba(155,127,187,0.12);border-radius:4px;background:rgba(155,127,187,0.04);padding:10px;"><p style="font-size:9px;color:#6B6778;margin:0 0 4px 0;">心态转变</p><p style="font-size:11px;line-height:1.5;color:rgba(31,29,43,0.7);margin:0;">${esc(mindset)}</p></div>`;
-        if (books?.length) html += `<div style="margin-bottom:12px;"><p style="font-size:10px;font-weight:600;color:#6B6778;margin:0 0 8px 0;letter-spacing:1px;">推荐阅读</p>${card(books)}</div>`;
-      }
-
-      if (section.key === 'glossary') {
-        const glossaryZh: Record<string, string> = { day_master: '日主', five_elements: '五行', shishen: '十神', heavenly_stem: '天干', earthly_branch: '地支', hidden_stems: '藏干', dayun: '大运', liunian: '流年', nayin: '纳音', shensha: '神煞', kongwang: '空亡', yong_shen: '用神', xi_shen: '喜神', ji_shen: '忌神' };
-        const entries = Object.entries(data).filter(([k]) => k !== 'id');
-        for (const [term, desc] of entries) {
-          html += `<div style="border:1px solid rgba(0,0,0,0.06);border-radius:4px;background:#F8F8FA;padding:8px 12px;margin-bottom:6px;"><p style="font-size:10px;font-weight:600;color:#9B7FBB;margin:0 0 2px 0;">${glossaryZh[term] ?? term}</p><p style="font-size:11px;line-height:1.5;color:rgba(31,29,43,0.6);margin:0;">${esc(desc as string)}</p></div>`;
-        }
-      }
-    }
-
-    html += `</div>`;
-  }
-
-  html += `<div style="text-align:center;padding:16px 32px;border-top:1px solid #EDE6DE;"><p style="font-size:9px;color:#D4C0B0;">星隅出品 · AI 生成 · 仅供娱乐参考</p></div></div>`;
-  return html;
-}
-
 function renderComparisonHTML(data: Record<string, unknown>): string {
-  function esc(s: string): string {
+  function esc(s: unknown): string {
+    if (typeof s !== 'string') return '';
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
   function tag(text: string): string {
@@ -250,21 +85,64 @@ export default function AdminPage() {
   const router = useRouter();
   const [token, setToken] = useState('');
   const [authenticated, setAuthenticated] = useState(false);
-  const [data, setData] = useState<{ pending: { kind: string; id: number; user_id: number; user_nickname: string; created_at: string }[]; completed: { kind: string; id: number; user_id: number; user_nickname: string; created_at: string; generated_at: string | null }[] } | null>(null);
+  const [data, setData] = useState<{ pending: { kind: string; id: number; user_id: number; user_nickname: string; created_at: string; status?: string; error?: string | null }[]; completed: { kind: string; id: number; user_id: number; user_nickname: string; created_at: string; generated_at: string | null }[] } | null>(null);
   const [generating, setGenerating] = useState<Set<number>>(new Set());
   const [log, setLog] = useState<string[]>([]);
   const [exportingPDF, setExportingPDF] = useState<Set<number>>(new Set());
   const [viewReport, setViewReport] = useState<{ id: number; data: FullReport } | null>(null);
+  const [pdfExportData, setPdfExportData] = useState<{ report: FullReport; filename: string } | null>(null);
+  const pdfExportRef = useRef<HTMLDivElement>(null);
   const [viewComparison, setViewComparison] = useState<any | null>(null);
   const [tab, setTab] = useState<'pending' | 'completed' | 'log'>('pending');
   const [aiModel, setAiModel] = useState('deepseek-chat');
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [modelsLoading, setModelsLoading] = useState(false);
-  const [customConfig, setCustomConfig] = useState<{ apiKey: string; baseUrl: string } | null>(null);
+  const [customConfig, setCustomConfig] = useState<{ apiKey: string; baseUrl: string; model?: string } | null>(null);
 
   const addLog = useCallback((msg: string) => {
     setLog((prev) => [`[${new Date().toLocaleTimeString()}] ${msg}`, ...prev.slice(0, 99)]);
   }, []);
+
+  // PDF export via React component rendering
+  useEffect(() => {
+    if (!pdfExportData) return;
+    const el = pdfExportRef.current;
+    if (!el) return;
+    const { filename } = pdfExportData;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(async () => {
+        try {
+          const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#FFFFFF', logging: false });
+          const imgWidth = 210;
+          const pageHeight = 297;
+          const imgHeight = (canvas.height * imgWidth) / canvas.width;
+          let heightLeft = imgHeight;
+          const pdf = new jsPDF('p', 'mm', 'a4');
+          let page = 0;
+          while (heightLeft > 0) {
+            if (page > 0) pdf.addPage();
+            const srcHeight = (canvas.height * (pageHeight / imgHeight));
+            const sy = page * srcHeight;
+            const sHeight = Math.min(srcHeight, canvas.height - sy);
+            const pageCanvas = document.createElement('canvas');
+            pageCanvas.width = canvas.width;
+            pageCanvas.height = sHeight;
+            const ctx = pageCanvas.getContext('2d')!;
+            ctx.drawImage(canvas, 0, sy, canvas.width, sHeight, 0, 0, pageCanvas.width, pageCanvas.height);
+            pdf.addImage(pageCanvas.toDataURL('image/png'), 'PNG', 0, 0, imgWidth, (pageCanvas.height * imgWidth) / pageCanvas.width);
+            heightLeft -= pageHeight;
+            page++;
+          }
+          pdf.save(filename);
+          addLog(`✅ "${filename}" 导出成功 (${page} 页)`);
+        } catch (err) {
+          addLog(`❌ PDF 导出失败: ${err instanceof Error ? err.message : '未知错误'}`);
+        } finally {
+          setPdfExportData(null);
+        }
+      });
+    });
+  }, [pdfExportData]);
 
   const fetchReports = useCallback(async () => {
     try {
@@ -293,13 +171,28 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!authenticated) return;
-    try {
-      const raw = localStorage.getItem('ai_config');
-      if (raw) {
-        const cfg = JSON.parse(raw);
-        if (cfg.apiKey) setCustomConfig({ apiKey: cfg.apiKey, baseUrl: cfg.baseUrl || '' });
-      }
-    } catch {}
+    const loadConfig = async () => {
+      try {
+        const api = window.electronAPI;
+        if (api?.readConfig) {
+          const cfg = await api.readConfig();
+          if (cfg?.apiKey) {
+            setCustomConfig({ apiKey: cfg.apiKey, baseUrl: cfg.baseUrl || '', model: cfg.model || '' });
+            if (cfg.model) setAiModel(cfg.model);
+          }
+        } else {
+          const raw = localStorage.getItem('ai_config');
+          if (raw) {
+            const cfg = JSON.parse(raw);
+            if (cfg.apiKey) {
+              setCustomConfig({ apiKey: cfg.apiKey, baseUrl: cfg.baseUrl || '', model: cfg.model || '' });
+              if (cfg.model) setAiModel(cfg.model);
+            }
+          }
+        }
+      } catch {}
+    };
+    loadConfig();
   }, [authenticated]);
 
   useEffect(() => {
@@ -312,8 +205,9 @@ export default function AdminPage() {
       .then((r) => r.json())
       .then((json) => {
         if (json.code === 0 && json.data?.models?.length > 0) {
-          setAvailableModels(json.data.models);
-          setAiModel((prev) => json.data.models.includes(prev) ? prev : json.data.models[0]);
+          const models = [...new Set([...json.data.models, 'deepseek-chat', 'deepseek-reasoner'])];
+          setAvailableModels(models);
+          setAiModel((prev) => models.includes(prev) ? prev : 'deepseek-chat');
         }
       })
       .catch(() => {})
@@ -333,9 +227,9 @@ export default function AdminPage() {
         }),
       });
       const json = await res.json();
+      fetchReports();
       if (json.code === 0) {
         addLog(`✅ 报告 #${reportId} 生成成功 (${json.data.latency_ms}ms)`);
-        fetchReports();
       } else {
         addLog(`❌ 报告 #${reportId} 生成失败: ${json.message}`);
         alert(`生成失败: ${json.message}`);
@@ -367,7 +261,6 @@ export default function AdminPage() {
     addLog(`开始导出 PDF #${reportId}...`);
     try {
       const isComparison = kind === 'comparison';
-      let html: string;
       let filename: string;
 
       if (isComparison) {
@@ -377,8 +270,39 @@ export default function AdminPage() {
           addLog(`合盘报告 #${reportId} 无完整内容，无法导出`);
           return;
         }
-        html = renderComparisonHTML(json.data);
         filename = `星隅合盘报告_#${reportId}.pdf`;
+        const html = renderComparisonHTML(json.data);
+        const container = document.createElement('div');
+        container.style.position = 'absolute';
+        container.style.left = '-9999px';
+        container.style.top = '0';
+        container.style.width = '800px';
+        container.innerHTML = html;
+        document.body.appendChild(container);
+        const canvas = await html2canvas(container, { scale: 2, useCORS: true, backgroundColor: '#FFFFFF', logging: false });
+        document.body.removeChild(container);
+        const imgWidth = 210;
+        const pageHeight = 297;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        let heightLeft = imgHeight;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        let page = 0;
+        while (heightLeft > 0) {
+          if (page > 0) pdf.addPage();
+          const srcHeight = (canvas.height * (pageHeight / imgHeight));
+          const sy = page * srcHeight;
+          const sHeight = Math.min(srcHeight, canvas.height - sy);
+          const pageCanvas = document.createElement('canvas');
+          pageCanvas.width = canvas.width;
+          pageCanvas.height = sHeight;
+          const ctx = pageCanvas.getContext('2d')!;
+          ctx.drawImage(canvas, 0, sy, canvas.width, sHeight, 0, 0, pageCanvas.width, pageCanvas.height);
+          pdf.addImage(pageCanvas.toDataURL('image/png'), 'PNG', 0, 0, imgWidth, (pageCanvas.height * imgWidth) / pageCanvas.width);
+          heightLeft -= pageHeight;
+          page++;
+        }
+        pdf.save(filename);
+        addLog(`✅ PDF #${reportId} 导出成功 (${page} 页)`);
       } else {
         const res = await fetch(`/api/v1/reports/${reportId}`);
         const json = await res.json();
@@ -386,54 +310,9 @@ export default function AdminPage() {
           addLog(`报告 #${reportId} 无完整内容，无法导出`);
           return;
         }
-        html = renderReportHTML(json.data.full_report as Record<string, unknown>);
         filename = `星隅完整报告_#${reportId}.pdf`;
+        setPdfExportData({ report: json.data.full_report as FullReport, filename });
       }
-
-      const container = document.createElement('div');
-      container.style.position = 'absolute';
-      container.style.left = '-9999px';
-      container.style.top = '0';
-      container.style.width = '800px';
-      container.innerHTML = html;
-      document.body.appendChild(container);
-
-      const canvas = await html2canvas(container, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#FFFFFF',
-        logging: false,
-      });
-
-      document.body.removeChild(container);
-
-      const imgWidth = 210;
-      const pageHeight = 297;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      let page = 0;
-
-      while (heightLeft > 0) {
-        if (page > 0) pdf.addPage();
-        const srcHeight = (canvas.height * (pageHeight / imgHeight));
-        const sy = page * srcHeight;
-        const sHeight = Math.min(srcHeight, canvas.height - sy);
-
-        const pageCanvas = document.createElement('canvas');
-        pageCanvas.width = canvas.width;
-        pageCanvas.height = sHeight;
-        const ctx = pageCanvas.getContext('2d')!;
-        ctx.drawImage(canvas, 0, sy, canvas.width, sHeight, 0, 0, pageCanvas.width, pageCanvas.height);
-
-        pdf.addImage(pageCanvas.toDataURL('image/png'), 'PNG', 0, 0, imgWidth, (pageCanvas.height * imgWidth) / pageCanvas.width);
-        heightLeft -= pageHeight;
-        page++;
-      }
-
-      pdf.save(filename);
-      addLog(`✅ PDF #${reportId} 导出成功 (${page} 页)`);
     } catch (err) {
       addLog(`❌ PDF #${reportId} 导出失败: ${err instanceof Error ? err.message : '未知错误'}`);
     } finally {
@@ -487,10 +366,28 @@ export default function AdminPage() {
         {tab === 'pending' && (
           <div>
             <div className="mb-3 flex items-center justify-end gap-2">
+              {customConfig?.apiKey && (
+                <span className="flex items-center gap-1 rounded-[4px] bg-[rgba(143,207,160,0.1)] px-2 py-0.5 text-[10px] text-[#5FAF7A]">
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#8FCFA0]" />
+                  AI 已配置
+                </span>
+              )}
               <span className="text-xs text-[#8A8696]">模型</span>
               <select
                 value={modelsLoading ? '' : aiModel}
-                onChange={(e) => setAiModel(e.target.value)}
+                onChange={async (e) => {
+                  const model = e.target.value;
+                  setAiModel(model);
+                  try {
+                    const cfg = { provider: 'DeepSeek', apiKey: customConfig!.apiKey, baseUrl: customConfig!.baseUrl, model };
+                    const api = window.electronAPI;
+                    if (api?.writeConfig && customConfig?.apiKey) {
+                      await api.writeConfig(cfg);
+                    } else if (customConfig?.apiKey) {
+                      localStorage.setItem('ai_config', JSON.stringify(cfg));
+                    }
+                  } catch {}
+                }}
                 className="rounded-[6px] border border-[rgba(0,0,0,0.12)] bg-[#FFFFFF] px-2.5 py-1.5 text-xs text-[#1F1D2B] outline-none focus:border-[#9B7FBB]"
                 disabled={modelsLoading}
               >
@@ -521,6 +418,7 @@ export default function AdminPage() {
                     <div className="min-w-0">
                       <span className="text-sm font-medium text-[#1F1D2B]">#{r.id}</span>
                       {r.kind === 'comparison' && <span className="ml-1.5 rounded-[2px] bg-[#C9A88D]/15 px-1.5 py-0.5 text-[9px] text-[#C9A88D]">合盘</span>}
+                      {r.status === 'FAILED' && <span className="ml-1.5 rounded-[2px] bg-[#E0978A]/15 px-1.5 py-0.5 text-[9px] text-[#E0978A]">失败</span>}
                       <span className="ml-2 text-xs text-[#8A8696]">{r.user_nickname}</span>
                       <span className="ml-2 text-xs text-[#B8B6C0]">{new Date(r.created_at).toLocaleDateString()}</span>
                     </div>
@@ -605,6 +503,11 @@ export default function AdminPage() {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Hidden PDF export renderer */}
+      <div ref={pdfExportRef} style={{ position: 'absolute', left: '-9999px', top: 0, width: '800px', background: '#FFFFFF' }}>
+        {pdfExportData && <ReportPageViewer report={pdfExportData.report} variant="pdf" />}
       </div>
 
       {viewReport && (

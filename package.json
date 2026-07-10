@@ -12,7 +12,8 @@
     "postinstall": "prisma generate",
     "start": "next start",
     "electron:dev": "next build && electron .",
-    "electron:build": "next build && electron-builder",
+    "electron:build": "next build && node scripts/prep-standalone.mjs && electron-builder",
+    "electron:build:dir": "next build && node scripts/prep-standalone.mjs && electron-builder --win --dir",
     "lint": "next lint && prettier --check .",
     "lint:fix": "next lint --fix && prettier --write .",
     "typecheck": "tsc --noEmit -p tsconfig.typecheck.json",
@@ -38,7 +39,6 @@
       "output": "release"
     },
     "files": [
-      ".next/standalone/**/*",
       ".next/static/**/*",
       "public/**/*",
       "electron/**/*",
@@ -46,6 +46,8 @@
       "package.json"
     ],
     "extraResources": [
+      { "from": ".next/standalone", "to": ".next/standalone", "filter": ["**/*", "!**/node_modules/**"] },
+      { "from": ".next/standalone_nm", "to": ".next/standalone/node_modules" },
       { "from": "prisma/", "to": "prisma/" }
     ],
     "win": {

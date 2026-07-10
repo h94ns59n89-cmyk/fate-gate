@@ -8,6 +8,7 @@ import type { FullReport } from '@/lib/types';
 interface ReportPageViewerProps {
   report: FullReport;
   onShare?: () => void;
+  variant?: 'viewer' | 'pdf';
 }
 
 const PAGES = [
@@ -303,35 +304,145 @@ function HealthPage({ data }: { data: Record<string, unknown> }) {
 }
 
 function CurrentYearPage({ data }: { data: Record<string, unknown> }) {
-  const items = [
-    { label: '整体运势', key: 'overall' },
-    { label: '事业', key: 'career' },
-    { label: '财富', key: 'wealth' },
-    { label: '感情', key: 'relationships' },
-    { label: '健康', key: 'health' },
-  ];
+  const year = new Date().getFullYear();
+
+  // Backward compatibility: old format stores overall as string
+  if (typeof data.overall !== 'number') {
+    const items = [
+      { label: '整体运势', key: 'overall' },
+      { label: '事业', key: 'career' },
+      { label: '财富', key: 'wealth' },
+      { label: '感情', key: 'relationships' },
+      { label: '健康', key: 'health' },
+    ];
+    const lucky = data.lucky_aspects as string[];
+    return (
+      <div className="space-y-4">
+        <h3 className="text-center text-xs font-semibold tracking-wide text-[#6B6778]">{year} 年运势</h3>
+        <div className="grid grid-cols-2 gap-3">
+          {items.map(({ label, key }) => {
+            const value = data[key] as string;
+            return (
+              <div key={key} className="rounded-[4px] border border-[rgba(0,0,0,0.06)] bg-[#F8F8FA] p-3.5 text-center">
+                <p className="text-[10px] font-medium tracking-wide text-[#8A8696]">{label}</p>
+                <div className="mt-2 flex justify-center"><StatusBadge status={value} /></div>
+              </div>
+            );
+          })}
+        </div>
+        {(data.advice as string) && <AdviceBlock>{data.advice as string}</AdviceBlock>}
+        {lucky && lucky.length > 0 && (
+          <div>
+            <p className="mb-2 text-[10px] font-semibold tracking-wide text-[#6B6778]">幸运领域</p>
+            <div className="flex flex-wrap gap-2">
+              {lucky.map((a, i) => (
+                <span key={i} className="rounded-full border border-[#9B7FBB]/20 bg-[#9B7FBB]/5 px-2.5 py-1 text-[11px] text-[#9B7FBB]">{a}</span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // New format: radar chart + cards
+  const overall = data.overall as number;
   const lucky = data.lucky_aspects as string[];
+
+  const chartLabels = ['整体运势', '事业', '财富', '感情', '健康'];
+  const chartValues = [
+    overall,
+    (data.career as any)?.score ?? 0,
+    (data.wealth as any)?.score ?? 0,
+    (data.relationships as any)?.score ?? 0,
+    (data.health as any)?.score ?? 0,
+  ];
+
+  const areas = [
+    { key: 'career', label: '事业' },
+    { key: 'wealth', label: '财富' },
+    { key: 'relationships', label: '感情' },
+    { key: 'health', label: '健康' },
+  ];
+
+  function rp(i: number, r: number, cx: number, cy: number) {
+    const a = (2 * Math.PI * i) / 5 - Math.PI / 2;
+    return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
+  }
+
   return (
     <div className="space-y-4">
-      <h3 className="text-center text-xs font-semibold tracking-wide text-[#6B6778]">
-        {new Date().getFullYear()} 年运势
-      </h3>
+      <h3 className="text-center text-xs font-semibold tracking-wide text-[#6B6778]">{year} 年运势</h3>
+
+      {/* Radar chart */}
+      <div className="flex justify-center">
+        <svg viewBox="0 0 260 260" className="h-[200px] w-[200px]">
+          {[20, 40, 60, 80, 100].map((pct) => {
+            const pts = Array.from({ length: 5 }, (_, i) => {
+              const p = rp(i, 90 * pct / 100, 130, 130);
+              return `${p.x},${p.y}`;
+            }).join(' ');
+            return <polygon key={pct} points={pts} fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth="1" />;
+          })}
+          {Array.from({ length: 5 }, (_, i) => {
+            const p = rp(i, 90, 130, 130);
+            return <line key={i} x1={130} y1={130} x2={p.x} y2={p.y} stroke="rgba(0,0,0,0.05)" strokeWidth="1" />;
+          })}
+          <polygon
+            points={chartValues.map((v, i) => {
+              const p = rp(i, (v / 100) * 90, 130, 130);
+              return `${p.x},${p.y}`;
+            }).join(' ')}
+            fill="#9B7FBB" fillOpacity="0.15" stroke="#9B7FBB" strokeWidth="1.5"
+          />
+          {chartValues.map((v, i) => {
+            const p = rp(i, (v / 100) * 90, 130, 130);
+            return <circle key={i} cx={p.x} cy={p.y} r="3" fill="#9B7FBB" stroke="#FFFFFF" strokeWidth="1.5" />;
+          })}
+          {chartLabels.map((label, i) => {
+            const p = rp(i, 106, 130, 130);
+            const ta = i === 0 ? 'middle' : i <= 2 ? 'start' : 'end';
+            return (
+              <text key={i} x={p.x} y={p.y} textAnchor={ta} dominantBaseline="middle"
+                className="text-[9px] fill-[#6B6778] font-medium">{label}</text>
+            );
+          })}
+          {chartValues.map((v, i) => {
+            const p = rp(i, (v / 100) * 90 - 12, 130, 130);
+            return (
+              <text key={`v${i}`} x={p.x} y={p.y} textAnchor="middle" dominantBaseline="middle"
+                className="text-[10px] fill-[#9B7FBB] font-bold">{v}</text>
+            );
+          })}
+        </svg>
+      </div>
+
+      {/* Score cards */}
       <div className="grid grid-cols-2 gap-3">
-        {items.map(({ label, key }) => {
-          const value = data[key] as string;
+        {areas.map(({ key, label }) => {
+          const item = data[key] as any;
+          if (!item || typeof item !== 'object') return null;
+          const { score, label: badge, text } = item;
+          const barColor = score >= 80 ? 'bg-[#8FCFA0]' : score >= 60 ? 'bg-[#C9A88D]' : 'bg-[#E0978A]';
+          const scoreColor = score >= 80 ? 'text-[#8FCFA0]' : score >= 60 ? 'text-[#C9A88D]' : 'text-[#E0978A]';
           return (
-            <div
-              key={key}
-              className="rounded-[4px] border border-[rgba(0,0,0,0.06)] bg-[#F8F8FA] p-3.5 text-center"
-            >
-              <p className="text-[10px] font-medium tracking-wide text-[#8A8696]">{label}</p>
-              <div className="mt-2 flex justify-center">
-                <StatusBadge status={value} />
+            <div key={key} className="rounded-[8px] border border-[rgba(0,0,0,0.06)] bg-[#FFFFFF] p-3.5 shadow-sm">
+              <div className="mb-1.5 flex items-center justify-between">
+                <h4 className="text-xs font-semibold text-[#1F1D2B]">{label}</h4>
+                <div className="flex items-center gap-1.5">
+                  <span className={`text-base font-bold ${scoreColor}`}>{score}</span>
+                  {badge && <span className="rounded-full border border-[rgba(0,0,0,0.08)] bg-[#F8F8FA] px-2 py-0.5 text-[9px] text-[#6B6778]">{badge}</span>}
+                </div>
               </div>
+              <div className="mb-2 h-1 w-full rounded-full bg-[#F0F0F2]">
+                <div className={`h-full rounded-full ${barColor}`} style={{ width: `${score}%` }} />
+              </div>
+              {text && <p className="text-[11px] leading-relaxed text-[#6B6778]">{text}</p>}
             </div>
           );
         })}
       </div>
+
       {(data.advice as string) && <AdviceBlock>{data.advice as string}</AdviceBlock>}
       {lucky && lucky.length > 0 && (
         <div>
@@ -500,7 +611,7 @@ const PAGE_RENDERERS: Record<string, (data: Record<string, unknown>) => React.Re
   footer: (d) => <FooterPage data={d} />,
 };
 
-export function ReportPageViewer({ report, onShare }: ReportPageViewerProps) {
+export function ReportPageViewer({ report, onShare, variant = 'viewer' }: ReportPageViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentPage, setCurrentPage] = useState(0);
 
@@ -513,6 +624,35 @@ export function ReportPageViewer({ report, onShare }: ReportPageViewerProps) {
   const jumpTo = useCallback((i: number) => {
     containerRef.current?.children[i]?.scrollIntoView({ behavior: 'smooth' });
   }, []);
+
+  if (variant === 'pdf') {
+    return (
+      <div className="w-full max-w-[800px] mx-auto bg-[#FFFFFF]">
+        {PAGES.map((page, i) => {
+          const data = (report[page.key as keyof FullReport] ?? {}) as Record<string, unknown>;
+          const render = PAGE_RENDERERS[page.key];
+          return (
+            <div key={page.key} className="p-6 pt-12" style={{ pageBreakInside: 'avoid' }}>
+              {page.key !== 'cover' && page.key !== 'footer' && (
+                <div className="relative mb-4 flex items-center border-b border-[rgba(0,0,0,0.06)] pb-3">
+                  <span className="absolute -left-1 select-none text-[48px] font-bold leading-none text-[#9B7FBB]/6">
+                    {String(i).padStart(2, '0')}
+                  </span>
+                  <span className="ml-14 text-xs font-medium tracking-wide text-[#6B6778]">
+                    {page.title}
+                  </span>
+                </div>
+              )}
+              <div className="min-h-0 pt-4">{render ? render(data) : null}</div>
+            </div>
+          );
+        })}
+        <div className="text-center border-t border-[#EDE6DE] px-8 py-4">
+          <p className="text-[9px] text-[#D4C0B0]">星隅出品 · AI 生成 · 仅供娱乐参考</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative">
@@ -559,7 +699,7 @@ export function ReportPageViewer({ report, onShare }: ReportPageViewerProps) {
                   </div>
                 </div>
               )}
-              <div className="flex-1">
+              <div className="flex-1 overflow-y-auto min-h-0">
                 {render ? render(data) : null}
               </div>
             </div>

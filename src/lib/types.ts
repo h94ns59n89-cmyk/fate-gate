@@ -106,12 +106,18 @@ export interface HealthSection {
   past_tendency: string;
 }
 
+export interface CurrentYearItem {
+  score: number;
+  label: string;
+  text: string;
+}
+
 export interface CurrentYearSection {
-  overall: string;
-  career: string;
-  wealth: string;
-  relationships: string;
-  health: string;
+  overall: number;
+  career: CurrentYearItem;
+  wealth: CurrentYearItem;
+  relationships: CurrentYearItem;
+  health: CurrentYearItem;
   advice: string;
   lucky_aspects: string[];
 }

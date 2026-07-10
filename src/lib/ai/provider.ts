@@ -1,6 +1,6 @@
 import { getEnv } from '@/lib/env';
 import { parseJsonFromAI } from './client';
-import type { AICompletionOptions } from './client';
+import type { AICompletionOptions, AIModel } from './client';
 
 export type GenerationType = 'personality_tags' | 'full_report' | 'comparison';
 
@@ -48,6 +48,13 @@ function tryStringify(data: unknown): string {
   try { return JSON.stringify(data, null, 2); } catch { return String(data); }
 }
 
+const MODEL_FALLBACK_CHAIN: string[] = [
+  'deepseek-chat',
+  'deepseek-reasoner',
+  'gpt-4o-mini',
+  'gpt-4o',
+];
+
 export async function generateJsonWithFallback<T>(
   buildMessages: () => Array<{ role: string; content: string }>,
   type: GenerationType,
@@ -56,42 +63,63 @@ export async function generateJsonWithFallback<T>(
   const { ai } = getEnv();
   const start = Date.now();
 
-  if (!options.apiKey) {
-    if (options.model?.startsWith('deepseek')) {
-      if (!ai.deepseekApiKey && ai.openaiApiKey) {
-        options = { ...options, model: ai.openaiModel as never };
-      }
-    } else if (options.model?.startsWith('gpt')) {
-      if (!ai.openaiApiKey && ai.deepseekApiKey) {
-        options = { ...options, model: ai.deepseekModel as never };
-      }
-    }
+  // Build model fallback chain: user preference first, then known-good models
+  const modelsToTry: string[] = [];
+  if (options.model) modelsToTry.push(options.model);
+  for (const m of MODEL_FALLBACK_CHAIN) {
+    if (!modelsToTry.includes(m)) modelsToTry.push(m);
   }
 
-  const messages = buildMessages();
-  let data = await parseJsonFromAI<T>(messages as never, options);
+  let lastModel: string = options.model ?? 'deepseek-chat';
+  let lastError: string | null = null;
 
-  // Validate, retry once on schema mismatch
-  if (data !== null) {
-    const errors = validateAIOutput(type, data);
-    if (errors.length > 0) {
-      const retryMessages = [
-        ...messages,
-        { role: 'assistant', content: tryStringify(data) },
-        { role: 'user', content: `输出格式有误：${errors.join('；')}\n请重新生成，严格遵循要求的格式。` },
-      ];
-      data = await parseJsonFromAI<T>(retryMessages as never, options);
+  for (const model of modelsToTry) {
+    lastModel = model;
+    const tryOpts = { ...options, model: model as AIModel };
+
+    // If no custom apiKey, skip models whose provider has no env key configured
+    if (!tryOpts.apiKey) {
+      if (model.startsWith('deepseek') && !ai.deepseekApiKey) continue;
+      if (model.startsWith('gpt') && !ai.openaiApiKey) continue;
+    }
+
+    try {
+      const messages = buildMessages();
+      let data = await parseJsonFromAI<T>(messages as never, tryOpts);
+
+      // Validate, retry once on schema mismatch
+      if (data !== null) {
+        const errors = validateAIOutput(type, data);
+        if (errors.length > 0) {
+          lastError = `格式验证失败: ${errors.join('；')}`;
+          const retryMessages = [
+            ...messages,
+            { role: 'assistant', content: tryStringify(data) },
+            { role: 'user', content: `输出格式有误：${errors.join('；')}\n请重新生成，严格遵循要求的格式。` },
+          ];
+          data = await parseJsonFromAI<T>(retryMessages as never, tryOpts);
+        }
+      }
+
+      if (data !== null) {
+        const provider = tryOpts.apiKey ? 'custom' : model.startsWith('deepseek') ? 'deepseek' : 'openai';
+        return {
+          data,
+          provider,
+          model,
+          latencyMs: Date.now() - start,
+        };
+      }
+    } catch (e) {
+      lastError = e instanceof Error ? e.message : String(e);
+      continue;
     }
   }
-
-  const provider = data !== null
-    ? (options.apiKey ? 'custom' : options.model?.startsWith('deepseek') ? 'deepseek' : 'openai')
-    : 'none';
 
   return {
-    data,
-    provider,
-    model: options.model ?? ai.openaiModel,
+    data: null,
+    provider: 'none',
+    model: lastModel,
     latencyMs: Date.now() - start,
   };
 }

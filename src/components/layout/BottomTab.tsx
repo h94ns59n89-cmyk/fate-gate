@@ -37,6 +37,7 @@ const legalLinks = [
 export function BottomTab() {
   const pathname = usePathname();
   const admin = useAdmin();
+  const isElectron = typeof window !== 'undefined' && 'electronAPI' in window;
   const tabs = admin ? adminTabs : baseTabs;
   const [settingsOpen, setSettingsOpen] = useState(false);
 
@@ -63,7 +64,7 @@ export function BottomTab() {
               </Link>
             );
           })}
-          {admin ? (
+          {admin || isElectron ? (
             <Link
               href="/settings"
               className="relative flex flex-1 flex-col items-center gap-0.5 py-2 text-xs text-[#8A8696] transition-colors hover:text-[#1F1D2B]"

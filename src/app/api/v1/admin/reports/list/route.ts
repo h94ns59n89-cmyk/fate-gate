@@ -16,8 +16,8 @@ export const GET = withMiddleware(async (req) => {
     prisma.personalityReport.findMany({
       where: {
         reportType: 'FREE',
-        status: 'COMPLETED',
         fullReportJson: { equals: jsonNull },
+        status: { in: ['COMPLETED', 'FAILED'] },
       },
       include: { user: { select: { nickname: true } } },
       orderBy: { createdAt: 'desc' },
@@ -55,6 +55,8 @@ export const GET = withMiddleware(async (req) => {
         user_id: Number(r.userId),
         user_nickname: r.user.nickname ?? '未知用户',
         created_at: r.createdAt.toISOString(),
+        status: r.status as string,
+        error: (r as any).errorMessage as string | null,
       })),
       ...pendingComparisons.map((c) => ({
         kind: 'comparison' as const,

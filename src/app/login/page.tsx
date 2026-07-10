@@ -339,10 +339,10 @@ export default function LoginPage() {
             <div className="mt-5 rounded-[10px] border border-[rgba(0,0,0,0.06)] bg-[#F8F8FA] px-4 py-3.5">
               <p className="text-xs text-[#6B6778]">
                 没有账号？添加助理微信
-                <span className="ml-1 font-mono font-semibold text-[#9B7FBB]">janeai01</span>
+                <span className="ml-1 font-mono font-semibold text-[#9B7FBB]">Willa106</span>
                 <button
                   onClick={() => {
-                    navigator.clipboard.writeText('janeai01');
+                    navigator.clipboard.writeText('Willa106');
                     toast.success('微信号已复制');
                   }}
                   className="ml-1.5 inline-block rounded border border-[#9B7FBB]/25 px-1.5 py-[1px] text-[10px] font-medium text-[#9B7FBB] transition-colors hover:bg-[#9B7FBB]/8 active:scale-[0.97]"

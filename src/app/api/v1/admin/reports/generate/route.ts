@@ -119,6 +119,10 @@ export const POST = withMiddleware(async (req) => {
     const { data: reportData, provider, latencyMs } = await withTimeout(generateFullReport(baziData, genOpts), 90000, 'AI 报告生成');
 
     if (reportData) {
+      // Override AI-generated timestamp with server time
+      if (reportData.cover) {
+        (reportData.cover as unknown as Record<string, unknown>).generated_at = new Date().toISOString();
+      }
       await prisma.personalityReport.update({
         where: { id: Number(reportId) },
         data: {
@@ -137,19 +141,11 @@ export const POST = withMiddleware(async (req) => {
         full_report: reportData,
       });
     } else {
-      await prisma.personalityReport.update({
-        where: { id: Number(reportId) },
-        data: { status: 'FAILED', errorMessage: 'AI generation returned empty result' },
-      });
       return error(500, 'AI 生成返回空结果', 502);
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     log.error(`Failed to generate report ${reportId}`, { error: msg });
-    await prisma.personalityReport.update({
-      where: { id: Number(reportId) },
-      data: { status: 'FAILED', errorMessage: msg },
-    }).catch(() => {});
     return error(500, `生成失败: ${msg}`, 500);
   }
 });

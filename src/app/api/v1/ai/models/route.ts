@@ -48,6 +48,30 @@ export async function POST(request: Request) {
       }
     }
 
+    // Probe known-good models that weren't listed (some APIs hide them from /v1/models)
+    const knownModels = ['deepseek-chat', 'deepseek-reasoner'];
+    for (const { url, key } of urls) {
+      for (const m of knownModels) {
+        if (allModels.has(m)) continue;
+        try {
+          const probe = await fetch(`${url}/chat/completions`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${key}`,
+            },
+            body: JSON.stringify({
+              model: m,
+              messages: [{ role: 'user', content: 'ping' }],
+              max_tokens: 1,
+            }),
+            signal: AbortSignal.timeout(5000),
+          });
+          if (probe.ok) allModels.add(m);
+        } catch {}
+      }
+    }
+
     const sorted = [...allModels].sort();
 
     return NextResponse.json({

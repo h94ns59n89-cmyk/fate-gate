@@ -6,7 +6,7 @@ import { ArrowLeft, Monitor } from 'lucide-react';
 
 interface ElectronAPI {
   readConfig: () => Promise<Config | null>;
-  writeConfig: (config: Config) => Promise<void>;
+  writeConfig: (config: Config) => Promise<boolean>;
 }
 
 interface Config {
@@ -152,7 +152,8 @@ export default function SettingsPage() {
     try {
       const api = window.electronAPI;
       if (api?.writeConfig) {
-        await api.writeConfig(config);
+        const ok = await api.writeConfig(config);
+        if (!ok) { setTestStatus('error'); setTestMsg('保存失败'); return; }
       } else {
         localStorage.setItem('ai_config', JSON.stringify(config));
       }

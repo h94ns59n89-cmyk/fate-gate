@@ -1,5 +1,6 @@
-const { app, BrowserWindow, ipcMain, shell, nativeImage } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, shell, nativeImage } = require('electron');
 const path = require('path');
+const { spawn, execSync } = require('child_process');
 const fs = require('fs');
 const http = require('http');
 
@@ -50,95 +51,109 @@ function getPrismaDir() {
 }
 
 function setupDatabase() {
-  const serverDir = getServerDir();
   const prismaDir = getPrismaDir();
   const dbPath = getDbPath();
   const dbDir = path.dirname(dbPath);
   if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir, { recursive: true });
 
-  // Create an empty DB file if it doesn't exist so Prisma can work with it
-  if (!fs.existsSync(dbPath)) {
-    fs.writeFileSync(dbPath, '');
-  }
-
-  // Try to run prisma db push to ensure schema is up to date
-  const prismaCli = path.join(serverDir, 'node_modules', 'prisma', 'build', 'index.js');
-  const schemaPath = path.join(prismaDir, 'schema.prisma');
-  if (!fs.existsSync(prismaCli) || !fs.existsSync(schemaPath)) {
-    console.warn('[db] Prisma CLI or schema not found, skipping migration');
+  // If the database already exists and is non-empty, nothing to do
+  if (fs.existsSync(dbPath) && fs.statSync(dbPath).size > 0) {
     return;
   }
-  try {
-    require('child_process').execFileSync(
-      process.execPath,
-      [prismaCli, 'db', 'push', `--schema="${schemaPath}"`, '--skip-generate'],
-      {
-        cwd: serverDir,
-        env: { ...process.env, DATABASE_URL: `file:${dbPath}` },
-        stdio: 'pipe',
-        timeout: 30000,
-      },
-    );
-  } catch (err) {
-    console.warn('[db] Migration failed, will try to continue:', err.message);
+
+  // Copy the pre-built init.db to the target location
+  const initDb = path.join(prismaDir, 'init.db');
+  if (fs.existsSync(initDb) && fs.statSync(initDb).size > 0) {
+    fs.copyFileSync(initDb, dbPath);
+    console.log('[db] Initialized from init.db');
+  } else {
+    console.warn('[db] init.db not found, creating empty database');
+    fs.writeFileSync(dbPath, '');
   }
+}
+
+function killPort(port) {
+  try {
+    const stdout = execSync(`netstat -ano | findstr :${port}`, { encoding: 'utf8', timeout: 3000 });
+    for (const line of stdout.split('\n')) {
+      const parts = line.trim().split(/\s+/);
+      const pid = parts[parts.length - 1];
+      if (pid && pid !== '0' && /^\d+$/.test(pid)) {
+        try { process.kill(parseInt(pid)); } catch {}
+      }
+    }
+  } catch {}
 }
 
 function startServer() {
   return new Promise((resolve, reject) => {
     const serverDir = getServerDir();
     const dbPath = getDbPath();
+    killPort(PORT);
 
     process.env.PORT = String(PORT);
     process.env.DATABASE_URL = `file:${dbPath}`;
     process.env.NODE_ENV = 'production';
-    process.chdir(serverDir);
 
-    if (isDev) {
-      const nextBin = path.join(serverDir, 'node_modules', 'next', 'dist', 'bin', 'next');
-      const { fork } = require('child_process');
-      serverProcess = fork(nextBin, ['dev', '-p', String(PORT)], {
-        cwd: serverDir,
-        stdio: 'pipe',
-        env: process.env,
-      });
-      serverProcess.stdout?.on('data', (data) => {
-        const text = data.toString();
-        if (text.includes('http://localhost:' + PORT)) resolve();
-      });
-      serverProcess.stderr?.on('data', (d) => process.stderr.write(d));
-      serverProcess.on('exit', (code) => {
-        if (code !== 0) reject(new Error(`Dev server exited with code ${code}`));
-      });
-      serverProcess.on('error', (err) => reject(new Error(`Dev server spawn: ${err.message}`)));
-      return;
+    // Override env AI keys with saved config (fallback for user-facing AI calls)
+    const savedAiConfig = readConfig();
+    if (savedAiConfig.apiKey) {
+      process.env.DEEPSEEK_API_KEY = savedAiConfig.apiKey;
+      if (savedAiConfig.model) process.env.DEEPSEEK_MODEL = savedAiConfig.model;
     }
 
-    // Production: load Next.js standalone server in-process
-    try {
-      require(path.join(serverDir, 'server.js'));
-    } catch (err) {
-      reject(new Error(`Failed to load server: ${err.message}`));
-      return;
-    }
+    const serverScript = isDev
+      ? path.join(serverDir, 'node_modules', 'next', 'dist', 'bin', 'next')
+      : path.join(serverDir, 'server.js');
+    const serverArgs = isDev ? ['dev', '-p', String(PORT)] : [];
 
-    // Poll until the server is reachable
-    const poll = (attempts) => {
-      if (attempts <= 0) {
-        reject(new Error('Server start timeout'));
-        return;
-      }
-      const req = http.get(`http://localhost:${PORT}`, (res) => {
-        res.resume();
+    serverProcess = spawn(process.execPath, [serverScript, ...serverArgs], {
+      cwd: serverDir,
+      stdio: 'pipe',
+      env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' },
+    });
+
+    const onData = (data) => {
+      const text = data.toString();
+      if (text.includes('http://localhost:' + PORT) || text.includes('ready started server') || text.includes('started server')) {
+        cleanup();
         resolve();
-      });
-      req.on('error', () => {
-        req.destroy();
-        setTimeout(() => poll(attempts - 1), 1000);
-      });
-      req.setTimeout(5000, () => { req.destroy(); setTimeout(() => poll(attempts - 1), 1000); });
+      }
     };
-    poll(30);
+
+    const onStderr = (data) => {
+      const text = data.toString();
+      process.stderr.write('[server] ' + text.replace(/\x1b\[[0-9;]*[a-zA-Z]/g, ''));
+    };
+
+    const onExit = (code) => {
+      cleanup();
+      if (code !== 0) reject(new Error(`Server exited with code ${code}`));
+    };
+
+    const onError = (err) => {
+      cleanup();
+      reject(new Error(`Server spawn failed: ${err.message}`));
+    };
+
+    const cleanup = () => {
+      if (serverProcess) {
+        serverProcess.stdout?.removeListener('data', onData);
+        serverProcess.stderr?.removeListener('data', onStderr);
+        serverProcess.removeListener('exit', onExit);
+        serverProcess.removeListener('error', onError);
+      }
+    };
+
+    serverProcess.stdout?.on('data', onData);
+    serverProcess.stderr?.on('data', onStderr);
+    serverProcess.on('exit', onExit);
+    serverProcess.on('error', onError);
+
+    setTimeout(() => {
+      cleanup();
+      reject(new Error('Server start timeout'));
+    }, 60000);
   });
 }
 
@@ -181,6 +196,7 @@ function createWindow() {
 }
 
 app.whenReady().then(async () => {
+  Menu.setApplicationMenu(null);
   ipcMain.handle('read-config', () => readConfig());
   ipcMain.handle('write-config', (_event, config) => writeConfig(config));
 
