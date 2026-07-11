@@ -116,7 +116,7 @@ export default function ComparisonResultPage() {
         </div>
         <h1 className="text-xl font-semibold text-[#1F1D2B]">合盘对比结果</h1>
         {typeof data.summary_tag === 'string' && (
-          <p className="mb-1 mt-1 text-sm font-medium text-[#9B7FBB]">{String(data.summary_tag)}</p>
+          <span className="mb-1 mt-1 inline-flex items-center justify-center rounded-[3px] border border-[#9B7FBB]/20 bg-[#9B7FBB]/8 px-3 py-1 text-sm font-medium text-[#9B7FBB]">{String(data.summary_tag)}</span>
         )}
         <p className="text-xs text-[#6B6778]">你们的人格匹配度分析</p>
       </div>

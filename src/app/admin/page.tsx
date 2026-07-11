@@ -13,7 +13,7 @@ function renderComparisonHTML(data: Record<string, unknown>): string {
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
   function tag(text: string): string {
-    return `<span style="display:inline-block;border-radius:999px;background:rgba(155,127,187,0.08);padding:2px 10px;font-size:11px;color:#9B7FBB;">${esc(text)}</span>`;
+    return `<span style="display:inline-block;border-radius:999px;background:rgba(155,127,187,0.08);padding:2px 10px;font-size:11px;color:#9B7FBB;text-align:center;">${esc(text)}</span>`;
   }
   const dimensions = data.dimensions as Record<string, number> | undefined;
   const strengths = data.strengths as string[] | undefined;
@@ -25,7 +25,7 @@ function renderComparisonHTML(data: Record<string, unknown>): string {
   html += `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:600px;text-align:center;padding:20px 32px;page-break-inside:avoid;">`;
   html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:24px;"><div style="width:40px;height:1px;background:linear-gradient(to right,transparent,rgba(155,127,187,0.3));"></div><div style="display:flex;gap:3px;"><div style="width:4px;height:4px;border-radius:999px;background:#9B7FBB;"></div><div style="width:4px;height:4px;border-radius:999px;background:rgba(155,127,187,0.5);"></div><div style="width:4px;height:4px;border-radius:999px;background:rgba(155,127,187,0.2);"></div></div><div style="width:40px;height:1px;background:linear-gradient(to left,transparent,rgba(155,127,187,0.3));"></div></div>`;
   html += `<h1 style="font-size:28px;font-weight:700;margin:0 0 8px 0;color:#1F1D2B;font-family:serif;">合盘报告</h1>`;
-  if (data.summary_tag) html += `<span style="display:inline-block;border:1px solid rgba(155,127,187,0.25);background:rgba(155,127,187,0.08);border-radius:3px;padding:4px 14px;font-size:12px;color:#9B7FBB;font-weight:500;">${esc(data.summary_tag as string)}</span>`;
+  if (data.summary_tag) html += `<span style="display:inline-block;border:1px solid rgba(155,127,187,0.25);background:rgba(155,127,187,0.08);border-radius:3px;padding:4px 14px;font-size:12px;color:#9B7FBB;font-weight:500;text-align:center;">${esc(data.summary_tag as string)}</span>`;
   if (data.match_score !== undefined) html += `<div style="margin-top:20px;"><p style="font-size:11px;color:#8A8696;margin:0 0 4px 0;">匹配度</p><p style="font-size:48px;font-weight:700;color:#9B7FBB;margin:0;">${data.match_score}%</p></div>`;
   if (data.generated_at) html += `<p style="margin-top:40px;font-size:10px;color:#8A8696;">生成于 ${new Date(data.generated_at as string).toLocaleDateString('zh-CN')}</p>`;
   html += `</div>`;
@@ -552,7 +552,7 @@ export default function AdminPage() {
                 <p className="text-xs text-[#8A8696]">匹配度</p>
                 <p className="text-3xl font-bold text-[#9B7FBB]">{viewComparison.match_score ?? '-'}%</p>
                 {viewComparison.summary_tag && (
-                  <span className="mt-1 inline-block rounded-[2px] bg-[#9B7FBB]/8 px-2 py-0.5 text-[11px] text-[#9B7FBB]">{viewComparison.summary_tag}</span>
+                  <span className="mt-1 inline-flex items-center justify-center rounded-[2px] bg-[#9B7FBB]/8 px-2 py-0.5 text-[11px] text-[#9B7FBB]">{viewComparison.summary_tag}</span>
                 )}
               </div>
 
@@ -563,7 +563,7 @@ export default function AdminPage() {
                     <p className="text-xs text-[#1F1D2B]">{viewComparison.user_nickname}</p>
                     <div className="mt-1 flex flex-wrap justify-center gap-1">
                       {viewComparison.user_tags?.slice(0, 2).map((t: string, i: number) => (
-                        <span key={i} className="rounded-[2px] bg-[#9B7FBB]/8 px-1.5 py-0.5 text-[9px] text-[#9B7FBB]">{t}</span>
+                        <span key={i} className="inline-flex items-center justify-center rounded-[2px] bg-[#9B7FBB]/8 px-1.5 py-0.5 text-[9px] text-[#9B7FBB]">{t}</span>
                       ))}
                     </div>
                   </div>
@@ -572,7 +572,7 @@ export default function AdminPage() {
                     <p className="text-xs text-[#1F1D2B]">{viewComparison.target_nickname ?? '未知'}</p>
                     <div className="mt-1 flex flex-wrap justify-center gap-1">
                       {viewComparison.target_tags?.slice(0, 2).map((t: string, i: number) => (
-                        <span key={i} className="rounded-[2px] bg-[#9B7FBB]/8 px-1.5 py-0.5 text-[9px] text-[#9B7FBB]">{t}</span>
+                        <span key={i} className="inline-flex items-center justify-center rounded-[2px] bg-[#9B7FBB]/8 px-1.5 py-0.5 text-[9px] text-[#9B7FBB]">{t}</span>
                       ))}
                     </div>
                   </div>

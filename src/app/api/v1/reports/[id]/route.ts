@@ -37,7 +37,7 @@ export const GET = withMiddleware(async (req, { params }) => {
   }
 });
 
-function formatReport(report: { id: number; reportType: string; status: string; baziJson: unknown; fiveElementsJson: unknown; personalityTags: unknown; summaryJson: unknown; fullReportJson: unknown; createdAt: Date; generatedAt: Date | null }) {
+function formatReport(report: { id: number | bigint; reportType: string; status: string; baziJson: unknown; fiveElementsJson: unknown; personalityTags: unknown; summaryJson: unknown; fullReportJson: unknown; createdAt: Date; generatedAt: Date | null }) {
   return {
     id: Number(report.id),
     report_type: report.reportType.toLowerCase(),

@@ -182,7 +182,7 @@ export default function MinePage() {
                       </div>
                       <div className="flex items-center gap-2">
                         {typeof report.summary_tag === 'string' && (
-                          <span className="text-[10px] text-[#9B7FBB]">{report.summary_tag}</span>
+                          <span className="inline-flex items-center justify-center rounded-[2px] bg-[#9B7FBB]/8 px-1.5 py-0.5 text-[10px] text-[#9B7FBB]">{report.summary_tag}</span>
                         )}
                         {report.match_score != null && (
                           <span className="text-xs font-semibold text-[#9B7FBB]">{report.match_score}%</span>
@@ -219,7 +219,7 @@ export default function MinePage() {
                       {report.personality_tags.slice(0, 3).map((tag, i) => (
                         <span
                           key={i}
-                          className="rounded-[2px] bg-[#9B7FBB]/10 px-1.5 py-0.5 text-[10px] text-[#9B7FBB]"
+                          className="inline-flex items-center justify-center rounded-[2px] bg-[#9B7FBB]/10 px-1.5 py-0.5 text-[10px] text-[#9B7FBB]"
                         >
                           {tag}
                         </span>

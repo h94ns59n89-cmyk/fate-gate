@@ -99,11 +99,11 @@ export function SummaryCard({
               <span className="h-3 w-[2px] rounded-full bg-[#C9A88D]" />
               <h2 className="text-[10px] font-semibold tracking-wider text-[#B8A89A]">你的人格</h2>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap justify-center gap-2">
               {personalityTags.map((tag, i) => (
                 <span
                   key={i}
-                  className="inline-block rounded-[20px] bg-[#EDE6DE] px-4 py-1.5 text-xs font-medium leading-relaxed text-[#6B5D53]"
+                  className="inline-flex items-center justify-center rounded-[20px] bg-[#EDE6DE] px-4 py-1.5 text-xs font-medium leading-relaxed text-[#6B5D53]"
                 >
                   {tag}
                 </span>

@@ -22,7 +22,7 @@ function AvatarCircle({ label, side }: { label: string | undefined; side: 'left'
       `}>
         {initial}
       </div>
-      <span className={`rounded-[3px] px-2.5 py-1 text-xs font-medium ${
+      <span className={`inline-flex items-center justify-center rounded-[3px] px-2.5 py-1 text-xs font-medium ${
         side === 'left'
           ? 'bg-[#9B7FBB]/12 text-[#9B7FBB]'
           : 'bg-[#F8F8FA] text-[#1F1D2B]/70'

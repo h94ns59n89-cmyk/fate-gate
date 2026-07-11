@@ -31,7 +31,7 @@ export const GET = withMiddleware(async (req, { params }) => {
   return success(formatComparison(comparison));
 });
 
-function formatComparison(comparison: { id: number; status: string; matchScore: number | null; dimensionsJson: unknown; adviceJson: unknown; shareImageUrl: string | null; isPaid: boolean; user: { nickname: string | null }; targetUser: { nickname: string | null } | null }) {
+function formatComparison(comparison: { id: number | bigint; status: string; matchScore: number | null; dimensionsJson: unknown; adviceJson: unknown; shareImageUrl: string | null; isPaid: boolean; user: { nickname: string | null }; targetUser: { nickname: string | null } | null }) {
   const adviceData = comparison.adviceJson as Record<string, unknown> | null;
   return {
     id: Number(comparison.id),

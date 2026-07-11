@@ -298,7 +298,7 @@ export default function ComparisonPage() {
                   <p className="text-sm font-medium text-[#1F1D2B]">{targetUser.nickname ?? '匿名用户'}</p>
                   <div className="mt-1 flex flex-wrap gap-1">
                     {targetUser.personality_tags?.slice(0, 3).map((tag, i) => (
-                      <span key={i} className="rounded-[3px] bg-[#9B7FBB]/8 px-2 py-0.5 text-[10px] text-[#9B7FBB]">
+                      <span key={i} className="inline-flex items-center justify-center rounded-[3px] bg-[#9B7FBB]/8 px-2 py-0.5 text-[10px] text-[#9B7FBB]">
                         {tag}
                       </span>
                     ))}
@@ -374,7 +374,7 @@ export default function ComparisonPage() {
                   <p className="text-sm font-medium text-[#1F1D2B]">{targetUser.nickname ?? '匿名用户'}</p>
                   <div className="mt-1 flex flex-wrap gap-1">
                     {targetUser.personality_tags?.slice(0, 3).map((tag, i) => (
-                      <span key={i} className="rounded-[3px] bg-[#9B7FBB]/8 px-2 py-0.5 text-[10px] text-[#9B7FBB]">
+                      <span key={i} className="inline-flex items-center justify-center rounded-[3px] bg-[#9B7FBB]/8 px-2 py-0.5 text-[10px] text-[#9B7FBB]">
                         {tag}
                       </span>
                     ))}
