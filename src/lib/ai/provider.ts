@@ -51,6 +51,8 @@ function tryStringify(data: unknown): string {
 const MODEL_FALLBACK_CHAIN: string[] = [
   'deepseek-chat',
   'deepseek-reasoner',
+  'deepseek-v4-pro',
+  'deepseek-v4-flash',
   'gpt-4o-mini',
   'gpt-4o',
 ];

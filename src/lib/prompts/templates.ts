@@ -68,7 +68,7 @@ export function buildFullReportPrompt(baziData: Record<string, unknown>, analysi
 # 输出要求
 10 章节 JSON 输出。每个章节的字段要求如下：
 
-cover 必须包含：{ "title": "<报告标题>", "subtitle": "<副标题>", "day_master": "<日主>", "life_theme": "<人生主题>" }
+cover 必须包含：{ "title": "星隅人格分析报告", "subtitle": "<副标题>", "day_master": "<日主>", "life_theme": "<人生主题>" }
 
 personality 必须包含：day_master(<日主>) / wang_shuai(<身强|身弱|中和>) / yong_shen(<用神五行>) / ji_shen(<忌神五行>) / type(<日主五行型·标签 (MBTI)>) / core_traits([字符串数组]) / five_elements(<一句话点评五行格局，纯字符串>) / strengths([字符串数组]) / growth_areas([字符串数组]) / past_tendency(<字符串>)
 

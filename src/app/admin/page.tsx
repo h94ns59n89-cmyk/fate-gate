@@ -89,8 +89,8 @@ export default function AdminPage() {
   const [generating, setGenerating] = useState<Set<number>>(new Set());
   const [log, setLog] = useState<string[]>([]);
   const [exportingPDF, setExportingPDF] = useState<Set<number>>(new Set());
-  const [viewReport, setViewReport] = useState<{ id: number; data: FullReport } | null>(null);
-  const [pdfExportData, setPdfExportData] = useState<{ report: FullReport; filename: string } | null>(null);
+  const [viewReport, setViewReport] = useState<{ id: number; data: FullReport; userNickname?: string } | null>(null);
+  const [pdfExportData, setPdfExportData] = useState<{ report: FullReport; filename: string; userNickname?: string } | null>(null);
   const pdfExportRef = useRef<HTMLDivElement>(null);
   const [viewComparison, setViewComparison] = useState<any | null>(null);
   const [tab, setTab] = useState<'pending' | 'completed' | 'log'>('pending');
@@ -103,7 +103,7 @@ export default function AdminPage() {
     setLog((prev) => [`[${new Date().toLocaleTimeString()}] ${msg}`, ...prev.slice(0, 99)]);
   }, []);
 
-  // PDF export via React component rendering
+  // PDF export — capture each page div individually to avoid cross-page splitting
   useEffect(() => {
     if (!pdfExportData) return;
     const el = pdfExportRef.current;
@@ -112,29 +112,28 @@ export default function AdminPage() {
     requestAnimationFrame(() => {
       requestAnimationFrame(async () => {
         try {
-          const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#FFFFFF', logging: false });
+          const root = el.children[0] as HTMLElement;
+          if (!root) return;
+          const pageEls = Array.from(root.children) as HTMLElement[];
+          const pdf = new jsPDF('p', 'mm', 'a4');
           const imgWidth = 210;
           const pageHeight = 297;
-          const imgHeight = (canvas.height * imgWidth) / canvas.width;
-          let heightLeft = imgHeight;
-          const pdf = new jsPDF('p', 'mm', 'a4');
-          let page = 0;
-          while (heightLeft > 0) {
-            if (page > 0) pdf.addPage();
-            const srcHeight = (canvas.height * (pageHeight / imgHeight));
-            const sy = page * srcHeight;
-            const sHeight = Math.min(srcHeight, canvas.height - sy);
-            const pageCanvas = document.createElement('canvas');
-            pageCanvas.width = canvas.width;
-            pageCanvas.height = sHeight;
-            const ctx = pageCanvas.getContext('2d')!;
-            ctx.drawImage(canvas, 0, sy, canvas.width, sHeight, 0, 0, pageCanvas.width, pageCanvas.height);
-            pdf.addImage(pageCanvas.toDataURL('image/png'), 'PNG', 0, 0, imgWidth, (pageCanvas.height * imgWidth) / pageCanvas.width);
-            heightLeft -= pageHeight;
-            page++;
+          for (let i = 0; i < pageEls.length; i++) {
+            if (i > 0) pdf.addPage();
+            const pageEl = pageEls[i]!;
+            const pageCanvas = await html2canvas(pageEl, { scale: 2, useCORS: true, backgroundColor: '#FFFFFF', logging: false });
+            let renderW = imgWidth;
+            let renderH = (pageCanvas.height * imgWidth) / pageCanvas.width;
+            if (renderH > pageHeight) {
+              const scale = pageHeight / renderH;
+              renderW *= scale;
+              renderH *= scale;
+            }
+            const cx = (imgWidth - renderW) / 2;
+            pdf.addImage(pageCanvas.toDataURL('image/png'), 'PNG', cx, 0, renderW, renderH);
           }
           pdf.save(filename);
-          addLog(`✅ "${filename}" 导出成功 (${page} 页)`);
+          addLog(`✅ "${filename}" 导出成功 (${pageEls.length} 页)`);
         } catch (err) {
           addLog(`❌ PDF 导出失败: ${err instanceof Error ? err.message : '未知错误'}`);
         } finally {
@@ -242,12 +241,12 @@ export default function AdminPage() {
     }
   };
 
-  const handleView = async (reportId: number) => {
+  const handleView = async (reportId: number, userNickname?: string) => {
     try {
       const res = await fetch(`/api/v1/reports/${reportId}`);
       const json = await res.json();
       if (json.code === 0 && json.data?.full_report) {
-        setViewReport({ id: reportId, data: json.data.full_report as FullReport });
+        setViewReport({ id: reportId, data: json.data.full_report as FullReport, ...(userNickname ? { userNickname } : {}) });
       } else {
         addLog(`报告 #${reportId} 暂无完整内容`);
       }
@@ -256,7 +255,7 @@ export default function AdminPage() {
     }
   };
 
-  const handleExportPDF = async (reportId: number, kind?: string) => {
+  const handleExportPDF = async (reportId: number, kind?: string, userNickname?: string) => {
     setExportingPDF((prev) => new Set(prev).add(reportId));
     addLog(`开始导出 PDF #${reportId}...`);
     try {
@@ -311,7 +310,7 @@ export default function AdminPage() {
           return;
         }
         filename = `星隅完整报告_#${reportId}.pdf`;
-        setPdfExportData({ report: json.data.full_report as FullReport, filename });
+        setPdfExportData({ report: json.data.full_report as FullReport, filename, ...(userNickname ? { userNickname } : {}) });
       }
     } catch (err) {
       addLog(`❌ PDF #${reportId} 导出失败: ${err instanceof Error ? err.message : '未知错误'}`);
@@ -462,13 +461,13 @@ export default function AdminPage() {
                     </div>
                     <div className="flex shrink-0 gap-1.5">
                       <button
-                        onClick={() => r.kind === 'comparison' ? handleViewComparison(r.id) : handleView(r.id)}
+                        onClick={() => r.kind === 'comparison' ? handleViewComparison(r.id) : handleView(r.id, r.user_nickname)}
                         className="rounded-[6px] border border-[rgba(0,0,0,0.1)] px-3 py-1.5 text-xs text-[#6B6778] hover:bg-[#FFFFFF]"
                       >
                         查看
                       </button>
                       <button
-                        onClick={() => handleExportPDF(r.id, r.kind)}
+                        onClick={() => handleExportPDF(r.id, r.kind, r.user_nickname)}
                         disabled={exportingPDF.has(r.id)}
                         className="rounded-[6px] bg-[#C9A88D] px-3 py-1.5 text-xs font-medium text-[#FFFFFF] transition-colors hover:bg-[#B89A7D] disabled:opacity-50"
                       >
@@ -507,7 +506,7 @@ export default function AdminPage() {
 
       {/* Hidden PDF export renderer */}
       <div ref={pdfExportRef} style={{ position: 'absolute', left: '-9999px', top: 0, width: '800px', background: '#FFFFFF' }}>
-        {pdfExportData && <ReportPageViewer report={pdfExportData.report} variant="pdf" />}
+        {pdfExportData && <ReportPageViewer report={pdfExportData.report} variant="pdf" {...(pdfExportData.userNickname ? { userInfo: { nickname: pdfExportData.userNickname } } : {})} />}
       </div>
 
       {viewReport && (
@@ -520,7 +519,7 @@ export default function AdminPage() {
               关闭
             </button>
             <div className="clear-both px-4 pb-4">
-              <ReportPageViewer report={viewReport.data} />
+              <ReportPageViewer report={viewReport.data} {...(viewReport.userNickname ? { userInfo: { nickname: viewReport.userNickname } } : {})} />
             </div>
           </div>
         </div>

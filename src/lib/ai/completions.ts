@@ -16,14 +16,14 @@ function computeSeed(baziData: Record<string, unknown>): number {
 export async function generatePersonalityTags(
   baziData: Record<string, unknown>,
   options: AICompletionOptions = {},
-): Promise<{ data: PersonalityTags | null; provider: string; latencyMs: number }> {
+): Promise<{ data: PersonalityTags | null; provider: string; model: string; latencyMs: number }> {
   const { features } = getEnv();
   const dayMaster = (baziData.dayMaster as string) ?? '';
 
   if (features.enableMock) {
-    if (!dayMaster) return { data: null, provider: 'mock', latencyMs: 0 };
+    if (!dayMaster) return { data: null, provider: 'mock', model: '', latencyMs: 0 };
     const data = mockPersonalityTags(dayMaster);
-    return { data, provider: 'mock', latencyMs: 0 };
+    return { data, provider: 'mock', model: '', latencyMs: 0 };
   }
 
   const analysis = computeAnalysis(baziData);
@@ -59,7 +59,7 @@ export async function generateFullReport(
       { role: 'user', content: buildFullReportPrompt(baziData, analysis) },
     ],
     'full_report',
-    { ...options, seed: computeSeed(baziData) },
+    { ...options, seed: computeSeed(baziData), maxTokens: options.maxTokens ?? 8192 },
   );
 
   return { data: result.data, provider: result.provider, model: result.model, latencyMs: result.latencyMs };
@@ -87,5 +87,5 @@ export async function generateComparison(
     { ...options, seed: computeSeed(combined) },
   );
 
-  return { data: result.data, provider: result.provider, latencyMs: result.latencyMs };
+  return { data: result.data, provider: result.provider, model: result.model, latencyMs: result.latencyMs };
 }

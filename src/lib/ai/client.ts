@@ -5,7 +5,7 @@ import { checkCircuit, recordSuccess, recordFailure } from '@/lib/circuit';
 import { traceAsync, createTraceContext, createChildSpan } from '@/lib/trace';
 import type { TraceContext } from '@/lib/trace';
 
-export type AIModel = 'gpt-4o' | 'gpt-4o-mini' | 'deepseek-chat' | 'deepseek-reasoner';
+export type AIModel = 'gpt-4o' | 'gpt-4o-mini' | 'deepseek-chat' | 'deepseek-reasoner' | 'deepseek-v4-pro' | 'deepseek-v4-flash';
 
 export interface AICompletionOptions {
   model?: AIModel;
@@ -29,6 +29,8 @@ const MODEL_BASE_URLS: Record<string, string> = {
   'gpt-4o-mini': 'https://api.openai.com/v1',
   'deepseek-chat': 'https://api.deepseek.com/v1',
   'deepseek-reasoner': 'https://api.deepseek.com/v1',
+  'deepseek-v4-pro': 'https://api.deepseek.com/v1',
+  'deepseek-v4-flash': 'https://api.deepseek.com/v1',
 };
 
 function getBaseUrlForModel(model?: string): string {

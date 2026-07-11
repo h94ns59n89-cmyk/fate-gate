@@ -5,10 +5,15 @@ import { Button } from '@/components/common/Button';
 import { Sparkles, Plus, Minus } from 'lucide-react';
 import type { FullReport } from '@/lib/types';
 
+interface UserInfo {
+  nickname?: string;
+}
+
 interface ReportPageViewerProps {
   report: FullReport;
   onShare?: () => void;
   variant?: 'viewer' | 'pdf';
+  userInfo?: UserInfo;
 }
 
 const PAGES = [
@@ -43,7 +48,7 @@ function DotProgress({ total, current, onJump }: { total: number; current: numbe
 
 function GoldBadge({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-block rounded-[3px] border border-[#9B7FBB]/25 bg-[#9B7FBB]/8 px-3 py-1 text-xs font-medium text-[#9B7FBB]">
+    <span className="inline-flex items-center rounded-[3px] border border-[#9B7FBB]/25 bg-[#9B7FBB]/8 px-3 py-1 text-xs font-medium text-[#9B7FBB]">
       {children}
     </span>
   );
@@ -52,13 +57,13 @@ function GoldBadge({ children }: { children: React.ReactNode }) {
 function TagPill({ children, variant = 'default' }: { children: React.ReactNode; variant?: 'default' | 'outline' }) {
   if (variant === 'outline') {
     return (
-      <span className="inline-block rounded-full border border-[rgba(0,0,0,0.08)] px-3 py-1 text-xs text-[#6B6778]">
+      <span className="inline-flex items-center rounded-full border border-[rgba(0,0,0,0.08)] px-3 py-1 text-xs text-[#6B6778]">
         {children}
       </span>
     );
   }
   return (
-    <span className="inline-block rounded-full bg-[#9B7FBB]/8 px-3 py-1 text-xs font-medium text-[#9B7FBB]">
+    <span className="inline-flex items-center rounded-full bg-[#9B7FBB]/8 px-3 py-1 text-xs font-medium text-[#9B7FBB]">
       {children}
     </span>
   );
@@ -92,13 +97,13 @@ function StatusBadge({ status }: { status: string }) {
   };
   const colorClass = colors[status] ?? 'text-[#6B6778] border-[rgba(0,0,0,0.08)] bg-[#F8F8FA]';
   return (
-    <span className={`inline-block rounded-full border px-2.5 py-0.5 text-xs font-medium ${colorClass}`}>
+    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${colorClass}`}>
       {status}
     </span>
   );
 }
 
-function CoverPage({ data }: { data: Record<string, unknown> }) {
+function CoverPage({ data, userInfo }: { data: Record<string, unknown>; userInfo?: UserInfo }) {
   return (
     <div className="flex h-full flex-col items-center justify-center text-center">
       <div className="absolute left-8 top-12">
@@ -129,6 +134,10 @@ function CoverPage({ data }: { data: Record<string, unknown> }) {
         {data.subtitle as string}
       </p>
 
+      {userInfo?.nickname && (
+        <p className="mt-3 text-xs text-[#8A8696]">{userInfo.nickname}</p>
+      )}
+
       <div className="my-6 h-px w-16 bg-gradient-to-r from-transparent via-[#9B7FBB]/25 to-transparent" />
 
       <div className="max-w-xs border-l-2 border-[#9B7FBB]/30 pl-4 text-left">
@@ -151,7 +160,7 @@ function PersonalityPage({ data }: { data: Record<string, unknown> }) {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <span className="inline-block rounded-full border border-[#9B7FBB]/20 bg-[#9B7FBB]/8 px-4 py-1 text-xs font-medium tracking-wide text-[#9B7FBB]">
+        <span className="inline-flex items-center rounded-full border border-[#9B7FBB]/20 bg-[#9B7FBB]/8 px-4 py-1 text-xs font-medium tracking-wide text-[#9B7FBB]">
           {data.type as string}
         </span>
         <p className="mt-2 text-sm text-[#6B6778]">{data.five_elements as string}</p>
@@ -336,7 +345,7 @@ function CurrentYearPage({ data }: { data: Record<string, unknown> }) {
             <p className="mb-2 text-[10px] font-semibold tracking-wide text-[#6B6778]">幸运领域</p>
             <div className="flex flex-wrap gap-2">
               {lucky.map((a, i) => (
-                <span key={i} className="rounded-full border border-[#9B7FBB]/20 bg-[#9B7FBB]/5 px-2.5 py-1 text-[11px] text-[#9B7FBB]">{a}</span>
+                <span key={i} className="inline-flex items-center rounded-full border border-[#9B7FBB]/20 bg-[#9B7FBB]/5 px-2.5 py-1 text-[11px] text-[#9B7FBB]">{a}</span>
               ))}
             </div>
           </div>
@@ -431,7 +440,7 @@ function CurrentYearPage({ data }: { data: Record<string, unknown> }) {
                 <h4 className="text-xs font-semibold text-[#1F1D2B]">{label}</h4>
                 <div className="flex items-center gap-1.5">
                   <span className={`text-base font-bold ${scoreColor}`}>{score}</span>
-                  {badge && <span className="rounded-full border border-[rgba(0,0,0,0.08)] bg-[#F8F8FA] px-2 py-0.5 text-[9px] text-[#6B6778]">{badge}</span>}
+                  {badge && <span className="inline-flex items-center rounded-full border border-[rgba(0,0,0,0.08)] bg-[#F8F8FA] px-2 py-0.5 text-[9px] text-[#6B6778]">{badge}</span>}
                 </div>
               </div>
               <div className="mb-2 h-1 w-full rounded-full bg-[#F0F0F2]">
@@ -449,7 +458,7 @@ function CurrentYearPage({ data }: { data: Record<string, unknown> }) {
           <p className="mb-2 text-[10px] font-semibold tracking-wide text-[#6B6778]">幸运领域</p>
           <div className="flex flex-wrap gap-2">
             {lucky.map((a, i) => (
-              <span key={i} className="rounded-full border border-[#9B7FBB]/20 bg-[#9B7FBB]/5 px-2.5 py-1 text-[11px] text-[#9B7FBB]">{a}</span>
+              <span key={i} className="inline-flex items-center rounded-full border border-[#9B7FBB]/20 bg-[#9B7FBB]/5 px-2.5 py-1 text-[11px] text-[#9B7FBB]">{a}</span>
             ))}
           </div>
         </div>
@@ -611,7 +620,7 @@ const PAGE_RENDERERS: Record<string, (data: Record<string, unknown>) => React.Re
   footer: (d) => <FooterPage data={d} />,
 };
 
-export function ReportPageViewer({ report, onShare, variant = 'viewer' }: ReportPageViewerProps) {
+export function ReportPageViewer({ report, onShare, variant = 'viewer', userInfo }: ReportPageViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentPage, setCurrentPage] = useState(0);
 
@@ -630,7 +639,6 @@ export function ReportPageViewer({ report, onShare, variant = 'viewer' }: Report
       <div className="w-full max-w-[800px] mx-auto bg-[#FFFFFF]">
         {PAGES.map((page, i) => {
           const data = (report[page.key as keyof FullReport] ?? {}) as Record<string, unknown>;
-          const render = PAGE_RENDERERS[page.key];
           return (
             <div key={page.key} className="p-6 pt-12" style={{ pageBreakInside: 'avoid' }}>
               {page.key !== 'cover' && page.key !== 'footer' && (
@@ -643,7 +651,11 @@ export function ReportPageViewer({ report, onShare, variant = 'viewer' }: Report
                   </span>
                 </div>
               )}
-              <div className="min-h-0 pt-4">{render ? render(data) : null}</div>
+              <div className="min-h-0 pt-4">
+                {page.key === 'cover'
+                  ? <CoverPage data={data} {...(userInfo ? { userInfo } : {})} />
+                  : PAGE_RENDERERS[page.key]?.(data) ?? null}
+              </div>
             </div>
           );
         })}
@@ -663,7 +675,6 @@ export function ReportPageViewer({ report, onShare, variant = 'viewer' }: Report
       >
         {PAGES.map((page, i) => {
           const data = (report[page.key as keyof FullReport] ?? {}) as Record<string, unknown>;
-          const render = PAGE_RENDERERS[page.key];
           return (
             <div
               key={page.key}
@@ -700,7 +711,9 @@ export function ReportPageViewer({ report, onShare, variant = 'viewer' }: Report
                 </div>
               )}
               <div className="flex-1 overflow-y-auto min-h-0">
-                {render ? render(data) : null}
+                {page.key === 'cover'
+                  ? <CoverPage data={data} {...(userInfo ? { userInfo } : {})} />
+                  : PAGE_RENDERERS[page.key]?.(data) ?? null}
               </div>
             </div>
           );
