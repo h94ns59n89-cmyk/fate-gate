@@ -229,7 +229,7 @@ export default function AdminPage() {
       const json = await res.json();
       fetchReports();
       if (json.code === 0) {
-        addLog(`✅ 报告 #${reportId} 生成成功 (${json.data.latency_ms}ms)`);
+        addLog(`✅ 报告 #${reportId} 生成成功 [${json.data.provider}:${json.data.model || aiModel}] (${json.data.latency_ms}ms)`);
       } else {
         addLog(`❌ 报告 #${reportId} 生成失败: ${json.message}`);
         alert(`生成失败: ${json.message}`);

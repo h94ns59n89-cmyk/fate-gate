@@ -49,7 +49,7 @@ export const POST = withMiddleware(async (req) => {
 
     try {
       const genOpts = { ...(model ? { model } : {}), trace, ...(apiKey ? { apiKey, baseUrl } : {}) };
-      const { data: result, provider, latencyMs } = await withTimeout(generateComparison(targetBazi, userBazi, genOpts), 90000, 'AI 合盘生成');
+      const { data: result, provider, model: actualModel, latencyMs } = await withTimeout(generateComparison(targetBazi, userBazi, genOpts), 90000, 'AI 合盘生成');
 
       if (result) {
         await prisma.comparison.update({
@@ -70,11 +70,12 @@ export const POST = withMiddleware(async (req) => {
           },
         });
 
-        log.info(`Comparison ${reportId} generated successfully`, { provider, latency_ms: latencyMs });
+        log.info(`Comparison ${reportId} generated successfully`, { provider, model: actualModel, latency_ms: latencyMs });
         return success({
           report_id: reportId,
           status: 'completed',
           provider,
+          model: actualModel,
           latency_ms: latencyMs,
         });
       } else {
@@ -116,7 +117,7 @@ export const POST = withMiddleware(async (req) => {
 
   try {
     const genOpts = { ...(model ? { model } : {}), trace, ...(apiKey ? { apiKey, baseUrl } : {}) };
-    const { data: reportData, provider, latencyMs } = await withTimeout(generateFullReport(baziData, genOpts), 90000, 'AI 报告生成');
+      const { data: reportData, provider, model: actualModel, latencyMs } = await withTimeout(generateFullReport(baziData, genOpts), 90000, 'AI 报告生成');
 
     if (reportData) {
       // Override AI-generated timestamp with server time
@@ -132,11 +133,12 @@ export const POST = withMiddleware(async (req) => {
           generatedAt: new Date(),
         },
       });
-      log.info(`Report ${reportId} generated successfully`, { provider, latency_ms: latencyMs });
+      log.info(`Report ${reportId} generated successfully`, { provider, model: actualModel, latency_ms: latencyMs });
       return success({
         report_id: reportId,
         status: 'completed',
         provider,
+        model: actualModel,
         latency_ms: latencyMs,
         full_report: reportData,
       });

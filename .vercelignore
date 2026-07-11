@@ -1,0 +1,6 @@
+.next
+node_modules
+release
+prisma/init.db
+scripts
+main.js

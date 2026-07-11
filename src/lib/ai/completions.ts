@@ -36,20 +36,20 @@ export async function generatePersonalityTags(
     { ...options, seed: computeSeed(baziData) },
   );
 
-  return { data: result.data, provider: result.provider, latencyMs: result.latencyMs };
+  return { data: result.data, provider: result.provider, model: result.model, latencyMs: result.latencyMs };
 }
 
 export async function generateFullReport(
   baziData: Record<string, unknown>,
   options: AICompletionOptions = {},
-): Promise<{ data: FullReport | null; provider: string; latencyMs: number }> {
+): Promise<{ data: FullReport | null; provider: string; model: string; latencyMs: number }> {
   const { features } = getEnv();
   const dayMaster = (baziData.dayMaster as string) ?? '';
 
   if (features.enableMock) {
-    if (!dayMaster) return { data: null, provider: 'mock', latencyMs: 0 };
+    if (!dayMaster) return { data: null, provider: 'mock', model: 'mock', latencyMs: 0 };
     const data = mockFullReport(dayMaster);
-    return { data, provider: 'mock', latencyMs: 0 };
+    return { data, provider: 'mock', model: 'mock', latencyMs: 0 };
   }
 
   const analysis = computeAnalysis(baziData);
@@ -62,19 +62,19 @@ export async function generateFullReport(
     { ...options, seed: computeSeed(baziData) },
   );
 
-  return { data: result.data, provider: result.provider, latencyMs: result.latencyMs };
+  return { data: result.data, provider: result.provider, model: result.model, latencyMs: result.latencyMs };
 }
 
 export async function generateComparison(
   userABazi: Record<string, unknown>,
   userBBazi: Record<string, unknown>,
   options: AICompletionOptions = {},
-): Promise<{ data: ComparisonResult | null; provider: string; latencyMs: number }> {
+): Promise<{ data: ComparisonResult | null; provider: string; model: string; latencyMs: number }> {
   const { features } = getEnv();
 
   if (features.enableMock) {
     const data = mockComparison();
-    return { data, provider: 'mock', latencyMs: 0 };
+    return { data, provider: 'mock', model: 'mock', latencyMs: 0 };
   }
 
   const combined = { ...userABazi, _partner: userBBazi };
