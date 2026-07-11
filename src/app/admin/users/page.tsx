@@ -135,7 +135,32 @@ export default function AdminUsersPage() {
                       <span className="text-sm font-medium text-[#1F1D2B]">{u.nickname}</span>
                       <span className="ml-2 text-xs text-[#8A8696]">@{u.username}</span>
                     </div>
-                    <span className="text-xs text-[#B8B6C0]">ID: {u.id}</span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-[#B8B6C0]">ID: {u.id}</span>
+                      <button
+                        onClick={async () => {
+                          if (!confirm(`确定删除用户 "${u.nickname ?? u.username}" (ID: ${u.id})？此操作不可撤销。`)) return;
+                          try {
+                            const res = await fetch(`/api/v1/admin/users/${u.id}`, {
+                              method: 'DELETE',
+                              headers: { 'Authorization': `Bearer ${token}` },
+                            });
+                            const json = await res.json();
+                            if (json.code === 0) {
+                              addMsg(`✅ ${json.data.message}`);
+                              fetchUsers();
+                            } else {
+                              addMsg(`❌ ${json.message}`);
+                            }
+                          } catch {
+                            addMsg('❌ 删除请求异常');
+                          }
+                        }}
+                        className="rounded-[4px] bg-[#E05A5A]/10 px-2.5 py-1 text-[11px] font-medium text-[#E05A5A] hover:bg-[#E05A5A]/20"
+                      >
+                        删除
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
