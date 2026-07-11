@@ -48,7 +48,7 @@ function DotProgress({ total, current, onJump }: { total: number; current: numbe
 
 function GoldBadge({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center justify-center rounded-[3px] border border-[#9B7FBB]/25 bg-[#9B7FBB]/8 px-3 py-1 text-xs font-medium text-[#9B7FBB]">
+    <span className="inline-flex items-center justify-center leading-none rounded-[3px] border border-[#9B7FBB]/25 bg-[#9B7FBB]/8 px-3 py-1 text-xs font-medium text-[#9B7FBB]">
       {children}
     </span>
   );
@@ -57,13 +57,13 @@ function GoldBadge({ children }: { children: React.ReactNode }) {
 function TagPill({ children, variant = 'default' }: { children: React.ReactNode; variant?: 'default' | 'outline' }) {
   if (variant === 'outline') {
     return (
-      <span className="inline-flex items-center justify-center rounded-full border border-[rgba(0,0,0,0.08)] px-3 py-1 text-xs text-[#6B6778]">
+      <span className="inline-flex items-center justify-center leading-none rounded-full border border-[rgba(0,0,0,0.08)] px-3 py-1 text-xs text-[#6B6778]">
         {children}
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center justify-center rounded-full bg-[#9B7FBB]/8 px-3 py-1 text-xs font-medium text-[#9B7FBB]">
+    <span className="inline-flex items-center justify-center leading-none rounded-full bg-[#9B7FBB]/8 px-3 py-1 text-xs font-medium text-[#9B7FBB]">
       {children}
     </span>
   );
@@ -97,7 +97,7 @@ function StatusBadge({ status }: { status: string }) {
   };
   const colorClass = colors[status] ?? 'text-[#6B6778] border-[rgba(0,0,0,0.08)] bg-[#F8F8FA]';
   return (
-    <span className={`inline-flex items-center justify-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${colorClass}`}>
+    <span className={`inline-flex items-center justify-center leading-none rounded-full border px-2.5 py-1 text-xs font-medium ${colorClass}`}>
       {status}
     </span>
   );
@@ -160,7 +160,7 @@ function PersonalityPage({ data }: { data: Record<string, unknown> }) {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <span className="inline-flex items-center justify-center rounded-full border border-[#9B7FBB]/20 bg-[#9B7FBB]/8 px-4 py-1 text-xs font-medium tracking-wide text-[#9B7FBB]">
+        <span className="inline-flex items-center justify-center leading-none rounded-full border border-[#9B7FBB]/20 bg-[#9B7FBB]/8 px-4 py-1 text-xs font-medium tracking-wide text-[#9B7FBB]">
           {data.type as string}
         </span>
         <p className="mt-2 text-sm text-[#6B6778]">{data.five_elements as string}</p>
@@ -177,7 +177,7 @@ function PersonalityPage({ data }: { data: Record<string, unknown> }) {
           <ul className="space-y-2.5">
             {traits.map((trait, i) => (
               <li key={i} className="flex items-start gap-3 text-sm leading-relaxed text-[#1F1D2B]/80">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#9B7FBB]/10 text-[10px] font-semibold text-[#9B7FBB]">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center leading-none rounded-full bg-[#9B7FBB]/10 text-[10px] font-semibold text-[#9B7FBB]">
                   {i + 1}
                 </span>
                 {trait}
@@ -235,7 +235,7 @@ function CareerPage({ data }: { data: Record<string, unknown> }) {
                 key={i}
                 className="flex items-center gap-3 rounded-[4px] border border-[rgba(0,0,0,0.06)] bg-[#F8F8FA] px-4 py-3"
               >
-                <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-[3px] bg-[#9B7FBB]/10 text-sm text-[#9B7FBB]">
+                <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center leading-none rounded-[3px] bg-[#9B7FBB]/10 text-sm text-[#9B7FBB]">
                   {['🎯', '📈', '💡'][i] ?? '✦'}
                 </span>
                 <span className="text-sm text-[#1F1D2B]/80">{dir}</span>
@@ -345,7 +345,7 @@ function CurrentYearPage({ data }: { data: Record<string, unknown> }) {
             <p className="mb-2 text-[10px] font-semibold tracking-wide text-[#6B6778]">幸运领域</p>
             <div className="flex flex-wrap gap-2">
               {lucky.map((a, i) => (
-                <span key={i} className="inline-flex items-center justify-center rounded-full border border-[#9B7FBB]/20 bg-[#9B7FBB]/5 px-2.5 py-1 text-[11px] text-[#9B7FBB]">{a}</span>
+                <span key={i} className="inline-flex items-center justify-center leading-none rounded-full border border-[#9B7FBB]/20 bg-[#9B7FBB]/5 px-2.5 py-1 text-[11px] text-[#9B7FBB]">{a}</span>
               ))}
             </div>
           </div>
@@ -440,7 +440,7 @@ function CurrentYearPage({ data }: { data: Record<string, unknown> }) {
                 <h4 className="text-xs font-semibold text-[#1F1D2B]">{label}</h4>
                 <div className="flex items-center gap-1.5">
                   <span className={`text-base font-bold ${scoreColor}`}>{score}</span>
-                  {badge && <span className="inline-flex items-center justify-center rounded-full border border-[rgba(0,0,0,0.08)] bg-[#F8F8FA] px-2 py-0.5 text-[9px] text-[#6B6778]">{badge}</span>}
+                  {badge && <span className="inline-flex items-center justify-center leading-none rounded-full border border-[rgba(0,0,0,0.08)] bg-[#F8F8FA] px-2 py-1 text-[9px] text-[#6B6778]">{badge}</span>}
                 </div>
               </div>
               <div className="mb-2 h-1 w-full rounded-full bg-[#F0F0F2]">
@@ -458,7 +458,7 @@ function CurrentYearPage({ data }: { data: Record<string, unknown> }) {
           <p className="mb-2 text-[10px] font-semibold tracking-wide text-[#6B6778]">幸运领域</p>
           <div className="flex flex-wrap gap-2">
             {lucky.map((a, i) => (
-              <span key={i} className="inline-flex items-center justify-center rounded-full border border-[#9B7FBB]/20 bg-[#9B7FBB]/5 px-2.5 py-1 text-[11px] text-[#9B7FBB]">{a}</span>
+              <span key={i} className="inline-flex items-center justify-center leading-none rounded-full border border-[#9B7FBB]/20 bg-[#9B7FBB]/5 px-2.5 py-1 text-[11px] text-[#9B7FBB]">{a}</span>
             ))}
           </div>
         </div>
@@ -500,7 +500,7 @@ function SelfImprovementPage({ data }: { data: Record<string, unknown> }) {
           <ul className="space-y-2">
             {directions.map((d, i) => (
               <li key={i} className="flex items-center gap-3 text-sm text-[#1F1D2B]/80">
-                <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#8FCFA0]/15 text-xs text-[#8FCFA0]">
+                <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center leading-none rounded-full bg-[#8FCFA0]/15 text-xs text-[#8FCFA0]">
                   ✓
                 </span>
                 {d}
@@ -530,7 +530,7 @@ function SelfImprovementPage({ data }: { data: Record<string, unknown> }) {
                 key={i}
                 className="flex items-center gap-3 rounded-[4px] border border-[rgba(0,0,0,0.06)] bg-[#F8F8FA] px-4 py-3"
               >
-                <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-[3px] bg-[#9B7FBB]/10 text-sm text-[#9B7FBB]">
+                <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center leading-none rounded-[3px] bg-[#9B7FBB]/10 text-sm text-[#9B7FBB]">
                   📖
                 </span>
                 <span className="text-sm text-[#1F1D2B]/80">{book}</span>
@@ -692,7 +692,7 @@ export function ReportPageViewer({ report, onShare, variant = 'viewer', userInfo
                     {i > 0 && (
                       <button
                         onClick={() => jumpTo(i - 1)}
-                        className="flex h-6 w-6 items-center justify-center rounded-[4px] text-xs text-[#8A8696] transition-colors hover:bg-[#F5F0FA] hover:text-[#1F1D2B]"
+                        className="flex h-6 w-6 items-center justify-center leading-none rounded-[4px] text-xs text-[#8A8696] transition-colors hover:bg-[#F5F0FA] hover:text-[#1F1D2B]"
                         aria-label="上一页"
                       >
                         ‹
@@ -701,7 +701,7 @@ export function ReportPageViewer({ report, onShare, variant = 'viewer', userInfo
                     {i < PAGES.length - 1 && (
                       <button
                         onClick={() => jumpTo(i + 1)}
-                        className="flex h-6 w-6 items-center justify-center rounded-[4px] text-xs text-[#8A8696] transition-colors hover:bg-[#F5F0FA] hover:text-[#1F1D2B]"
+                        className="flex h-6 w-6 items-center justify-center leading-none rounded-[4px] text-xs text-[#8A8696] transition-colors hover:bg-[#F5F0FA] hover:text-[#1F1D2B]"
                         aria-label="下一页"
                       >
                         ›
