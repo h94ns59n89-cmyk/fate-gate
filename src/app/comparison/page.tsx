@@ -172,9 +172,10 @@ export default function ComparisonPage() {
 
       if (!ownResult) throw new Error('排盘计算失败');
 
+      const state = useUserStore.getState();
       const compRes = await fetch('/api/v1/comparisons', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(state.token ? { 'Authorization': `Bearer ${state.token}` } : {}) },
         body: JSON.stringify({
           user_id: uid,
           target_user_id: targetUser.user_id,

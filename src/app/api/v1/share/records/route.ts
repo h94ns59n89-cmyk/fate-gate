@@ -1,9 +1,13 @@
-import { withMiddleware } from '@/lib/middleware';
+import { NextResponse } from 'next/server';
+import { withMiddleware, requireAuth } from '@/lib/middleware';
 import { success, error } from '@/lib/api-response';
 import prisma from '@/lib/db/client';
 import { shareRecordsSchema } from '@/lib/validation';
 
 export const POST = withMiddleware(async (req) => {
+  const auth = await requireAuth(req);
+  if (auth instanceof NextResponse) return auth;
+
   const body = await req.json();
   const parsed = shareRecordsSchema.safeParse(body);
   if (!parsed.success) {

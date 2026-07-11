@@ -243,7 +243,10 @@ export default function AdminPage() {
 
   const handleView = async (reportId: number, userNickname?: string) => {
     try {
-      const res = await fetch(`/api/v1/reports/${reportId}`);
+      const adminAuth = JSON.parse(localStorage.getItem('admin_auth') ?? '{}');
+      const res = await fetch(`/api/v1/reports/${reportId}`, {
+        headers: adminAuth?.token ? { 'Authorization': `Bearer ${adminAuth.token}` } : {},
+      });
       const json = await res.json();
       if (json.code === 0 && json.data?.full_report) {
         setViewReport({ id: reportId, data: json.data.full_report as FullReport, ...(userNickname ? { userNickname } : {}) });
@@ -263,7 +266,10 @@ export default function AdminPage() {
       let filename: string;
 
       if (isComparison) {
-        const res = await fetch(`/api/v1/comparisons/${reportId}`);
+        const adminAuth = JSON.parse(localStorage.getItem('admin_auth') ?? '{}');
+        const res = await fetch(`/api/v1/comparisons/${reportId}`, {
+          headers: adminAuth?.token ? { 'Authorization': `Bearer ${adminAuth.token}` } : {},
+        });
         const json = await res.json();
         if (json.code !== 0 || !json.data) {
           addLog(`合盘报告 #${reportId} 无完整内容，无法导出`);
@@ -303,7 +309,10 @@ export default function AdminPage() {
         pdf.save(filename);
         addLog(`✅ PDF #${reportId} 导出成功 (${page} 页)`);
       } else {
-        const res = await fetch(`/api/v1/reports/${reportId}`);
+        const adminAuth = JSON.parse(localStorage.getItem('admin_auth') ?? '{}');
+        const res = await fetch(`/api/v1/reports/${reportId}`, {
+          headers: adminAuth?.token ? { 'Authorization': `Bearer ${adminAuth.token}` } : {},
+        });
         const json = await res.json();
         if (json.code !== 0 || !json.data?.full_report) {
           addLog(`报告 #${reportId} 无完整内容，无法导出`);
@@ -321,7 +330,10 @@ export default function AdminPage() {
 
   const handleViewComparison = async (id: number) => {
     try {
-      const res = await fetch(`/api/v1/comparisons/${id}`);
+      const adminAuth = JSON.parse(localStorage.getItem('admin_auth') ?? '{}');
+      const res = await fetch(`/api/v1/comparisons/${id}`, {
+        headers: adminAuth?.token ? { 'Authorization': `Bearer ${adminAuth.token}` } : {},
+      });
       const json = await res.json();
       if (json.code === 0) {
         setViewComparison(json.data);

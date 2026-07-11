@@ -24,13 +24,8 @@ export const POST = withMiddleware(async (req) => {
   let userId: number;
 
   const auth = await requireAuth(req);
-  if (auth instanceof NextResponse) {
-    const body = await req.clone().json();
-    if (!body.user_id) return auth;
-    userId = body.user_id;
-  } else {
-    userId = auth.userId;
-  }
+  if (auth instanceof NextResponse) return auth;
+  userId = auth.userId;
 
   const body = await req.json();
   const parsed = ordersCreateSchema.safeParse(body);

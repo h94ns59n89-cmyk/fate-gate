@@ -6,6 +6,7 @@ import { ComparisonCard } from '@/components/comparison/ComparisonCard';
 import { Button } from '@/components/common/Button';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { LeadGenWall } from '@/components/report/LeadGenWall';
+import { useUserStore } from '@/stores/userStore';
 import { Sparkles, Target } from 'lucide-react';
 
 class SafeBoundary extends Component<{ children: ReactNode; fallback?: ReactNode }, { hasError: boolean; error: Error | null }> {
@@ -59,7 +60,10 @@ export default function ComparisonResultPage() {
   const fetchComparison = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/v1/comparisons/${params.id}`);
+      const token = useUserStore.getState().token;
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const res = await fetch(`/api/v1/comparisons/${params.id}`, { headers });
       const json = await res.json();
       if (json.code !== 0) throw new Error(json.message);
       console.log('[comparison] data keys:', Object.keys(json.data ?? {}), 'advice type:', typeof json.data?.advice);

@@ -1,8 +1,12 @@
-import { withMiddleware } from '@/lib/middleware';
+import { NextResponse } from 'next/server';
+import { withMiddleware, requireAuth } from '@/lib/middleware';
 import { success, error } from '@/lib/api-response';
 import prisma from '@/lib/db/client';
 
 export const POST = withMiddleware(async (req) => {
+  const auth = await requireAuth(req);
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const body = await req.json();
     const { user_id, target_user_id, user_bazi, target_bazi, target_tags, user_tags } = body;

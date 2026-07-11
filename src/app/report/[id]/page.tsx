@@ -30,7 +30,10 @@ export default function ReportPage() {
     setLoading(true);
     setFetchError(null);
     try {
-      const res = await fetch(`/api/v1/reports/${reportId}`);
+      const token = useUserStore.getState().token;
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const res = await fetch(`/api/v1/reports/${reportId}`, { headers });
       const json = await res.json();
       if (json.code === 0) {
         setPersonalityTags(json.data?.personality_tags);

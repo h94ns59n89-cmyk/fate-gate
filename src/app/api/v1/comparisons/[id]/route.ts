@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { withMiddleware, requireAuth } from '@/lib/middleware';
+import { extractAdminToken, checkAdminToken } from '@/lib/admin-auth';
 import { success, notFound } from '@/lib/api-response';
 import prisma from '@/lib/db/client';
 
@@ -7,16 +8,32 @@ export const GET = withMiddleware(async (req, { params }) => {
   const id = parseInt(params.id ?? '0', 10);
   if (!id) return notFound('对比不存在');
 
+  const adminToken = extractAdminToken(req);
+  const isAdmin = adminToken && checkAdminToken(adminToken);
+
+  if (!isAdmin) {
+    const auth = await requireAuth(req);
+    if (auth instanceof NextResponse) return auth;
+
+    const comparison = await prisma.comparison.findFirst({
+      where: { id: Number(id), userId: Number(auth.userId) },
+      include: { user: { select: { nickname: true } }, targetUser: { select: { nickname: true } } },
+    });
+    if (!comparison) return notFound('对比不存在');
+    return success(formatComparison(comparison));
+  }
+
   const comparison = await prisma.comparison.findUnique({
     where: { id: Number(id) },
     include: { user: { select: { nickname: true } }, targetUser: { select: { nickname: true } } },
   });
-
   if (!comparison) return notFound('对比不存在');
+  return success(formatComparison(comparison));
+});
 
+function formatComparison(comparison: { id: number; status: string; matchScore: number | null; dimensionsJson: unknown; adviceJson: unknown; shareImageUrl: string | null; isPaid: boolean; user: { nickname: string | null }; targetUser: { nickname: string | null } | null }) {
   const adviceData = comparison.adviceJson as Record<string, unknown> | null;
-
-  return success({
+  return {
     id: Number(comparison.id),
     status: comparison.status,
     match_score: comparison.matchScore,
@@ -32,8 +49,8 @@ export const GET = withMiddleware(async (req, { params }) => {
     target_tags: Array.isArray(adviceData?.target_tags) ? adviceData.target_tags : [],
     user_tags: Array.isArray(adviceData?.user_tags) ? adviceData.user_tags : [],
     summary_tag: typeof adviceData?.summary_tag === 'string' ? adviceData.summary_tag : null,
-  });
-});
+  };
+}
 
 export const DELETE = withMiddleware(async (req, { params }) => {
   const auth = await requireAuth(req);
