@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, Menu, shell, nativeImage } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, MenuItem, shell, nativeImage } = require('electron');
 const path = require('path');
 const { spawn, execSync } = require('child_process');
 const fs = require('fs');
@@ -158,9 +158,12 @@ function startServer() {
 }
 
 function getIconPath() {
+  const pngPath = path.join(__dirname, '..', 'public', 'icon-256.png');
+  if (fs.existsSync(pngPath)) return pngPath;
   const icoPath = path.join(__dirname, '..', 'public', 'favicon.ico');
   if (fs.existsSync(icoPath)) return icoPath;
-  // Fallback: try resources directory (packaged mode)
+  const resPng = path.join(process.resourcesPath, 'app.asar.unpacked', 'public', 'icon-256.png');
+  if (fs.existsSync(resPng)) return resPng;
   const resIco = path.join(process.resourcesPath, 'app.asar.unpacked', 'public', 'favicon.ico');
   if (fs.existsSync(resIco)) return resIco;
   return null;
@@ -192,6 +195,22 @@ function createWindow() {
 
   mainWindow.on('closed', () => {
     mainWindow = null;
+  });
+
+  // Context menu for dev tools and reload (menu is hidden)
+  mainWindow.webContents.on('context-menu', (e, params) => {
+    const ctx = new Menu();
+    ctx.append(new MenuItem({
+      label: 'Reload',
+      accelerator: 'CmdOrCtrl+R',
+      click: () => mainWindow.webContents.reload(),
+    }));
+    ctx.append(new MenuItem({
+      label: 'Toggle DevTools',
+      accelerator: 'F12',
+      click: () => mainWindow.webContents.toggleDevTools(),
+    }));
+    ctx.popup({ window: mainWindow });
   });
 }
 

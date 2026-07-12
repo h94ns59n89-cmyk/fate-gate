@@ -49,7 +49,7 @@ export const POST = withMiddleware(async (req) => {
 
     try {
       const genOpts = { ...(model ? { model } : {}), trace, ...(apiKey ? { apiKey, baseUrl } : {}) };
-      const { data: result, provider, model: actualModel, latencyMs } = await withTimeout(generateComparison(targetBazi, userBazi, genOpts), 90000, 'AI 合盘生成');
+      const { data: result, provider, model: actualModel, latencyMs } = await withTimeout(generateComparison(targetBazi, userBazi, genOpts), 110000, 'AI 合盘生成');
 
       if (result) {
         await prisma.comparison.update({
@@ -117,7 +117,7 @@ export const POST = withMiddleware(async (req) => {
 
   try {
     const genOpts = { ...(model ? { model } : {}), trace, ...(apiKey ? { apiKey, baseUrl } : {}) };
-      const { data: reportData, provider, model: actualModel, latencyMs } = await withTimeout(generateFullReport(baziData, genOpts), 90000, 'AI 报告生成');
+      const { data: reportData, provider, model: actualModel, latencyMs } = await withTimeout(generateFullReport(baziData, genOpts), 110000, 'AI 报告生成');
 
     if (reportData) {
       // Override AI-generated timestamp with server time

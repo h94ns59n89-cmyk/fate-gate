@@ -46,7 +46,7 @@ function getOpenAIClient(): OpenAI {
     const { ai } = getEnv();
     openaiClient = new OpenAI({
       apiKey: ai.openaiApiKey,
-      timeout: 30000,
+      timeout: 60000,
       maxRetries: 0,
     });
   }
@@ -59,7 +59,7 @@ function getDeepSeekClient(): OpenAI {
     deepseekClient = new OpenAI({
       apiKey: ai.deepseekApiKey,
       baseURL: 'https://api.deepseek.com/v1',
-      timeout: 30000,
+      timeout: 60000,
       maxRetries: 0,
     });
   }
@@ -93,7 +93,7 @@ export async function chatCompletion(
     const customClient = new OpenAI({
       apiKey: options.apiKey,
       baseURL: customBaseUrl,
-      timeout: options.timeout ?? 30000,
+      timeout: options.timeout ?? 60000,
       maxRetries: 0,
     });
       const childTrace = createChildSpan(trace);

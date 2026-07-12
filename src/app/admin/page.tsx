@@ -13,7 +13,7 @@ function renderComparisonHTML(data: Record<string, unknown>): string {
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
   function tag(text: string): string {
-    return `<span style="display:inline-block;border-radius:999px;background:rgba(155,127,187,0.08);padding:2px 10px;font-size:11px;line-height:1;text-align:center;color:#9B7FBB;">${esc(text)}</span>`;
+    return `<span style="display:inline-flex;align-items:center;justify-content:center;border-radius:999px;background:rgba(155,127,187,0.08);padding:2px 10px;font-size:11px;color:#9B7FBB;"><span style="display:inline;line-height:1;">${esc(text)}</span></span>`;
   }
   const dimensions = data.dimensions as Record<string, number> | undefined;
   const strengths = data.strengths as string[] | undefined;
@@ -25,7 +25,7 @@ function renderComparisonHTML(data: Record<string, unknown>): string {
   html += `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:600px;text-align:center;padding:20px 32px;page-break-inside:avoid;">`;
   html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:24px;"><div style="width:40px;height:1px;background:linear-gradient(to right,transparent,rgba(155,127,187,0.3));"></div><div style="display:flex;gap:3px;"><div style="width:4px;height:4px;border-radius:999px;background:#9B7FBB;"></div><div style="width:4px;height:4px;border-radius:999px;background:rgba(155,127,187,0.5);"></div><div style="width:4px;height:4px;border-radius:999px;background:rgba(155,127,187,0.2);"></div></div><div style="width:40px;height:1px;background:linear-gradient(to left,transparent,rgba(155,127,187,0.3));"></div></div>`;
   html += `<h1 style="font-size:28px;font-weight:700;margin:0 0 8px 0;color:#1F1D2B;font-family:serif;">合盘报告</h1>`;
-  if (data.summary_tag) html += `<span style="display:inline-block;border:1px solid rgba(155,127,187,0.25);background:rgba(155,127,187,0.08);border-radius:3px;padding:4px 14px;font-size:12px;line-height:1;text-align:center;color:#9B7FBB;font-weight:500;">${esc(data.summary_tag as string)}</span>`;
+  if (data.summary_tag) html += `<span style="display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(155,127,187,0.25);background:rgba(155,127,187,0.08);border-radius:3px;padding:4px 14px;font-size:12px;color:#9B7FBB;font-weight:500;"><span style="display:inline;line-height:1;">${esc(data.summary_tag as string)}</span></span>`;
   if (data.match_score !== undefined) html += `<div style="margin-top:20px;"><p style="font-size:11px;color:#8A8696;margin:0 0 4px 0;">匹配度</p><p style="font-size:48px;font-weight:700;color:#9B7FBB;margin:0;">${data.match_score}%</p></div>`;
   if (data.generated_at) html += `<p style="margin-top:40px;font-size:10px;color:#8A8696;">生成于 ${new Date(data.generated_at as string).toLocaleDateString('zh-CN')}</p>`;
   html += `</div>`;
@@ -89,7 +89,7 @@ export default function AdminPage() {
   const [generating, setGenerating] = useState<Set<number>>(new Set());
   const [log, setLog] = useState<string[]>([]);
   const [exportingPDF, setExportingPDF] = useState<Set<number>>(new Set());
-  const [viewReport, setViewReport] = useState<{ id: number; data: FullReport; userNickname?: string } | null>(null);
+  const [viewReport, setViewReport] = useState<{ id: number; data: FullReport; userNickname?: string; userId?: number } | null>(null);
   const [pdfExportData, setPdfExportData] = useState<{ report: FullReport; filename: string; userNickname?: string } | null>(null);
   const pdfExportRef = useRef<HTMLDivElement>(null);
   const [viewComparison, setViewComparison] = useState<any | null>(null);
@@ -249,7 +249,7 @@ export default function AdminPage() {
       });
       const json = await res.json();
       if (json.code === 0 && json.data?.full_report) {
-        setViewReport({ id: reportId, data: json.data.full_report as FullReport, ...(userNickname ? { userNickname } : {}) });
+        setViewReport({ id: reportId, data: json.data.full_report as FullReport, ...(userNickname ? { userNickname } : {}), userId: json.data.user_id });
       } else {
         addLog(`报告 #${reportId} 暂无完整内容`);
       }
@@ -531,7 +531,7 @@ export default function AdminPage() {
               关闭
             </button>
             <div className="clear-both px-4 pb-4">
-              <ReportPageViewer report={viewReport.data} {...(viewReport.userNickname ? { userInfo: { nickname: viewReport.userNickname } } : {})} />
+              <ReportPageViewer report={viewReport.data} reportUserId={viewReport.userId ?? null} {...(viewReport.userNickname ? { userInfo: { nickname: viewReport.userNickname } } : {})} />
             </div>
           </div>
         </div>

@@ -221,11 +221,11 @@ export default function LandingPage() {
                   <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#9B7FBB]/8 text-sm text-[#9B7FBB]">✦</div>
                   <div className="flex-1">
                     <p className="text-xs font-medium text-[#9B7FBB]">邀请好友对比人格</p>
-                    <p className="mt-0.5 text-[11px] text-[#6B6778]">你的邀请码：<span className="font-mono text-xs font-semibold text-[#1F1D2B]">u_{effectiveUserId}</span></p>
+                    <p className="mt-0.5 text-[11px] text-[#6B6778]">邀请码：<span className="font-mono text-xs font-semibold text-[#1F1D2B]">U_{effectiveUserId}</span></p>
                   </div>
                   <button
                     onClick={() => {
-                      navigator.clipboard.writeText(`u_${effectiveUserId}`);
+                      navigator.clipboard.writeText(`U_${effectiveUserId}`);
                       trackEvent(EVENTS.SUMMARY_SHARED);
                     }}
                     className="rounded-md border border-[#9B7FBB]/25 bg-[#9B7FBB]/8 px-3 py-1.5 text-xs font-medium text-[#9B7FBB] transition-colors hover:bg-[#9B7FBB]/15 active:scale-[0.97]"
