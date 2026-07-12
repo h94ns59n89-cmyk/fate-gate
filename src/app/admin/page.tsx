@@ -90,7 +90,7 @@ export default function AdminPage() {
   const [log, setLog] = useState<string[]>([]);
   const [exportingPDF, setExportingPDF] = useState<Set<number>>(new Set());
   const [viewReport, setViewReport] = useState<{ id: number; data: FullReport; userNickname?: string; userId?: number } | null>(null);
-  const [pdfExportData, setPdfExportData] = useState<{ report: FullReport; filename: string; userNickname?: string } | null>(null);
+  const [pdfExportData, setPdfExportData] = useState<{ report: FullReport; filename: string; userId?: number } | null>(null);
   const pdfExportRef = useRef<HTMLDivElement>(null);
   const [viewComparison, setViewComparison] = useState<any | null>(null);
   const [tab, setTab] = useState<'pending' | 'completed' | 'log'>('pending');
@@ -319,7 +319,7 @@ export default function AdminPage() {
           return;
         }
         filename = `星隅完整报告_#${reportId}.pdf`;
-        setPdfExportData({ report: json.data.full_report as FullReport, filename, ...(userNickname ? { userNickname } : {}) });
+        setPdfExportData({ report: json.data.full_report as FullReport, filename, userId: json.data.user_id });
       }
     } catch (err) {
       addLog(`❌ PDF #${reportId} 导出失败: ${err instanceof Error ? err.message : '未知错误'}`);
@@ -518,7 +518,7 @@ export default function AdminPage() {
 
       {/* Hidden PDF export renderer */}
       <div ref={pdfExportRef} style={{ position: 'absolute', left: '-9999px', top: 0, width: '800px', background: '#FFFFFF' }}>
-        {pdfExportData && <ReportPageViewer report={pdfExportData.report} variant="pdf" {...(pdfExportData.userNickname ? { userInfo: { nickname: pdfExportData.userNickname } } : {})} />}
+        {pdfExportData && <ReportPageViewer report={pdfExportData.report} variant="pdf" reportUserId={pdfExportData.userId ?? null} />}
       </div>
 
       {viewReport && (
@@ -531,7 +531,7 @@ export default function AdminPage() {
               关闭
             </button>
             <div className="clear-both px-4 pb-4">
-              <ReportPageViewer report={viewReport.data} reportUserId={viewReport.userId ?? null} {...(viewReport.userNickname ? { userInfo: { nickname: viewReport.userNickname } } : {})} />
+              <ReportPageViewer report={viewReport.data} reportUserId={viewReport.userId ?? null} />
             </div>
           </div>
         </div>
