@@ -104,7 +104,7 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-function CoverPage({ data, userInfo, inviteCode }: { data: Record<string, unknown>; userInfo?: UserInfo; inviteCode?: string | null }) {
+function CoverPage({ data, userInfo, inviteCode, userId }: { data: Record<string, unknown>; userInfo?: UserInfo; inviteCode?: string | null; userId?: number | null }) {
   return (
     <div className="flex h-full flex-col items-center justify-center text-center">
       <div className="absolute left-8 top-12">
@@ -135,9 +135,11 @@ function CoverPage({ data, userInfo, inviteCode }: { data: Record<string, unknow
         {data.subtitle as string}
       </p>
 
-      {userInfo?.nickname && (
+      {userInfo?.nickname ? (
         <p className="mt-3 text-xs text-[#8A8696]">{userInfo.nickname}</p>
-      )}
+      ) : userId != null ? (
+        <p className="mt-3 text-xs text-[#8A8696]">游客_{userId}</p>
+      ) : null}
 
       {inviteCode && (
         <p className="mt-1 text-[11px] text-[#9B7FBB]">
@@ -662,7 +664,7 @@ export function ReportPageViewer({ report, onShare, variant = 'viewer', userInfo
               )}
               <div className="min-h-0 pt-4">
                 {page.key === 'cover'
-                  ? <CoverPage data={data} {...(userInfo ? { userInfo } : {})} inviteCode={null} />
+                  ? <CoverPage data={data} {...(userInfo ? { userInfo } : {})} inviteCode={null} userId={reportUserId ?? null} />
                   : PAGE_RENDERERS[page.key]?.(data) ?? null}
               </div>
             </div>
@@ -721,7 +723,7 @@ export function ReportPageViewer({ report, onShare, variant = 'viewer', userInfo
               )}
               <div className="flex-1 overflow-y-auto min-h-0">
                 {page.key === 'cover'
-                  ? <CoverPage data={data} {...(userInfo ? { userInfo } : {})} inviteCode={inviteCode} />
+                  ? <CoverPage data={data} {...(userInfo ? { userInfo } : {})} inviteCode={inviteCode} userId={reportUserId ?? null} />
                   : PAGE_RENDERERS[page.key]?.(data) ?? null}
               </div>
             </div>
