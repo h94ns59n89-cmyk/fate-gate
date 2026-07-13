@@ -50,7 +50,7 @@ function DotProgress({ total, current, onJump }: { total: number; current: numbe
 function GoldBadge({ children }: { children: React.ReactNode }) {
   return (
     <span className="inline-block text-center leading-none rounded-[3px] border border-[#9B7FBB]/25 bg-[#9B7FBB]/8 px-3 py-1 text-xs font-medium text-[#9B7FBB]">
-      <span className="leading-none">{children}</span>
+      {children}
     </span>
   );
 }
@@ -59,13 +59,13 @@ function TagPill({ children, variant = 'default' }: { children: React.ReactNode;
   if (variant === 'outline') {
     return (
       <span className="inline-block text-center leading-none rounded-full border border-[rgba(0,0,0,0.08)] px-3 py-1 text-xs text-[#6B6778]">
-        <span className="leading-none">{children}</span>
+        {children}
       </span>
     );
   }
   return (
     <span className="inline-block text-center leading-none rounded-full bg-[#9B7FBB]/8 px-3 py-1 text-xs font-medium text-[#9B7FBB]">
-      <span className="leading-none">{children}</span>
+      {children}
     </span>
   );
 }
@@ -99,7 +99,7 @@ function StatusBadge({ status }: { status: string }) {
   const colorClass = colors[status] ?? 'text-[#6B6778] border-[rgba(0,0,0,0.08)] bg-[#F8F8FA]';
   return (
     <span className={`inline-block text-center leading-none rounded-full border px-2.5 py-1 text-xs font-medium ${colorClass}`}>
-      <span className="leading-none">{status}</span>
+      {status}
     </span>
   );
 }
@@ -170,7 +170,7 @@ function PersonalityPage({ data }: { data: Record<string, unknown> }) {
     <div className="space-y-6">
       <div className="text-center">
         <span className="inline-block text-center leading-none rounded-full border border-[#9B7FBB]/20 bg-[#9B7FBB]/8 px-4 py-1 text-xs font-medium tracking-wide text-[#9B7FBB]">
-          <span className="leading-none">{data.type as string}</span>
+          {data.type as string}
         </span>
         <p className="mt-2 text-sm text-[#6B6778]">{data.five_elements as string}</p>
       </div>
@@ -354,7 +354,7 @@ function CurrentYearPage({ data }: { data: Record<string, unknown> }) {
             <p className="mb-2 text-[10px] font-semibold tracking-wide text-[#6B6778]">幸运领域</p>
             <div className="flex flex-wrap gap-2">
               {lucky.map((a, i) => (
-                <span key={i} className="inline-block text-center leading-none rounded-full border border-[#9B7FBB]/20 bg-[#9B7FBB]/5 px-2.5 py-1 text-[11px] text-[#9B7FBB]"><span className="leading-none">{a}</span></span>
+                <span key={i} className="inline-block text-center leading-none rounded-full border border-[#9B7FBB]/20 bg-[#9B7FBB]/5 px-2.5 py-1 text-[11px] text-[#9B7FBB]">{a}</span>
               ))}
             </div>
           </div>
@@ -449,7 +449,7 @@ function CurrentYearPage({ data }: { data: Record<string, unknown> }) {
                 <h4 className="text-xs font-semibold text-[#1F1D2B]">{label}</h4>
                 <div className="flex items-center gap-1.5">
                   <span className={`text-base font-bold ${scoreColor}`}>{score}</span>
-                  {badge && <span className="inline-block text-center leading-none rounded-full border border-[rgba(0,0,0,0.08)] bg-[#F8F8FA] px-2 py-1 text-[9px] text-[#6B6778]"><span className="leading-none">{badge}</span></span>}
+                  {badge && <span className="inline-block text-center leading-none rounded-full border border-[rgba(0,0,0,0.08)] bg-[#F8F8FA] px-2 py-1 text-[9px] text-[#6B6778]">{badge}</span>}
                 </div>
               </div>
               <div className="mb-2 h-1 w-full rounded-full bg-[#F0F0F2]">
@@ -467,7 +467,7 @@ function CurrentYearPage({ data }: { data: Record<string, unknown> }) {
           <p className="mb-2 text-[10px] font-semibold tracking-wide text-[#6B6778]">幸运领域</p>
           <div className="flex flex-wrap gap-2">
             {lucky.map((a, i) => (
-              <span key={i} className="inline-block text-center leading-none rounded-full border border-[#9B7FBB]/20 bg-[#9B7FBB]/5 px-2.5 py-1 text-[11px] text-[#9B7FBB]"><span className="leading-none">{a}</span></span>
+              <span key={i} className="inline-block text-center leading-none rounded-full border border-[#9B7FBB]/20 bg-[#9B7FBB]/5 px-2.5 py-1 text-[11px] text-[#9B7FBB]">{a}</span>
             ))}
           </div>
         </div>
