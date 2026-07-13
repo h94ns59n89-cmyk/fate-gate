@@ -473,13 +473,13 @@ export default function AdminPage() {
                     </div>
                     <div className="flex shrink-0 gap-1.5">
                       <button
-                        onClick={() => r.kind === 'comparison' ? handleViewComparison(r.id) : handleView(r.id, r.user_nickname)}
+                        onClick={() => r.kind === 'comparison' ? handleViewComparison(r.id) : handleView(r.id, r.user_nickname !== '游客' ? r.user_nickname : undefined)}
                         className="rounded-[6px] border border-[rgba(0,0,0,0.1)] px-3 py-1.5 text-xs text-[#6B6778] hover:bg-[#FFFFFF]"
                       >
                         查看
                       </button>
                       <button
-                        onClick={() => handleExportPDF(r.id, r.kind, r.user_nickname)}
+                        onClick={() => handleExportPDF(r.id, r.kind, r.user_nickname !== '游客' ? r.user_nickname : undefined)}
                         disabled={exportingPDF.has(r.id)}
                         className="rounded-[6px] bg-[#C9A88D] px-3 py-1.5 text-xs font-medium text-[#FFFFFF] transition-colors hover:bg-[#B89A7D] disabled:opacity-50"
                       >
