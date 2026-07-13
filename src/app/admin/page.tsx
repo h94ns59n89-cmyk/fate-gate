@@ -89,6 +89,7 @@ export default function AdminPage() {
   const [generating, setGenerating] = useState<Set<number>>(new Set());
   const [log, setLog] = useState<string[]>([]);
   const [exportingPDF, setExportingPDF] = useState<Set<number>>(new Set());
+  const [deleting, setDeleting] = useState<Set<number>>(new Set());
   const [viewReport, setViewReport] = useState<{ id: number; data: FullReport; userNickname?: string; userId?: number } | null>(null);
   const [pdfExportData, setPdfExportData] = useState<{ report: FullReport; filename: string; userNickname?: string; userId?: number } | null>(null);
   const pdfExportRef = useRef<HTMLDivElement>(null);
@@ -343,6 +344,29 @@ export default function AdminPage() {
     }
   };
 
+  const handleDelete = async (reportId: number, userNickname?: string) => {
+    setDeleting((prev) => new Set(prev).add(reportId));
+    addLog(`删除报告 #${reportId}...`);
+    try {
+      const adminAuth = JSON.parse(localStorage.getItem('admin_auth') ?? '{}');
+      const res = await fetch(`/api/v1/reports/${reportId}`, {
+        method: 'DELETE',
+        headers: adminAuth?.token ? { 'Authorization': `Bearer ${adminAuth.token}` } : {},
+      });
+      const json = await res.json();
+      if (json.code === 0) {
+        addLog(`✅ 报告 #${reportId} 已删除`);
+        fetchReports();
+      } else {
+        addLog(`❌ 删除失败: ${json.message || '未知错误'}`);
+      }
+    } catch (err) {
+      addLog(`❌ 删除失败: ${err instanceof Error ? err.message : '未知错误'}`);
+    } finally {
+      setDeleting((prev) => { const next = new Set(prev); next.delete(reportId); return next; });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#F5F4F7]">
       <div className="mx-auto max-w-4xl px-4 py-6">
@@ -484,6 +508,13 @@ export default function AdminPage() {
                         className="rounded-[6px] bg-[#C9A88D] px-3 py-1.5 text-xs font-medium text-[#FFFFFF] transition-colors hover:bg-[#B89A7D] disabled:opacity-50"
                       >
                         {exportingPDF.has(r.id) ? '导出中...' : '导出PDF'}
+                      </button>
+                      <button
+                        onClick={() => { if (window.confirm(`确定删除报告 #${r.id}？删除后不可恢复。`)) handleDelete(r.id, r.user_nickname); }}
+                        disabled={deleting.has(r.id)}
+                        className="rounded-[6px] border border-[#E05A5A]/40 px-3 py-1.5 text-xs font-medium text-[#E05A5A] transition-colors hover:bg-[#E05A5A]/10 disabled:opacity-50"
+                      >
+                        {deleting.has(r.id) ? '删除中...' : '删除'}
                       </button>
                     </div>
                   </div>

@@ -54,26 +54,31 @@ function formatReport(report: { id: number | bigint; userId: number | bigint; re
 }
 
 export const DELETE = withMiddleware(async (req, { params }) => {
-  const auth = await requireAuth(req);
-  if (auth instanceof NextResponse) return auth;
-
   const id = parseInt(params.id ?? '0', 10);
   if (!id) return notFound('报告不存在');
 
-  const userId = Number(auth.userId);
+  const adminToken = extractAdminToken(req);
+  const isAdmin = adminToken && checkAdminToken(adminToken);
+
+  if (!isAdmin) {
+    const auth = await requireAuth(req);
+    if (auth instanceof NextResponse) return auth;
+
+    try {
+      const report = await prisma.personalityReport.findFirst({
+        where: { id: Number(id), userId: Number(auth.userId), deletedAt: null },
+      });
+      if (!report) return notFound('报告不存在');
+    } catch {
+      return notFound('报告不存在');
+    }
+  }
 
   try {
-    const report = await prisma.personalityReport.findFirst({
-      where: { id: Number(id), userId, deletedAt: null },
-    });
-
-    if (!report) return notFound('报告不存在');
-
     await prisma.personalityReport.update({
       where: { id: Number(id) },
       data: { deletedAt: new Date() },
     });
-
     return success({ id: Number(id) });
   } catch {
     return notFound('报告不存在');
