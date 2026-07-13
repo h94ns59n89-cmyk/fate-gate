@@ -5,10 +5,15 @@ import { Button } from '@/components/common/Button';
 import { Sparkles, Plus, Minus } from 'lucide-react';
 import type { FullReport } from '@/lib/types';
 
+interface UserInfo {
+  nickname?: string;
+}
+
 interface ReportPageViewerProps {
   report: FullReport;
   onShare?: () => void;
   variant?: 'viewer' | 'pdf';
+  userInfo?: UserInfo;
   reportUserId?: number | null;
 }
 
@@ -99,7 +104,7 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-function CoverPage({ data, inviteCode, userId }: { data: Record<string, unknown>; inviteCode?: string | null; userId?: number | null }) {
+function CoverPage({ data, userInfo, inviteCode }: { data: Record<string, unknown>; userInfo?: UserInfo; inviteCode?: string | null }) {
   return (
     <div className="flex h-full flex-col items-center justify-center text-center">
       <div className="absolute left-8 top-12">
@@ -130,8 +135,8 @@ function CoverPage({ data, inviteCode, userId }: { data: Record<string, unknown>
         {data.subtitle as string}
       </p>
 
-      {userId != null && (
-        <p className="mt-3 text-xs text-[#8A8696]">游客_{userId}</p>
+      {userInfo?.nickname && (
+        <p className="mt-3 text-xs text-[#8A8696]">{userInfo.nickname}</p>
       )}
 
       {inviteCode && (
@@ -622,7 +627,7 @@ const PAGE_RENDERERS: Record<string, (data: Record<string, unknown>) => React.Re
   footer: (d) => <FooterPage data={d} />,
 };
 
-export function ReportPageViewer({ report, onShare, variant = 'viewer', reportUserId }: ReportPageViewerProps) {
+export function ReportPageViewer({ report, onShare, variant = 'viewer', userInfo, reportUserId }: ReportPageViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentPage, setCurrentPage] = useState(0);
 
@@ -657,7 +662,7 @@ export function ReportPageViewer({ report, onShare, variant = 'viewer', reportUs
               )}
               <div className="min-h-0 pt-4">
                 {page.key === 'cover'
-                  ? <CoverPage data={data} inviteCode={null} userId={reportUserId ?? null} />
+                  ? <CoverPage data={data} {...(userInfo ? { userInfo } : {})} inviteCode={null} />
                   : PAGE_RENDERERS[page.key]?.(data) ?? null}
               </div>
             </div>
@@ -716,7 +721,7 @@ export function ReportPageViewer({ report, onShare, variant = 'viewer', reportUs
               )}
               <div className="flex-1 overflow-y-auto min-h-0">
                 {page.key === 'cover'
-                  ? <CoverPage data={data} inviteCode={inviteCode} userId={reportUserId ?? null} />
+                  ? <CoverPage data={data} {...(userInfo ? { userInfo } : {})} inviteCode={inviteCode} />
                   : PAGE_RENDERERS[page.key]?.(data) ?? null}
               </div>
             </div>
