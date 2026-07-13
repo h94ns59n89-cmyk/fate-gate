@@ -243,6 +243,26 @@ export default function MinePage() {
                       >
                         查看完整报告
                       </button>
+                      <button
+                        onClick={async () => {
+                          if (!window.confirm('确定删除这份报告？删除后不可恢复。')) return;
+                          const state = useUserStore.getState();
+                          const res = await fetch(`/api/v1/reports/${report.id}`, {
+                            method: 'DELETE',
+                            headers: { 'Authorization': `Bearer ${state.token}` },
+                          });
+                          const json = await res.json();
+                          if (json.code === 0) {
+                            toast.success('报告已删除');
+                            fetchReports();
+                          } else {
+                            toast.error(json.message || '删除失败');
+                          }
+                        }}
+                        className="mt-2 w-full rounded-[8px] border border-[#E05A5A]/20 bg-[#E05A5A]/6 py-2 text-xs font-medium text-[#E05A5A] transition-colors hover:bg-[#E05A5A]/15"
+                      >
+                        删除报告
+                      </button>
                     </div>
                   )}
               </div>
