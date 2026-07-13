@@ -344,7 +344,7 @@ export default function AdminPage() {
     }
   };
 
-  const handleDelete = async (reportId: number, userNickname?: string) => {
+  const handleDelete = async (reportId: number) => {
     setDeleting((prev) => new Set(prev).add(reportId));
     addLog(`删除报告 #${reportId}...`);
     try {
@@ -356,7 +356,11 @@ export default function AdminPage() {
       const json = await res.json();
       if (json.code === 0) {
         addLog(`✅ 报告 #${reportId} 已删除`);
-        fetchReports();
+        setData((prev) => prev ? {
+          ...prev,
+          pending: prev.pending.filter((r) => r.id !== reportId),
+          completed: prev.completed.filter((r) => r.id !== reportId),
+        } : prev);
       } else {
         addLog(`❌ 删除失败: ${json.message || '未知错误'}`);
       }
@@ -510,7 +514,7 @@ export default function AdminPage() {
                         {exportingPDF.has(r.id) ? '导出中...' : '导出PDF'}
                       </button>
                       <button
-                        onClick={() => { if (window.confirm(`确定删除报告 #${r.id}？删除后不可恢复。`)) handleDelete(r.id, r.user_nickname); }}
+                        onClick={() => { if (window.confirm(`确定删除报告 #${r.id}？删除后不可恢复。`)) handleDelete(r.id); }}
                         disabled={deleting.has(r.id)}
                         className="rounded-[6px] border border-[#E05A5A]/40 px-3 py-1.5 text-xs font-medium text-[#E05A5A] transition-colors hover:bg-[#E05A5A]/10 disabled:opacity-50"
                       >
